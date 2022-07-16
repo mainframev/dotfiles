@@ -113,3 +113,7 @@ let g:blamer_enabled = 1
 let g:blamer_delay = 500
 let g:blamer_date_format = '%d/%m/%y'
 
+" Globals
+let g:loaded_perl_provider = 0
+let g:loaded_ruby_provider = 0
+
