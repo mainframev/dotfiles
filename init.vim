@@ -91,7 +91,7 @@ endif
 "}}}
 "
 
-" fzf 
+" fzf
 let $FZF_DEFAULT_COMMAND = 'ag -g ""'
 
 " theming
@@ -104,4 +104,12 @@ colorscheme dracula " Dracula theme
 let g:dracula_colorterm = 0
 let g:dracula_italic = 1
 
+" Markdown
+let g:mkdp_theme = 'light'
+let g:mkdp_auto_start = 1
+
+" Git
+let g:blamer_enabled = 1 
+let g:blamer_delay = 500
+let g:blamer_date_format = '%d/%m/%y'
 

@@ -14,3 +14,6 @@ let g:fzf_action = {
   \ 'ctrl-v': 'vsplit'
   \}
 
+" Markdown preview
+nnoremap <M-m> :MarkdownPreview<CR>
+

@@ -35,8 +35,13 @@ Plug 'groenewege/vim-less', { 'for': 'less' }
 Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
 Plug 'editorconfig/editorconfig-vim'
 Plug 'jxnblk/vim-mdx-js'
+Plug 'pwntester/octo.nvim'
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+Plug 'godlygeek/tabular'
+" JSON front matter highlight plugin
+Plug 'elzr/vim-json'
+Plug 'plasticboy/vim-markdown'
 
-" tppop plugins 
 " tpope plugins
 Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-unimpaired' " helpful shorthand like [b ]b
@@ -47,8 +52,7 @@ Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-fugitive'
 
-" frontend plugins 
-" Frontend plugins  
+" frontend plugins  
 Plug 'pangloss/vim-javascript'
 Plug 'leafgarland/typescript-vim'
 Plug 'peitalin/vim-jsx-typescript'
@@ -61,6 +65,7 @@ Plug 'jose-elias-alvarez/null-ls.nvim'
 Plug 'jose-elias-alvarez/nvim-lsp-ts-utils'
 
 Plug 'lewis6991/gitsigns.nvim'
+Plug 'APZelos/blamer.nvim'
 Plug 'karb94/neoscroll.nvim'
 Plug 'vimwiki/vimwiki', { 'on': ['VimwikiIndex'] }
 Plug 'norcalli/nvim-colorizer.lua', { 'branch': 'color-editor' }
