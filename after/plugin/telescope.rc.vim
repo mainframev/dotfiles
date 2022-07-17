@@ -7,6 +7,7 @@ nnoremap <silent> ;t <cmd>lua require('telescope.builtin').help_tags()<cr>
 nnoremap <silent> ;; <cmd>lua require('telescope.builtin').resume()<cr>
 nnoremap <silent> ;e <cmd>lua require('telescope.builtin').diagnostics()<cr>
 
+
 lua << EOF
 function telescope_buffer_dir()
   return vim.fn.expand('%:p:h')
@@ -17,12 +18,20 @@ local actions = require('telescope.actions')
 
 telescope.setup{
   defaults = {
+    layout_config = {
+      vertical = { width = 0.5 }
+    },
     mappings = {
       n = {
         ["q"] = actions.close
       },
     },
-  }
+  },
+  pickers = {
+    find_files = {
+      theme = 'dropdown', 
+    }
+  },
 }
 EOF
 

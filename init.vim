@@ -91,9 +91,6 @@ endif
 "}}}
 "
 
-" fzf
-let $FZF_DEFAULT_COMMAND = 'ag -g ""'
-
 " theming
 " Enable theming support
 if (has("termguicolors"))
