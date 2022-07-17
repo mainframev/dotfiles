@@ -37,7 +37,7 @@ local on_attach = function(client, bufnr)
   end
 
   --protocol.SymbolKind = { }
-  protocol.CompletionItemKind = {
+  protocol.CompletionItemKind ={
     '', -- Text
     '', -- Method
     '', -- Function
@@ -86,7 +86,19 @@ nvim_lsp.tsserver.setup {
 
 nvim_lsp.diagnosticls.setup {
   on_attach = on_attach,
-  filetypes = { 'javascript', 'javascriptreact', 'json', 'typescript', 'typescriptreact', 'css', 'less', 'scss', 'pandoc' },
+  filetypes = { 
+    'javascript', 
+    'javascript.jsx', 
+    'typescript.tsx', 
+    'javascriptreact', 
+    'json', 
+    'typescript', 
+    'typescriptreact',
+    'css', 
+    'less', 
+    'scss', 
+    'pandoc'
+  },
   init_options = {
     linters = {
       eslint = {
