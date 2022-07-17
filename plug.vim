@@ -21,6 +21,7 @@ if has("nvim")
   Plug 'kyazdani42/nvim-web-devicons'
   Plug 'onsails/lspkind-nvim'
   Plug 'nvim-lua/popup.nvim'
+  Plug 'jose-elias-alvarez/nvim-lsp-ts-utils'
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim'
   Plug 'windwp/nvim-autopairs'
@@ -29,9 +30,6 @@ if has("nvim")
 endif
 
 Plug 'github/copilot.vim'
-Plug 'groenewege/vim-less', { 'for': 'less' }
-Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
-Plug 'editorconfig/editorconfig-vim'
 Plug 'jxnblk/vim-mdx-js'
 Plug 'pwntester/octo.nvim'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
@@ -60,7 +58,6 @@ Plug 'prettier/vim-prettier', {
             \ 'scss', 'sql', 'viml', 'yaml', 'markdown', 'graphql', 'typescriptgraphql']}
 Plug 'maxmellon/vim-jsx-pretty' 
 Plug 'jose-elias-alvarez/null-ls.nvim'
-Plug 'jose-elias-alvarez/nvim-lsp-ts-utils'
 
 Plug 'lewis6991/gitsigns.nvim'
 Plug 'APZelos/blamer.nvim'
@@ -80,7 +77,7 @@ Plug 'GustavoKatel/sidebar.nvim'
 Plug 'folke/zen-mode.nvim'
 Plug 'junegunn/limelight.vim'
 Plug 'gelguy/wilder.nvim', { 'do': ':UpdateRemotePlugins' }
-" Plug 'folke/which-key.nvim'
+Plug 'folke/which-key.nvim'
 Plug 'stevearc/dressing.nvim'
 
 Plug 'vim-pandoc/vim-pandoc'

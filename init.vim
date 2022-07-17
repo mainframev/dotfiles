@@ -2,7 +2,6 @@
 autocmd!
 scriptencoding utf-8
 
-
 set clipboard=unnamedplus " Enables the clipboard between Vim/Neovim and other applications.
 set completeopt=noinsert,menuone,noselect " Modifies the auto-complete menu to behave more like an IDE.
 set cursorline " Highlights the current line in the editor
@@ -14,10 +13,9 @@ set splitbelow splitright " Change the split screen behavior
 set wildignore+=*/node_modules/**
 set title " Show file title
 set wildmenu " Show a more advance menu
-set cc=120 " Show at 80 column a border for good code style
+set cc=120 " Show at 120 column a border for good code style
 filetype plugin indent on   " Allow auto-indenting depending on file type
 syntax on
-set spell " enable spell check (may need to download language package)
 set ttyfast " Speed up scrolling in Vim
 set fileformat=unix " Use Unix line endings
 set expandtab " Enable tabulation
@@ -109,8 +107,4 @@ let g:mkdp_auto_start = 1
 let g:blamer_enabled = 1 
 let g:blamer_delay = 500
 let g:blamer_date_format = '%d/%m/%y'
-
-" Globals
-let g:loaded_perl_provider = 0
-let g:loaded_ruby_provider = 0
 
