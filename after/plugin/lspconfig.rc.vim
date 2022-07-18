@@ -78,6 +78,27 @@ nvim_lsp.flow.setup {
   capabilities = capabilities
 }
 
+nvim_lsp.grammarly.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  file_types = { "markdown", "mdx" }
+}
+
+nvim_lsp.graphql.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  file_types = { 
+  "graphql", 
+  "typescript.tsx", 
+  "typescriptreact", 
+  "typescript", 
+  "javascript", 
+  "javascriptreact", 
+  "javascript.jsx", 
+  "javascript" 
+  }
+}
+
 nvim_lsp.tsserver.setup {
   on_attach = on_attach,
   filetypes = { "typescript", "typescriptreact", "typescript.tsx" },

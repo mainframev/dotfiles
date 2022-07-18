@@ -3,6 +3,9 @@ nmap te :tabedit
 nmap <S-Tab> :tabprev<Return>
 nmap <Tab> :tabnext<Return>
 
+" Save 
+nnoremap <c-s> :w<cr>
+
 " Select all
 nmap <C-a> gg<S-v>G
 
