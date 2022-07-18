@@ -20,3 +20,8 @@ let g:fzf_action = {
 " Markdown preview
 nnoremap <M-m> :MarkdownPreview<CR>
 
+" Tree
+nnoremap <C-n> :NvimTreeToggle<CR>
+nnoremap <C-m> :NvimTreeFocus<CR>
+
+

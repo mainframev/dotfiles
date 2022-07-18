@@ -82,6 +82,7 @@ Plug 'gelguy/wilder.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'folke/which-key.nvim'
 Plug 'stevearc/dressing.nvim'
 
+Plug 'akinsho/toggleterm.nvim', {'tag' : 'v2.*'}
 Plug 'vim-pandoc/vim-pandoc'
 Plug 'vim-pandoc/vim-pandoc-syntax'
 

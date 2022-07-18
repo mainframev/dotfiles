@@ -5,5 +5,5 @@ require("nvim-tree").setup({
   prefer_startup_root = true,
   sync_root_with_cwd = true,
   open_on_setup = true,
-  open_on_tab = true,
+  open_on_tab = true
 })
