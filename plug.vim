@@ -15,6 +15,7 @@ if has("nvim")
   Plug 'creativenull/diagnosticls-configs-nvim'
   Plug 'L3MON4D3/LuaSnip'
   Plug 'hrsh7th/cmp-nvim-lsp'
+  Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
   Plug 'hrsh7th/cmp-buffer'
   Plug 'hrsh7th/nvim-cmp'
   Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
