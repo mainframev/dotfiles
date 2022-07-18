@@ -1,7 +1,11 @@
 require("toggleterm").setup({
   size = 20,
   open_mapping = [[<C-t>]],
+<<<<<<< HEAD
   direction = 'horizontal',
+=======
+  direction = 'float',
+>>>>>>> c16db53 (feat: add maps for tree and toggleterm)
   close_on_exit = true
 })
 
