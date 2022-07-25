@@ -73,6 +73,7 @@ Plug 'dstein64/vim-startuptime'
 Plug 'akinsho/nvim-bufferline.lua'
 Plug 'miyakogi/conoline.vim'
 Plug 'yamatsum/nvim-cursorline'
+Plug 'glepnir/dashboard-nvim'
 Plug 'mattn/emmet-vim'
 Plug 'GustavoKatel/sidebar.nvim'
 
