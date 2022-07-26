@@ -16,6 +16,10 @@ end
 local telescope = require('telescope')
 local actions = require('telescope.actions')
 
+telescope.load_extension('bookmarks')
+telescope.load_extension('repo')
+telescope.load_extension('media_files')
+
 telescope.setup{
   defaults = {
     layout_config = {
