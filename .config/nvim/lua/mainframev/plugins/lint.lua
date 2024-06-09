@@ -11,7 +11,6 @@ return {
       typescriptreact = { "eslint_d" },
       svelte = { "eslint_d" },
       python = { "pylint" },
-      markdown = { "makrdownlint" },
       lua = { "luacheck" },
     }
 
