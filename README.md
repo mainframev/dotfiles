@@ -9,5 +9,3 @@ What I currently use:
 - [Yazi](https://github.com/sxyazi/yazi)
 - [Zsh](https://www.zsh.org/) with [Oh-my-zsh](https://github.com/ohmyzsh/ohmyzsh)
 - [Zoxide](https://github.com/ajeetdsouza/zoxide)
-
-[Kanagawa theme](https://github.com/rebelot/kanagawa.nvim?tab=readme-ov-file#extras) for Alacritty, Neovim and Tmux.
