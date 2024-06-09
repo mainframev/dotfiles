@@ -15,5 +15,7 @@
 
 !/.zshenv
 !/.zshrc
+!/.config/install/
+# !/.config/install/brew.sh
 
 !README.md
