@@ -1,3 +1,5 @@
+local lsp_util = require("lspconfig/util")
+
 local M = {}
 
 local on_attach = function(client, bufnr)
@@ -37,6 +39,7 @@ M.settings = {
   workingDirectory = {
     mode = "location",
   },
+  -- root_dir = lsp_util.find_git_ancestor,
 }
 
 return M

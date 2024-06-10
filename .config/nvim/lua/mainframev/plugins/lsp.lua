@@ -69,39 +69,7 @@ return {
 
     -- used to enable autocompletion (assign to every lsp server config)
     local capabilities = cmp_nvim_lsp.default_capabilities()
-
-    -- Change the Diagnostic symbols in the sign column (gutter)
-    local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-    for type, icon in pairs(signs) do
-      local hl = "DiagnosticSign" .. type
-      vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-    end
-
-    local function on_attach(client)
-      if client.server_capabilities.documentHighlightProvider then
-        local document_highlight_autocmd_group = api.nvim_create_augroup("DocumentHighlight", { clear = true })
-
-        api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-          group = document_highlight_autocmd_group,
-          buffer = 0,
-          callback = function()
-            if client.server_capabilities.documentHighlightProvider then
-              lsp.buf.document_highlight()
-            end
-          end,
-        })
-
-        api.nvim_create_autocmd("CursorMoved", {
-          group = document_highlight_autocmd_group,
-          buffer = 0,
-          callback = function()
-            if client.server_capabilities.documentHighlightProvider then
-              lsp.buf.clear_references()
-            end
-          end,
-        })
-      end
-    end
+    local on_attach = require("mainframev.plugins.configs.lsp.attach").global_on_attach
 
     local handlers = {
       ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
@@ -122,7 +90,7 @@ return {
         -- configure svelte server
         lspconfig["svelte"].setup({
           capabilities = capabilities,
-          on_attach = function(client, bufnr)
+          on_attach = function(client)
             vim.api.nvim_create_autocmd("BufWritePost", {
               pattern = { "*.js", "*.ts" },
               callback = function(ctx)
@@ -197,28 +165,29 @@ return {
         })
       end,
       ["tsserver"] = function()
-        lspconfig.tsserver.setup({
-          on_attach = function(client)
-            client.server_capabilities.documentFormattingProvider = false
-            client.server_capabilities.documentRangeFormattingProvider = false
-            on_attach(client)
-          end,
-          capabilities = capabilities,
-          settings = {
-            typescript = {
-              inlayHints = {
-                includeInlayParameterNameHints = "all",
-                includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-                includeInlayFunctionParameterTypeHints = true,
-                includeInlayVariableTypeHints = true,
-                includeInlayVariableTypeHintsWhenTypeMatchesName = true,
-                includeInlayPropertyDeclarationTypeHints = true,
-                includeInlayFunctionLikeReturnTypeHints = true,
-                includeInlayEnumMemberValueHints = true,
-              },
-            },
-          },
-        })
+        -- skipping in favor of  typescript-tools.nvim
+        -- lspconfig.tsserver.setup({
+        --   on_attach = function(client)
+        --     client.server_capabilities.documentFormattingProvider = false
+        --     client.server_capabilities.documentRangeFormattingProvider = false
+        --     -- on_attach(client)
+        --   end,
+        --   capabilities = capabilities,
+        --   settings = {
+        --     typescript = {
+        --       inlayHints = {
+        --         includeInlayParameterNameHints = "all",
+        --         includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+        --         includeInlayFunctionParameterTypeHints = true,
+        --         includeInlayVariableTypeHints = true,
+        --         includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+        --         includeInlayPropertyDeclarationTypeHints = true,
+        --         includeInlayFunctionLikeReturnTypeHints = true,
+        --         includeInlayEnumMemberValueHints = true,
+        --       },
+        --     },
+        --   },
+        -- })
       end,
       ["eslint"] = function()
         lspconfig.eslint.setup({
