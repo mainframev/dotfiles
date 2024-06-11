@@ -29,6 +29,7 @@ brew install eza
 brew install nowplaying-cli
 brew install stow
 brew install rust
+brew install ripgrep
 
 sleep 1
 
