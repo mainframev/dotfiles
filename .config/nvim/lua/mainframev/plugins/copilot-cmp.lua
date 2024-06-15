@@ -1,8 +1,7 @@
 return {
-  {
-    "zbirenbaum/copilot-cmp",
-    conprompt_bufnrfig = function()
-      require("copilot_cmp").setup()
-    end,
-  },
+  "zbirenbaum/copilot-cmp",
+  event = { "InsertEnter", "LspAttach" },
+  config = function()
+    require("copilot_cmp").setup()
+  end,
 }

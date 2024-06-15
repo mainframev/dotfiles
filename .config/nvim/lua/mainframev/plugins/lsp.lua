@@ -19,6 +19,8 @@ return {
 
       local keymap = vim.keymap -- for conciseness
 
+      vim.o.updatetime = 300 -- set faster update time
+
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("UserLspConfig", {}),
         callback = function(ev)
@@ -218,9 +220,5 @@ return {
         end,
       })
     end,
-  },
-  {
-    "hinell/lsp-timeout.nvim",
-    dependencies = { "neovim/nvim-lspconfig" },
   },
 }

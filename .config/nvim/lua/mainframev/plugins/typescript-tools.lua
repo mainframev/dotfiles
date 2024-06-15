@@ -10,13 +10,18 @@ return {
       on_attach = require("mainframev.plugins.configs.lsp.attach").global_on_attach,
       settings = {
         separate_diagnostic_server = true,
+        -- minimal hints
         tsserver_file_preferences = {
-          includeInlayParameterNameHints = "all",
-          includeInlayEnumMemberValueHints = true,
-          includeInlayFunctionLikeReturnTypeHints = true,
-          includeInlayFunctionParameterTypeHints = true,
-          includeInlayPropertyDeclarationTypeHints = true,
-          includeInlayVariableTypeHints = true,
+          -- includeInlayParameterNameHints = "all",
+          -- includeInlayEnumMemberValueHints = true,
+          -- includeInlayFunctionLikeReturnTypeHints = true,
+          -- includeInlayFunctionParameterTypeHints = true,
+          -- includeInlayPropertyDeclarationTypeHints = true,
+          -- includeInlayVariableTypeHints = true,
+        },
+        jsx_close_tag = {
+          enable = true,
+          filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
         },
       },
     })
