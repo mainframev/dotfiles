@@ -3,7 +3,9 @@ local icons = require("mainframev.plugins.configs.icons")
 return {
   {
     "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+    },
     event = "VeryLazy",
     init = function()
       vim.g.lualine_laststatus = vim.o.laststatus
@@ -23,6 +25,8 @@ return {
           theme = "tokyonight",
           globalstatus = vim.o.laststatus == 3,
           disabled_filetypes = { statusline = { "dashboard", "alpha", "starter" } },
+          component_separators = { left = "", right = "" },
+          section_separators = { left = "", right = "" },
         },
         sections = {
           lualine_a = { "mode" },
