@@ -30,7 +30,7 @@ multiplier = 3
 
 [window.padding]
 x = 0
-y = 20
+# y = 20
 
 [window.class]
 general = "Alacritty"
