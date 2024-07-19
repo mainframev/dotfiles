@@ -30,6 +30,9 @@ brew install nowplaying-cli
 brew install stow
 brew install rust
 brew install ripgrep
+brew install luarocks
+brew install fd
+brew install wget
 
 sleep 1
 
