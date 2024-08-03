@@ -46,3 +46,4 @@ brew install --cask google-chrome
 brew install --cask imageoptim
 brew install --cask figma
 brew install --cask zoom
+brew install --cask kitty
