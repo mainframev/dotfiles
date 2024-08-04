@@ -33,6 +33,8 @@ brew install ripgrep
 brew install luarocks
 brew install fd
 brew install wget
+brew install koekeishiya/formulae/yabai
+brew install koekeishiya/formulae/skhd
 
 sleep 1
 
