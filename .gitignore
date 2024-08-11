@@ -7,15 +7,14 @@
 
 !/.config/alacritty
 /.config/alacritty/themes/
+!/.config/aerospace
 !/.config/bottom
 !/.config/bat
 !/.config/nvim
 !/.config/kitty
-!/.config/skhd
 !/.config/tmux
 /.config/tmux/plugins/
 !/.config/yazi
-!/.config/yabai
 
 !/.zshenv
 !/.zshrc
