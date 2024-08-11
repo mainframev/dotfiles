@@ -33,8 +33,6 @@ brew install ripgrep
 brew install luarocks
 brew install fd
 brew install wget
-brew install koekeishiya/formulae/yabai
-brew install koekeishiya/formulae/skhd
 
 sleep 1
 
@@ -49,3 +47,4 @@ brew install --cask imageoptim
 brew install --cask figma
 brew install --cask zoom
 brew install --cask kitty
+brew install --cask nikitabobko/tap/aerospace
