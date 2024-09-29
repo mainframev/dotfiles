@@ -82,6 +82,14 @@ return {
         ["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics),
       }
 
+      lspconfig["taplo"].setup({
+        settings = {
+          evenBetterToml = {
+            schema = { catalogs = { "https://taplo.tamasfe.dev/schema_index.json" } },
+          },
+        },
+      })
+
       mason_lspconfig.setup_handlers({
         -- default handler for installed servers
         function(server_name)
