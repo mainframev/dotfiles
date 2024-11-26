@@ -1,0 +1,55 @@
+[include]
+  path = ~/delta.gitconfig
+[user]
+	name = mainframev
+	email = vgenaev@gmail.com
+  color = auto
+[push]
+	default = current
+[core]
+	editor = nvim
+	sparseCheckout = true
+  pager = delta --dark --diff-so-fancy
+[rebase]
+	autosquash = true
+[interactive]
+  diffFilter = delta --color-only
+[github]
+  user = mainframev
+  protocol = https
+[delta]
+  features = mellow-barbet 
+  navigate = true
+[difftool]
+  prompt = false
+[difftool "nvimdiff"]
+  cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
+[difftool "kitty"]
+  cmd = kitty +kitten diff \"$LOCAL\" \"$REMOTE\"
+[difftool "kitty.gui"]
+  cmd = kitty kitty +kitten diff \"$LOCAL\" \"$REMOTE\"
+[difftool "nvim"]
+  cmd = nvim -d \"$LOCAL\" \"$REMOTE\"
+[alias]
+  d = diff
+  ds = diff --staged
+  di = diff
+  dc = diff --cached
+  df = diff
+  fixup = commit --fixup
+  info = !git diff && git remote -v && git status
+  jump = "!$(brew --prefix git)/share/git-core/contrib/git-jump/git-jump"
+[merge]
+  tool = nvimdiff
+  conflictstyle = zdiff3
+[mergetool "nvimdiff"]
+  keepBackup = false
+	cmd = "nvim -d \"$LOCAL\" \"$MERGED\" \"$REMOTE\""
+	trustExitCode = true
+[color]
+	branch = auto
+	diff = auto
+	status = auto
+	interactive = true
+  ui = true
+  pager = true
