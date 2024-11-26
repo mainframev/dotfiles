@@ -11,16 +11,16 @@
 !/.config/bottom
 !/.config/bat
 !/.config/sketchybar/
-!/.config/.hammerspoon/
 !/.config/nvim
 !/.config/kitty
+!/.config/install/
 !/.config/tmux
 /.config/tmux/plugins/
 !/.config/yazi
 
 !/.zshenv
 !/.zshrc
-!/.config/install/
+!/.hammerspoon/
 # !/.config/install/brew.sh
 
 !README.md
