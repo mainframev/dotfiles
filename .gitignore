@@ -10,6 +10,8 @@
 !/.config/aerospace
 !/.config/bottom
 !/.config/bat
+!/.config/sketchybar/
+!/.config/.hammerspoon/
 !/.config/nvim
 !/.config/kitty
 !/.config/tmux
