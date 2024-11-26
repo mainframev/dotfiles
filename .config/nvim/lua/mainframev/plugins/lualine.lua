@@ -5,6 +5,7 @@ return {
     "nvim-lualine/lualine.nvim",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
+      "AndreM222/copilot-lualine",
     },
     event = "VeryLazy",
     init = function()
@@ -45,6 +46,7 @@ return {
           },
           -- lualine_c = {},
           lualine_x = {
+            "copilot",
             "encoding",
             "filetype",
             {
