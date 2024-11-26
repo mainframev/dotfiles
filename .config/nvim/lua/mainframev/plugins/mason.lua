@@ -28,7 +28,7 @@ return {
       automatic_installation = true,
       -- list of servers for mason to install
       ensure_installed = {
-        "tsserver",
+        "ts_ls",
         "jsonls",
         "eslint",
         "typos_lsp",

@@ -10,6 +10,9 @@ return {
     ensure_installed = {
       "diff",
       "html",
+      "gitcommit",
+      "gitignore",
+      "css",
       "javascript",
       "jsdoc",
       "json",

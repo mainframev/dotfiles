@@ -16,7 +16,6 @@ return {
     local transform_mod = require("telescope.actions.mt").transform_mod
     local trouble = require("trouble")
     local trouble_telescope = require("trouble.sources.telescope")
-    local haproon = require("harpoon")
 
     -- or create your custom action
     local custom_actions = transform_mod({
@@ -54,53 +53,8 @@ return {
       },
     })
 
-    --  required harpoon setup
-    local harpoon = require("harpoon")
-    haproon:setup({})
-
-    local conf = require("telescope.config").values
-
-    local function toggle_telescope(harpoon_files)
-      local file_paths = {}
-      for _, item in ipairs(harpoon_files.items) do
-        table.insert(file_paths, item.value)
-      end
-
-      require("telescope.pickers")
-        .new({}, {
-          prompt_title = "Harpoon",
-          finder = require("telescope.finders").new_table({
-            results = file_paths,
-          }),
-          previewer = conf.file_previewer({}),
-          sorter = conf.generic_sorter({}),
-        })
-        :find()
-    end
-
     -- set keymaps
     local keymap = vim.keymap
-
-    keymap.set("n", "<leader>ee", function()
-      toggle_telescope(haproon:list())
-    end, { desc = "󰏧 Harpoon" })
-
-    keymap.set("n", "<leader>sh", "<cmd>Telescope harpoon marks<cr>", { desc = "Show marks" })
-    keymap.set("n", "<leader>hh", function()
-      harpoon:list():add()
-    end, { desc = "Marks file" })
-
-    keymap.set("n", "<C-j>", function()
-      harpoon:list():select(1)
-    end)
-
-    keymap.set("n", "<C-k>", function()
-      harpoon:list():select(2)
-    end)
-
-    keymap.set("n", "<C-l>", function()
-      harpoon:list():select(3)
-    end)
 
     keymap.set("n", "<leader>ff", builtin.find_files, {})
     keymap.set("n", "<leader>fl", builtin.live_grep, {})

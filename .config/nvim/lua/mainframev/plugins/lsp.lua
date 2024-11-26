@@ -175,31 +175,6 @@ return {
             },
           })
         end,
-        ["tsserver"] = function()
-          -- skipping in favor of  typescript-tools.nvim
-          -- lspconfig.tsserver.setup({
-          --   on_attach = function(client)
-          --     client.server_capabilities.documentFormattingProvider = false
-          --     client.server_capabilities.documentRangeFormattingProvider = false
-          --     -- on_attach(client)
-          --   end,
-          --   capabilities = capabilities,
-          --   settings = {
-          --     typescript = {
-          --       inlayHints = {
-          --         includeInlayParameterNameHints = "all",
-          --         includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-          --         includeInlayFunctionParameterTypeHints = true,
-          --         includeInlayVariableTypeHints = true,
-          --         includeInlayVariableTypeHintsWhenTypeMatchesName = true,
-          --         includeInlayPropertyDeclarationTypeHints = true,
-          --         includeInlayFunctionLikeReturnTypeHints = true,
-          --         includeInlayEnumMemberValueHints = true,
-          --       },
-          --     },
-          --   },
-          -- })
-        end,
         ["eslint"] = function()
           lspconfig.eslint.setup({
             capabilities = capabilities,
