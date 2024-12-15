@@ -1,7 +1,7 @@
 [include]
   path = ~/delta.gitconfig
 [user]
-	name = mainframev
+	name = mainframev 
 	email = vgenaev@gmail.com
   color = auto
 [push]
@@ -10,6 +10,7 @@
 	editor = nvim
 	sparseCheckout = true
   pager = delta --dark --diff-so-fancy
+	multiPackIndex = true
 [rebase]
 	autosquash = true
 [interactive]
@@ -53,3 +54,9 @@
 	interactive = true
   ui = true
   pager = true
+
+[includeIf "gitdir:~/work/"]
+  path = ~/.gitconfig-work
+[includeIf "gitdir:~/repos/"]
+  path = ~/.gitconfig-work
+
