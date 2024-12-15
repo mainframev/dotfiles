@@ -8,6 +8,7 @@ brew tap homebrew/cask-versions
 brew tap homebrew/bundle
 brew tap homebrew/services
 brew tap microsoft/git
+brew tap laishulu/homebrew
 
 # Install packages
 brew install htop
@@ -47,6 +48,7 @@ brew install wget
 brew install sketchybar
 brew install zoxide
 brew install jq
+brew install macism
 
 sleep 1
 
