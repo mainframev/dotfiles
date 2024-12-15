@@ -30,7 +30,6 @@ return {
       ensure_installed = {
         "ts_ls",
         "jsonls",
-        "eslint",
         "typos_lsp",
         "html",
         "cssls",
@@ -47,6 +46,7 @@ return {
     mason_tool_installer.setup({
       ensure_installed = {
         "prettier",
+        "prettierd",
         "stylua",
         "isort", -- python formatter
         "black", -- python formatter

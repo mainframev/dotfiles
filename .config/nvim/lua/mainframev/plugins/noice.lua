@@ -10,6 +10,18 @@ return {
         ["cmp.entry.get_documentation"] = true,
       },
     },
+    messages = {
+      enabled = true,
+      view = "mini",
+      view_error = "mini",
+      view_warn = "mini",
+      view_history = "mini",
+      view_search = "mini",
+    },
+    notify = {
+      enabled = true,
+      view = "mini",
+    },
   },
   dependencies = {
     -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries

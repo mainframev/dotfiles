@@ -12,7 +12,6 @@ M.config = function()
   end
 
   spectre.setup({
-
     color_devicons = true,
     highlight = {
       ui = "String",

@@ -72,15 +72,6 @@ return {
 
       -- used to enable autocompletion (assign to every lsp server config)
       local capabilities = cmp_nvim_lsp.default_capabilities()
-      local on_attach = require("mainframev.plugins.configs.lsp.attach").global_on_attach
-
-      local handlers = {
-        ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-          silent = true,
-        }),
-        ["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help),
-        ["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics),
-      }
 
       lspconfig["taplo"].setup({
         settings = {
@@ -112,24 +103,15 @@ return {
             end,
           })
         end,
-        -- css language server
-        ["cssls"] = function()
-          lspconfig.cssls.setup({
-            capabilities = capabilities,
-            handlers = handlers,
-            on_attach = require("mainframev.plugins.configs.lsp.cssls").on_attach,
-            settings = require("mainframev.plugins.configs.lsp.cssls").settings,
-          })
-        end,
-        -- tailwind language server
-        ["tailwindcss"] = function()
-          lspconfig.tailwindcss.setup({
-            capabilities = require("mainframev.plugins.configs.lsp.tailwindcss").capabilities,
-            filetypes = require("mainframev.plugins.configs.lsp.tailwindcss").filetypes,
-            handlers = handlers,
-            init_options = require("mainframev.plugins.configs.lsp.tailwindcss").init_options,
-            on_attach = require("mainframev.plugins.configs.lsp.tailwindcss").on_attach,
-            settings = require("mainframev.plugins.configs.lsp.tailwindcss").settings,
+        ["eslint"] = function()
+          lspconfig.eslint.setup({
+            -- capabilities = capabilities,
+            on_attach = function(_, bufnr)
+              vim.api.nvim_create_autocmd("BufWritePost", {
+                buffer = bufnr,
+                command = "EslintFixAll",
+              })
+            end,
           })
         end,
         ["graphql"] = function()
@@ -150,7 +132,6 @@ return {
         ["typos_lsp"] = function()
           lspconfig.typos_lsp.setup({
             capabilities = capabilities,
-            on_attach = on_attach,
             filetypes = { "markdown", "toml", "yaml", "json" },
             init_options = {
               diagnosticSeverity = "Hint",
@@ -161,7 +142,6 @@ return {
         ["jsonls"] = function()
           lspconfig.jsonls.setup({
             capabilities = capabilities,
-            on_attach = on_attach,
             settings = {
               json = {
                 schemas = require("schemastore").json.schemas({
@@ -175,19 +155,19 @@ return {
             },
           })
         end,
-        ["eslint"] = function()
-          lspconfig.eslint.setup({
-            capabilities = capabilities,
-            handlers = handlers,
-            on_attach = require("mainframev.plugins.configs.lsp.eslint").on_attach,
-            settings = require("mainframev.plugins.configs.lsp.eslint").settings,
+        ["tailwindcss"] = function()
+          lspconfig.tailwindcss.setup({
+            capabilities = require("mainframev.plugins.configs.lsp.tailwindcss").capabilities,
+            filetypes = require("mainframev.plugins.configs.lsp.tailwindcss").filetypes,
+            init_options = require("mainframev.plugins.configs.lsp.tailwindcss").init_options,
+            on_attach = require("mainframev.plugins.configs.lsp.tailwindcss").on_attach,
+            settings = require("mainframev.plugins.configs.lsp.tailwindcss").settings,
           })
         end,
         ["lua_ls"] = function()
           -- configure lua server (with special settings)
           lspconfig["lua_ls"].setup({
             capabilities = capabilities,
-            on_attach = on_attach,
             settings = {
               Lua = {
                 -- make the language server recognize "vim" global
@@ -199,6 +179,20 @@ return {
                 },
               },
             },
+          })
+        end,
+        ["ts_ls"] = function()
+          lspconfig["ts_ls"].setup({
+            filetypes = {
+              "typescript",
+              "typescriptreact",
+              "javascript",
+              "javascriptreact",
+              "javascript.jsx",
+              "typescript.tsx",
+              "vue",
+            },
+            capabilities = capabilities,
           })
         end,
       })
