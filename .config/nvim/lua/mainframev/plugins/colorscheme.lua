@@ -1,3 +1,4 @@
+---@type LazySpec
 return {
   "eldritch-theme/eldritch.nvim",
   config = function()
@@ -28,18 +29,19 @@ return {
       on_highlights = function(hl, _)
         local prompt = colors.green
         local none = "NONE"
-        --
+
         hl.TelescopeTitle = {
           fg = prompt,
         }
-        --
+
         hl.TelescopeNormal = {
-          bg = none,
+          bg = colors.bg_dark,
           fg = colors.fg,
         }
+
         hl.TelescopeBorder = {
-          bg = none,
-          fg = colors.teal,
+          bg = colors.bg_dark,
+          fg = colors.green,
         }
 
         hl.TelescopePreviewTitle = {
@@ -58,7 +60,7 @@ return {
 
         hl.TelescopeResultsNormal = {
           bg = none,
-          fg = "#ffffff",
+          fg = colors.fg,
         }
         --
         hl.TelescopeMatching = {
@@ -75,40 +77,38 @@ return {
 
         hl.TelescopePromptNormal = {
           bg = none,
-          fg = "#ffffff",
+          fg = colors.teal,
         }
 
         hl.TelescopePromptTitle = {
           fg = prompt,
         }
-        --
-        -- hl.MsgArea = {}
       end,
     })
     vim.cmd("colorscheme eldritch")
 
-    vim.api.nvim_set_hl(0, "BufferCurrentSign", { fg = colors.cyan0 })
-    vim.api.nvim_set_hl(0, "BufferInactiveSign", { bg = "#202331", fg = colors.dark3 })
+    vim.api.nvim_set_hl(0, "BufferCurrentSign", { fg = colors.cyan })
+    vim.api.nvim_set_hl(0, "BufferInactiveSign", { bg = colors.bg_dark, fg = colors.dark3 })
     vim.api.nvim_set_hl(0, "BufferInactiveMod", { bg = "NONE", fg = colors.yellow })
-    vim.api.nvim_set_hl(0, "BufferLineOffsetSeparator", { bg = "#16161e", fg = "#16161e" })
+    vim.api.nvim_set_hl(0, "BufferLineOffsetSeparator", { bg = colors.bg_dark, fg = colors.cyan })
 
     vim.api.nvim_set_hl(0, "GitSignsCurrentLineBlame", { link = "Comment" })
     vim.api.nvim_set_hl(0, "rainbowcol1", { fg = colors.blue, ctermfg = 9 })
     vim.api.nvim_set_hl(0, "TSRainbowRed", { fg = colors.blue, ctermfg = 9 })
     vim.api.nvim_set_hl(0, "RainbowDelimiterRed", { fg = colors.blue, ctermfg = 9 })
-    vim.api.nvim_set_hl(0, "Boolean", { fg = "#F7768E" })
+    vim.api.nvim_set_hl(0, "Boolean", { fg = colors.pink })
     vim.api.nvim_set_hl(0, "LspInlayHint", { link = "LspCodeLens" })
 
     local highlights = {
       CmpItemAbbr = { fg = colors.dark3, bg = "NONE" },
       CmpItemKindClass = { fg = colors.orange },
       CmpItemKindConstructor = { fg = colors.purple },
-      CmpItemKindFolder = { fg = colors.blue2 },
-      CmpItemKindFunction = { fg = colors.blue },
+      -- CmpItemKindFolder = { fg = colors.blue2 },
+      -- CmpItemKindFunction = { fg = colors.blue },
       CmpItemKindInterface = { fg = colors.teal, bg = "NONE" },
       CmpItemKindKeyword = { fg = colors.magneta2 },
       CmpItemKindMethod = { fg = colors.red },
-      CmpItemKindReference = { fg = colors.red1 },
+      CmpItemKindReference = { fg = colors.red },
       CmpItemKindSnippet = { fg = colors.dark3 },
       CmpItemKindVariable = { fg = colors.cyan, bg = "NONE" },
       CmpItemKindText = { fg = "LightGrey" },

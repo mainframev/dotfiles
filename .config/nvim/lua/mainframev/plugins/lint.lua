@@ -1,3 +1,4 @@
+---@type LazySpec
 return {
   "mfussenegger/nvim-lint",
   event = { "BufReadPre", "BufNewFile" },
@@ -14,7 +15,7 @@ return {
       yaml = { "yamllint" },
       svelte = { "eslint_d" },
       python = { "pylint" },
-      lua = { "luacheck" },
+      lua = { "selene" },
       bash = { "shellcheck" },
       zsh = { "shellcheck" },
     }

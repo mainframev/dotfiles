@@ -1,3 +1,4 @@
+---@type LazySpec
 return {
   "keaising/im-select.nvim",
   config = function()

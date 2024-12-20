@@ -1,22 +1,19 @@
+local config = require("mainframev.plugins.configs.snacks")
+
+---@type LazySpec
 return {
   "folke/snacks.nvim",
   priority = 1000,
   lazy = false,
-  --@type snacks.Config
+  ---@type snacks.Config
   opts = {
     bigfile = { enabled = true },
-    notifier = {
-      enabled = true,
-      timeout = 3000,
-    },
     quickfile = { enabled = true },
-    statuscolumn = { enabled = true },
     words = { enabled = true },
-    styles = {
-      notification = {
-        wo = { wrap = true },
-      },
-    },
+    input = config.input,
+    dashboard = config.dashboard,
+    statuscolumn = config.statuscolumn,
+    notifier = config.notifier,
   },
   keys = {
     {
@@ -83,6 +80,7 @@ return {
           Snacks.debug.backtrace()
         end
         vim.print = _G.dd -- Override print to use snacks for `:=` command
+        -- vim.ui.input = Snacks.input.input
 
         -- Create some toggle mappings
         Snacks.toggle.option("spell", { name = "Spelling" }):map("<leader>us")

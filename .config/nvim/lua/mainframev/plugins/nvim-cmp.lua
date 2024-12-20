@@ -1,3 +1,6 @@
+local icons = require("mainframev.plugins.configs.icons")
+
+---@type LazySpec
 return {
   "hrsh7th/nvim-cmp",
   event = "InsertEnter",
@@ -66,12 +69,12 @@ return {
           maxwidth = 50,
           ellipsis_char = "...",
           symbol_map = {
-            Copilot = " ",
-            Buffer = "﬘",
-            LSP = "",
-            LuaSnip = "﬌",
-            Path = "",
-            Emoji = " ",
+            Copilot = icons.copilot,
+            Buffer = icons.bufferStack,
+            LSP = icons.lsp,
+            LuaSnip = icons.luasnip,
+            Path = icons.threeDots,
+            Emoji = icons.emoji,
           },
           menu = {
             buffer = "[Buffer]",

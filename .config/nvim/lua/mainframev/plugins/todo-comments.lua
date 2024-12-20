@@ -1,3 +1,4 @@
+---@type LazySpec
 return {
   "folke/todo-comments.nvim",
   event = { "BufReadPre", "BufNewFile" },
@@ -19,4 +20,3 @@ return {
     todo_comments.setup()
   end,
 }
-

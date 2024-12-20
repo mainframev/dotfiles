@@ -1,3 +1,6 @@
+local icons = require("mainframev.plugins.configs.icons")
+
+---@type LazySpec
 return {
   "akinsho/bufferline.nvim",
   event = "VeryLazy",
@@ -29,29 +32,20 @@ return {
       view = "multiwindow",
       diagnostics = "nvim_lsp",
       indicator = {
-        -- icon = "▎",
         style = "underline",
       },
       separator_style = "thin",
       show_close_icon = false,
       show_buffer_close_icons = false,
-      always_show_bufferline = true,
+      always_show_bufferline = false,
       sort_by = "directory",
       numbers = function(opts)
         return string.format("%s", opts.raise(opts.ordinal))
       end,
-      offsets = {
-        {
-          filetype = "neo-tree",
-          text = "Neo-tree",
-          highlight = "Directory",
-          text_align = "center",
-        },
-      },
       diagnostics_indicator = function(_, _, diagnostics_dict)
         local s = " "
         for e, n in pairs(diagnostics_dict) do
-          local sym = e == "error" and "  " or (e == "warning" and "  " or " ")
+          local sym = e == "error" and icons.closeCircle or (e == "warning" and icons.warningTriangle or icons.info)
           s = s .. n .. sym
         end
         return s
@@ -61,13 +55,6 @@ return {
           return true
         end
       end,
-    },
-    highlights = {
-      buffer_selected = {
-        bold = true,
-        italic = false,
-        sp = "#ef8f8f",
-      },
     },
   },
 }

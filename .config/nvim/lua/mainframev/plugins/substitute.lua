@@ -1,3 +1,4 @@
+---@type LazySpec
 return {
   "gbprod/substitute.nvim",
   event = { "BufReadPre", "BufNewFile" },
