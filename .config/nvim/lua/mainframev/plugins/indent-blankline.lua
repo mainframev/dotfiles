@@ -28,8 +28,5 @@ return {
 
     return require("indent-rainbowline").make_opts(M)
   end,
-  -- config = function()
-  --   return require("indent-rainbowline").make_opts()
-  -- end,
   main = "ibl",
 }
