@@ -1,4 +1,6 @@
 ---@type LazySpec[]
+local icons = require("mainframev.plugins.configs.icons")
+
 return {
   "williamboman/mason.nvim",
   dependencies = {
@@ -6,41 +8,16 @@ return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
   },
   config = function()
-    -- import mason
     local mason = require("mason")
-
-    -- import mason-lspconfig
-    local mason_lspconfig = require("mason-lspconfig")
-
     local mason_tool_installer = require("mason-tool-installer")
 
-    -- enable mason and configure icons
     mason.setup({
       ui = {
         icons = {
-          package_installed = "✓",
-          package_pending = "➜",
-          package_uninstalled = "✗",
+          package_installed = icons.check,
+          package_pending = icons.clock,
+          package_uninstalled = icons.close,
         },
-      },
-    })
-
-    mason_lspconfig.setup({
-      automatic_installation = true,
-      -- list of servers for mason to install
-      ensure_installed = {
-        "ts_ls",
-        "jsonls",
-        "typos_lsp",
-        "html",
-        "cssls",
-        "tailwindcss",
-        "svelte",
-        "lua_ls",
-        "graphql",
-        "emmet_ls",
-        "prismals",
-        "pyright",
       },
     })
 
