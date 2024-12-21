@@ -13,9 +13,9 @@ return {
     },
     messages = {
       enabled = true,
-      view = "notify",
+      view = "mini",
       view_error = "notify",
-      view_warn = "notify",
+      view_warn = "mini",
       view_history = "messages",
       view_search = "notify",
     },
