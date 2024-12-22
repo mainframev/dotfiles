@@ -11,6 +11,18 @@ return {
       },
       progress = { enabled = true },
     },
+    cmdline = {
+      format = {
+        cmdline = { pattern = "^:", icon = "", lang = "vim" },
+        search_down = { kind = "search", pattern = "^/", icon = " ", lang = "regex" },
+        search_up = { kind = "search", pattern = "^%?", icon = " ", lang = "regex" },
+        filter = { pattern = "^:%s*!", icon = "$", lang = "bash" },
+        lua = { pattern = { "^:%s*lua%s+", "^:%s*lua%s*=%s*", "^:%s*=%s*" }, icon = "", lang = "lua" },
+        help = { pattern = "^:%s*he?l?p?%s+", icon = "" },
+        input = { view = "cmdline_input", icon = "󰥻 " },
+        -- lua = false, -- to disable a format, set to `false`
+      },
+    },
     messages = {
       enabled = true,
       view = "mini",
@@ -29,6 +41,18 @@ return {
     notify = {
       enabled = true,
       view = "mini",
+    },
+    views = {
+      cmdline_popup = {
+        border = {
+          style = { "", " ", "", "", "", "", "", "" },
+          padding = { 1, 2 },
+        },
+        filter_options = {},
+        win_options = {
+          winhighlight = "NormalFloat:NormalFloat,FloatBorder:FloatBorder",
+        },
+      },
     },
   },
   dependencies = {

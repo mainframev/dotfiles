@@ -45,6 +45,10 @@ return {
         -- hl.TelescopeResultsDiffChange = { fg = colors.cyan }
         hl.TelescopeTitle = { fg = colors.green }
         hl.TelescopeNormal = { bg = colors.bg, fg = colors.fg }
+
+        hl.NormalFloat = { bg = colors.bg_highlight }
+        hl.NoiceCmdlineIcon = { bg = colors.bg_higlight, fg = colors.pink }
+        hl.NoiceCmdlinePopupBorderSearch = { bg = colors.bg, fg = colors.orange }
       end,
     })
 
