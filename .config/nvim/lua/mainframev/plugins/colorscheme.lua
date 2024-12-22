@@ -47,8 +47,9 @@ return {
         hl.TelescopeNormal = { bg = colors.bg, fg = colors.fg }
 
         hl.NoiceCmdlinePopup = { bg = colors.bg_highlight }
-        hl.NoiceCmdlineIcon = { bg = colors.bg_highlight, fg = colors.pink }
+        hl.NoiceCmdlineIcon = { bg = colors.bg_highlight, fg = colors.green }
         hl.NoiceCmdlinePopupBorderSearch = { bg = colors.bg, fg = colors.orange }
+        hl.NoiceCmdlinePopupBorderHelp = { bg = colors.bg, fg = colors.yellow }
         hl.NoicePopupMenuMatch = { bg = colors.bg_highlight, fg = colors.cyan }
       end,
     })

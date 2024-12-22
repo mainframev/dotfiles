@@ -1,3 +1,5 @@
+local icons = require("mainframev.plugins.configs.icons")
+
 ---@type LazySpec
 return {
   "folke/noice.nvim",
@@ -18,7 +20,7 @@ return {
         search_up = { kind = "search", pattern = "^%?", icon = " ", lang = "regex" },
         filter = { pattern = "^:%s*!", icon = "$", lang = "bash" },
         lua = { pattern = { "^:%s*lua%s+", "^:%s*lua%s*=%s*", "^:%s*=%s*" }, icon = "", lang = "lua" },
-        help = { pattern = "^:%s*he?l?p?%s+", icon = "" },
+        help = { pattern = "^:%s*he?l?p?%s+", icon = icons.infoOutline },
         input = { view = "cmdline_input", icon = "󰥻 " },
         -- lua = false, -- to disable a format, set to `false`
       },
@@ -49,6 +51,10 @@ return {
           padding = { 1, 2 },
         },
         filter_options = {},
+      },
+      mini = {
+        timeout = 5000,
+        align = "center",
       },
     },
   },
