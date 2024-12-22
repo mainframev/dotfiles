@@ -49,6 +49,9 @@ brew install sketchybar
 brew install zoxide
 brew install jq
 brew install macism
+brew install jsonlint
+brew install yamllint
+brew install selene
 
 sleep 1
 
