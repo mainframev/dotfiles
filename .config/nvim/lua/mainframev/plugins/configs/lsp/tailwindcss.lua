@@ -1,6 +1,9 @@
 local M = {}
 
-local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local blink = require("blink.cmp")
+-- used to enable autocompletion (assign to every lsp server config)
+local capabilities = blink.get_lsp_capabilities()
+
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.colorProvider = { dynamicRegistration = false }
 capabilities.textDocument.foldingRange = {

@@ -6,9 +6,9 @@ return {
   dependencies = {
     "neovim/nvim-lspconfig",
     "williamboman/mason.nvim",
-    "saghen/blink.cmp",
     "williamboman/mason-lspconfig.nvim",
     "b0o/schemastore.nvim",
+    "saghen/blink.cmp",
   },
   config = function()
     vim.o.updatetime = 300 -- set faster update time
