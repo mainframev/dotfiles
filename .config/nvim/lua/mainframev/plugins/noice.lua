@@ -49,9 +49,6 @@ return {
           padding = { 1, 2 },
         },
         filter_options = {},
-        win_options = {
-          winhighlight = "NormalFloat:NormalFloat,FloatBorder:FloatBorder",
-        },
       },
     },
   },
