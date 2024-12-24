@@ -25,6 +25,9 @@ return {
       ensure_installed = {
         "prettier",
         "prettierd",
+        "markdownlint-cli2",
+        "marksman",
+        "markdown-toc",
         "stylua",
         "isort", -- python formatter
         "black", -- python formatter

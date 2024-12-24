@@ -11,7 +11,7 @@ return {
       javascriptreact = { "eslint_d" },
       typescriptreact = { "eslint_d" },
       json = { "jsonlint" },
-      markdown = { "markdownlint" },
+      markdown = { "markdownlint-cli2" },
       yaml = { "yamllint" },
       svelte = { "eslint_d" },
       python = { "pylint" },
@@ -21,6 +21,11 @@ return {
     }
 
     local eslint = lint.linters.eslint_d
+    local markdownlint = lint.linters["markdownlint-cli2"]
+
+    markdownlint.args = {
+      args = { "--config", os.getenv("HOME") .. "/mainframev/markdownlint.yaml", "--" },
+    }
 
     eslint.args = {
       -- "--no-warn-ignored",
