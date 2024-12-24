@@ -52,6 +52,7 @@ brew install macism
 brew install jsonlint
 brew install yamllint
 brew install selene
+brew install pngpast
 
 sleep 1
 
@@ -76,3 +77,5 @@ brew install --cask font-3270-nerd-font
 brew install --cask obsidian
 brew install --cask keycastr
 brew install --cask firefox-developer-edition
+brew install --cask obsidian
+
