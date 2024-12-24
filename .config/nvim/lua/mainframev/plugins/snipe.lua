@@ -12,7 +12,7 @@ return {
   },
   opts = {
     ui = {
-      position = "topright",
+      position = "bottomleft",
     },
   },
 }
