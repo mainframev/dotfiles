@@ -78,4 +78,5 @@ brew install --cask obsidian
 brew install --cask keycastr
 brew install --cask firefox-developer-edition
 brew install --cask obsidian
+brew install --cask ghostty
 
