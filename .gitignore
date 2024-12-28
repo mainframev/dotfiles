@@ -18,6 +18,7 @@
 !/.config/tmux
 /.config/tmux/plugins/
 !/.config/yazi
+!/.config/ghostty
 
 !/.zshenv
 !/.zshrc
