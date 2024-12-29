@@ -5,6 +5,7 @@ return {
   lazy = false,
   dependencies = {
     "neovim/nvim-lspconfig",
+    "barreiroleo/ltex-extra.nvim",
     "williamboman/mason.nvim",
     "williamboman/mason-lspconfig.nvim",
     "b0o/schemastore.nvim",
@@ -72,6 +73,7 @@ return {
       -- list of servers for mason to install
       ensure_installed = {
         "ts_ls",
+        "ltex",
         "rust_analyzer",
         "bashls",
         "jsonls",
@@ -93,6 +95,48 @@ return {
       function(server_name)
         lspconfig[server_name].setup({
           capabilities = capabilities,
+        })
+      end,
+
+      ["ltex"] = function()
+        require("lspconfig").ltex.setup({
+          settings = {
+            ltex = {
+              language = "en-GB",
+              additionalRules = {
+                languageModel = "~/LanguageTool/",
+              },
+              disabledRules = {
+                ["en-GB"] = { "                enablePickyRules = true,
+""EN_QUOTES", "COMMA_PARENTHESIS_WHITESPACE" },
+              },
+              enabled = {
+                "html",
+                "latex",
+                "markdown",
+                "gitcommit",
+                "text",
+                "mdx",
+              },
+            },
+          },
+          filetypes = {
+            "html",
+            "gitcommit",
+            "text",
+            "latex",
+            "markdown",
+            "mdx",
+          },
+          capabilities = capabilities,
+          on_attach = function()
+            require("ltex_extra").setup({
+              load_langs = { "en-GB" },
+              init_check = true,
+              path = vim.fn.stdpath("config") .. "/spell", -- path to store dictionaries.
+              log_level = "none",
+            })
+          end,
         })
       end,
 
