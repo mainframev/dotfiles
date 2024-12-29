@@ -39,3 +39,9 @@ opt.backspace = "indent,eol,start"
 opt.clipboard:append("unnamedplus")
 
 opt.swapfile = false
+
+vim.filetype.add({
+  extension = {
+    mdx = "mdx",
+  },
+})
