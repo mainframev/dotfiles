@@ -1,10 +1,10 @@
 /*
 !/.git[a-z]*
 !/delta.gitconfig
+!/*.zsh
 
 !/.config/
 /.config/*
-
 
 !/.config/alacritty
 /.config/alacritty/themes/
@@ -23,6 +23,5 @@
 !/.zshenv
 !/.zshrc
 !/.hammerspoon/
-# !/.config/install/brew.sh
 
 !README.md
