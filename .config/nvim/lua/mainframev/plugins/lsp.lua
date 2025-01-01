@@ -107,8 +107,10 @@ return {
                 languageModel = "~/LanguageTool/",
               },
               disabledRules = {
-                ["en-GB"] = { "                enablePickyRules = true,
-""EN_QUOTES", "COMMA_PARENTHESIS_WHITESPACE" },
+                ["en-GB"] = {
+                  "EN_QUOTES",
+                  "COMMA_PARENTHESIS_WHITESPACE",
+                },
               },
               enabled = {
                 "html",
