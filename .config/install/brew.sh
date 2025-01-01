@@ -51,6 +51,7 @@ brew install jq
 brew install macism
 brew install jsonlint
 brew install yamllint
+brew install shellcheck
 brew install selene
 brew install pngpast
 
