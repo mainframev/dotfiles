@@ -1,5 +1,8 @@
 #!/bin/env zsh
 
+# STARSHIP
+eval "$(starship init zsh)"
+
 # | POWERSHELL10K (p10k) | 
 # should be source at the top
 source $DOTFILES_ZSH/p10k.zsh
