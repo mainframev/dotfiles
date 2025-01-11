@@ -54,6 +54,7 @@ brew install yamllint
 brew install shellcheck
 brew install selene
 brew install pngpast
+brew install sharship
 
 sleep 1
 
