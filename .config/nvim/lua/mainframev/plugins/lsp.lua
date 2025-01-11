@@ -130,7 +130,7 @@ return {
             "markdown",
             "mdx",
           },
-          capabilities = capabilities,
+          -- capabilities = capabilities,
           on_attach = function()
             require("ltex_extra").setup({
               load_langs = { "en-GB" },
@@ -159,7 +159,7 @@ return {
       end,
       ["eslint"] = function()
         lspconfig.eslint.setup({
-          -- capabilities = capabilities,
+          capabilities = capabilities,
           on_attach = function(_, bufnr)
             vim.api.nvim_create_autocmd("BufWritePost", {
               buffer = bufnr,
