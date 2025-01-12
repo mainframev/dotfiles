@@ -1,0 +1,135 @@
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = true
+palette = "eldritch"
+format = """
+$status\
+${custom.git_host}\
+$directory\
+$git_branch\
+$fill\
+$git_state\
+$git_commit\
+$git_metrics\
+$git_status\
+$package\
+$docker_context\
+$cmd_duration\
+$line_break\
+$character\
+"""
+
+[palettes.eldritch]
+bg = "#212337"
+current_line = "#323449"
+fg = "#ebfafa"
+comment = "#7081d0"
+secondary = "#04d1f9"
+primary = "#50fa7b"
+orange = "#f7c67f"
+pink = "#f265b5"
+purple = "#a48cf2"
+red = "#f16c75"
+yellow = "#f1fc79"
+
+[docker_context]
+format = '[  $context](cyan) '
+
+[lua]
+format = '[󰢱 $version](cyan) '
+
+[package]
+symbol = " "
+style = "bold cyan"
+disabled = false
+display_private = true
+format = '[$symbol$version]($style) '
+
+[fill]
+symbol = " "
+style = 'bold green'
+
+[status]
+symbol = ' '
+map_symbol = true
+style = 'bold fg:cyan'
+success_symbol = ''
+format = '[$symbol](yellow)$status ($style)'
+
+[directory]
+style = "pink"
+home_symbol = "~"
+truncation_length = 0
+fish_style_pwd_dir_length = 1
+format = '[$path]($style)[$read_only]($read_only_style) '
+
+[character]
+error_symbol = "[✗](bold red) "
+vimcmd_symbol = "[➜](bold green)"
+success_symbol = "[>_](bold green)"
+
+[git_branch]
+style = "cyan"
+symbol = ' '
+format = '[$symbol$branch(:$remote_branch)]($style) '
+
+[git_status]
+style = "bold comment"
+up_to_date = ''
+renamed = '👅'
+conflicted = '🏳'
+behind = "[😰 ${count} ](bold red)"
+stashed = "[ ${count} ](bold yellow)"
+staged = '[+$count](green) '
+deleted = '󰗨 ${count}(red) '
+ahead = '[⇡${count}](primary) '
+modified = '[ ${count}](orange) '
+untracked = "[ ${count}](red) "
+diverged = '⇕⇡${ahead_count}⇣${behind_count} '
+format = "[[($conflicted$untracked$modified$staged$renamed$deleted)](218)($ahead_behind$stashed)]($style)"
+
+[git_state]
+style = "bold fg"
+cherry_pick = '[🍒PICK](red)'
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+
+[git_metrics]
+disabled = false
+only_nonzero_diffs = true
+format = '[+$added](green)[-$deleted](maroon) '
+
+[cmd_duration]
+disabled = false
+style = "bold yellow"
+min_time = 10_000
+min_time_to_notify = 1000
+show_notifications = false
+format = "[ ⏰ $duration]($style) "
+
+[nodejs]
+symbol = ' '
+style = "bold yellow"
+format = '[$symbol($version)]($style) '
+detect_files = ['node_modules', 'package.json', '!bun.lock']
+
+[rust]
+symbol = "🦀 "
+format = '[$symbol($version)]($style) '
+style = "bold red"
+
+[c]
+symbol = ""
+style = "bold purple"
+version_format = "v${major}"
+format = '[$symbol($version)]($style) '
+
+[php]
+symbol = "🐘 "
+format = '[$symbol($version)]($style) '
+style = "bold purple"
+
+[haskell]
+symbol = "λ "
+format = '[$symbol($version)]($style) '
+style = "bold purple"

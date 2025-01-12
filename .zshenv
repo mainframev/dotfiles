@@ -14,8 +14,9 @@ export VISUAL="nvim"
 export NVM_DIR="$HOME/.nvm"
 export DOTFILES="$HOME/dotfiles"
 export DOTFILES_ZSH="$HOME/dotfiles/.config/zsh"
+export STARSHIP_CONFIG="$DOTFILES/.config/starship/config.toml"
 
-ZSH_THEME="powerlevel10k/powerlevel10k"
+# ZSH_THEME="powerlevel10k/powerlevel10k"
 ZSH_DISABLE_COMPFIX=true
 GIT_AUTO_FETCH_INTERVAL=4140
 GIT_PROMPT_EXECUTABLE="haskell"

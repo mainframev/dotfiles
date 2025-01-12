@@ -16,10 +16,12 @@
 !/.config/kitty
 !/.config/install/
 !/.config/tmux
-/.config/tmux/plugins/
 !/.config/yazi
 !/.config/ghostty
 !/.config/zsh
+!/.config/starship/
+# ignored
+/.config/tmux/plugins/
 
 !/.zshenv
 !/.zshrc
