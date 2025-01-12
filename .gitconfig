@@ -1,7 +1,7 @@
 [include]
   path = ~/delta.gitconfig
 [user]
-	name = mainframev 
+	name = mainframev
 	email = vgenaev@gmail.com
   color = auto
 [push]
@@ -19,7 +19,7 @@
   user = mainframev
   protocol = https
 [delta]
-  features = mellow-barbet 
+  features = mellow-barbet
   navigate = true
 [difftool]
   prompt = false

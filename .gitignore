@@ -1,6 +1,7 @@
 /*
 !/.git[a-z]*
 !/delta.gitconfig
+!.editorconfig
 !/*.zsh
 
 !/.config/

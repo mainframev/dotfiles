@@ -12,14 +12,14 @@ font-thicken = true
 font-feature = dlig ss05 liga
 
 cursor-style = block
-cursor-style-blink = true 
+cursor-style-blink = true
 
 mouse-hide-while-typing = true
 
 background-opacity = 0.9
 background-blur-radius = 20
 
-macos-titlebar-proxy-icon = hidden 
+macos-titlebar-proxy-icon = hidden
 
 adjust-underline-position = 4
 

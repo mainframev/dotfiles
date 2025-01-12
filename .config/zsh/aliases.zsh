@@ -1,6 +1,6 @@
 #!/bin/env zsh
 
-# own aliases 
+# own aliases
 alias vi="nvim"
 alias cl="clear"
 alias y="yarn"
