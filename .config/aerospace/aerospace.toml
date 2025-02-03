@@ -13,7 +13,7 @@ after-login-command = []
 # 'after-startup-command' is run after 'after-login-command'
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
 after-startup-command = [
-  'exec-and-forget borders active_color=0xFF20B2AA inactive_color=0xff414550 width=10.0',
+  'exec-and-forget borders hidpi=on active_color=0xFF7081D0 inactive_color=0xff414550 width=10.0',
 ]
 
 # Start AeroSpace at login
@@ -54,7 +54,7 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 #                 Monitor pattern is the same as for 'workspace-to-monitor-force-assignment'.
 #                 See: https://nikitabobko.github.io/AeroSpace/guide#assign-workspaces-to-monitors
 [gaps]
-inner.horizontal = 10
+inner.horizontal = 20
 inner.vertical = 10
 outer.left = 5
 outer.bottom = 5
