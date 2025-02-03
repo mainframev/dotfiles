@@ -75,23 +75,23 @@ return {
       -- Default list of enabled providers defined so that you can extend it
       -- elsewhere in your config, without redefining it, due to `opts_extend`
       sources = {
-        default = { "copilot", "lsp", "snippets", "buffer", "luasnip" },
+        default = { "copilot", "lsp", "snippets", "buffer" },
         providers = {
           lsp = {
             name = "lsp",
             enabled = true,
             module = "blink.cmp.sources.lsp",
-            fallbacks = { "snippets", "luasnip", "buffer" },
+            fallbacks = { "snippets", "buffer" },
             score_offset = 90, -- the higher the number, the higher the priority
           },
-          luasnip = {
-            name = "luasnip",
-            enabled = true,
-            module = "blink.cmp.sources.luasnip",
-            min_keyword_length = 2,
-            fallbacks = { "snippets" },
-            score_offset = 85, -- the higher the number, the higher the priority
-          },
+          -- luasnip = {
+          --   name = "luasnip",
+          --   enabled = true,
+          --   module = "blink.cmp.sources.snippets.luasnip",
+          --   min_keyword_length = 2,
+          --   fallbacks = { "snippets" },
+          --   score_offset = 85, -- the higher the number, the higher the priority
+          -- },
           buffer = {
             name = "Buffer",
             module = "blink.cmp.sources.buffer",
@@ -136,7 +136,10 @@ return {
           auto_brackets = { enabled = true },
         },
         list = {
-          selection = "manual",
+          selection = {
+            preselect = true,
+            auto_insert = true,
+          },
         },
         menu = {
           winhighlight = "Normal:BlinkCmpDoc,FloatBorder:BlinkCmpDocBorder,CursorLine:BlinkCmpDocCursorLine,Search:None",
@@ -178,7 +181,6 @@ return {
                   return "BlinkCmpKind" .. ctx.kind
                 end,
               },
-
               label = {
                 width = { fill = true, max = 60 },
                 text = function(ctx)
