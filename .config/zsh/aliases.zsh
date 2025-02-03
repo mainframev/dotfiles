@@ -5,6 +5,7 @@ alias vi="nvim"
 alias cl="clear"
 alias y="yarn"
 alias ggf='gpf'
+alias gdc='git diff --cached'
 
 alias ls='eza $eza_params'
 alias l='eza --git-ignore $eza_params'
