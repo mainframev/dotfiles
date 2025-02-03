@@ -1,7 +1,8 @@
 theme = eldritch
 
 shell-integration = zsh
-shell-integration-features = no-cursor,sudo
+shell-integration-features = cursor
+quit-after-last-window-closed
 
 font-family = JetBrainsMono Nerd Font
 font-family-bold = JetBrainsMono Nerd Font
@@ -16,7 +17,6 @@ cursor-style-blink = true
 
 mouse-hide-while-typing = true
 
-background-opacity = 0.9
 background-blur-radius = 20
 
 macos-titlebar-proxy-icon = hidden
@@ -31,6 +31,7 @@ window-padding-balance = true
 window-inherit-working-directory = true
 
 copy-on-select = true
+link-url = true
 
 quick-terminal-position = bottom
 quick-terminal-screen = mouse
@@ -39,7 +40,9 @@ quick-terminal-autohide = true
 
 keybind = global:ctrl+alt+k=toggle_quick_terminal
 
-# colors
 selection-foreground = #FFFFFF
 selection-background = #323449
 
+keybind = shift+ctrl+equal=increase_font_size:1
+keybind = shift+ctrl+minus=decrease_font_size:1
+keybind = shift+ctrl+backspace=reset_font_size
