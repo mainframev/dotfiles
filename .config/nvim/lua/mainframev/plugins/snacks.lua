@@ -14,60 +14,15 @@ return {
     statuscolumn = config.statuscolumn,
     -- input = config.input,
     notifier = config.notifier,
-  },
-  keys = {
-    {
-      "<leader>un",
-      function()
-        Snacks.notifier.hide()
-      end,
-      desc = "Dismiss All Notifications",
-    },
-    {
-      "<leader>bd",
-      function()
-        Snacks.bufdelete()
-      end,
-      desc = "Delete Buffer",
-    },
-    {
-      "<leader>gb",
-      function()
-        Snacks.git.blame_line()
-      end,
-      desc = "Git Blame Line",
-    },
-    {
-      "<leader>gB",
-      function()
-        Snacks.gitbrowse()
-      end,
-      desc = "Git Browse",
-    },
-    {
-      "<c-/>",
-      function()
-        Snacks.terminal()
-      end,
-      desc = "Toggle Terminal",
-    },
-    {
-      "]]",
-      function()
-        Snacks.words.jump(vim.v.count1)
-      end,
-      desc = "Next Reference",
-      mode = { "n", "t" },
-    },
-    {
-      "[[",
-      function()
-        Snacks.words.jump(-vim.v.count1)
-      end,
-      desc = "Prev Reference",
-      mode = { "n", "t" },
+    picker = config.picker,
+    styles = {
+      notification = {
+        -- Wrap notifications
+        wo = { wrap = true },
+      },
     },
   },
+  keys = config.keys,
   init = function()
     vim.api.nvim_create_autocmd("User", {
       pattern = "VeryLazy",

@@ -28,24 +28,6 @@ return {
       dim_inactive = true,
       lualine_bold = true,
       on_highlights = function(hl, _)
-        local none = "NONE"
-
-        -- Telescope (borderless)
-        hl.TelescopePreviewBorder = { fg = colors.bg, bg = colors.bg }
-        hl.TelescopeResultsBorder = { fg = colors.bg, bg = colors.bg }
-        hl.TelescopePromptBorder = { fg = colors.bg, bg = colors.bg }
-        hl.TelescopePromptNormal = { fg = colors.cyan, bg = colors.bg_hightlight }
-        hl.TelescopeResultsTitle = { fg = colors.green, bg = colors.bg_higlight }
-        hl.TelescopePromptPrefix = { fg = colors.pink, bg = none }
-        hl.TelescopePromptCount = { fg = colors.fg_gutter }
-        hl.TelescopeMatching = { fg = colors.cyan }
-        hl.TelescopeSelectionCaret = { fg = colors.magenta2 }
-        hl.TelescopeSelection = { fg = colors.fg, bg = colors.bg_visual }
-        -- hl.TelescopeResultsDiffDelete = { fg = colors.red }
-        -- hl.TelescopeResultsDiffChange = { fg = colors.cyan }
-        hl.TelescopeTitle = { fg = colors.green }
-        hl.TelescopeNormal = { bg = colors.bg, fg = colors.fg }
-
         hl.NoiceCmdlinePopup = { bg = colors.bg_highlight }
         hl.NoiceCmdlineIcon = { bg = colors.bg_highlight, fg = colors.green }
         hl.NoiceCmdlinePopupBorderSearch = { bg = colors.bg, fg = colors.orange }
@@ -68,6 +50,8 @@ return {
     vim.api.nvim_set_hl(0, "Boolean", { fg = colors.pink })
     vim.api.nvim_set_hl(0, "LspInlayHint", { link = "LspCodeLens" })
 
+    local none = "NONE"
+
     local highlights = {
       CmpItemAbbr = { fg = colors.dark3, bg = "NONE" },
       CmpItemKindClass = { fg = colors.orange },
@@ -84,6 +68,14 @@ return {
       CmpItemMenu = { fg = "#C586C0", bg = "NONE" },
       CmpItemAbbrMatch = { fg = "#569CD6", bg = "NONE" },
       CmpItemAbbrMatchFuzzy = { fg = "#569CD6", bg = "NONE" },
+
+      -- SnackPicker (borderless)
+      SnacksPickerPreviewBorder = { fg = colors.bg, bg = colors.bg },
+      SnacksPickerBorder = { fg = colors.bg, bg = colors.bg },
+      SnacksPickerBoxBorder = { fg = colors.bg, bg = colors.bg },
+      SnacksPickerInputBorder = { fg = colors.bg, bg = colors.bg },
+      SnacksPickerListBorder = { fg = colors.bg, bg = colors.bg },
+      SnacksPickerPreviewTitle = { fg = colors.green },
     }
 
     for group, hl in pairs(highlights) do
