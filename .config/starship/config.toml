@@ -1,43 +1,131 @@
 
-"$schema" = 'https://starship.rs/config-schema.json'
+palette = 'rosepine'
 
-add_newline = true
-palette = "eldritch"
 format = """
-$status\
-${custom.git_host}\
 $directory\
 $git_branch\
-$fill\
-$git_state\
-$git_commit\
-$git_metrics\
 $git_status\
-$package\
-$docker_context\
-$cmd_duration\
-$line_break\
-$character\
+$git_state\
+$git_metrics\
+$character
 """
 
-[palettes.eldritch]
-bg = "#212337"
-current_line = "#323449"
-fg = "#ebfafa"
-comment = "#7081d0"
-secondary = "#04d1f9"
-primary = "#50fa7b"
-orange = "#f7c67f"
-pink = "#f265b5"
-purple = "#a48cf2"
-red = "#f16c75"
-yellow = "#f1fc79"
+right_format = """
+$docker_context\
+$package\
+$c\
+$golang\
+$haskell\
+$java\
+$nodejs\
+$zig\
+$golang\
+$bun\
+$lua\
+$rust\
+"""
+
+[palettes.rosepine]
+pine = "#3e8fb0"
+foam = "#9ccfd8"
+iris = "#c4a7e7"
+highlight_low = "#2a283e"
+highlight_med = "#44415a"
+highlight_high = "#56526e"
+rose = "#ea9a97"
+text = "#e0def4"
+love = "#eb6f92"
+subtle = "#908caa"
+base = "#232136"
+surface = "#2a273f"
+overlay = "#393552"
+gold = "#ea9d34"
+
+
+[directory]
+style = "bold iris"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[character]
+style = 'bold red'
+success_symbol = "[❯](pine)[❯](foam)[❯](text)"
+error_symbol = "[❯](love)[❯](rose)[❯](text)"
+vicmd_symbol = "[❮](pine)[❮](foam)[❮](text)"
+
+[git_branch]
+symbol = ""
+style = "bold gold"
+format = '[ $symbol $branch ]($style)'
+
+[git_status]
+style = "bold pine"
+format = '[$all_status$ahead_behind ]($style)'
+
+[git_state]
+style = "bold text"
+cherry_pick = '[ - PICKING](love)'
+rebase = '[ REBASING](gold)'
+merge = '[󰽜 - MERGING](iris)'
+revert = '[ - REVERTING](love)'
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+
+[git_metrics]
+disabled = false
+only_nonzero_diffs = true
+added_style = 'bold pine'
+deleted_style = 'bold love'
+format = '[+$added]($added_style) [-$deleted]($deleted_style) '
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+
+[c]
+symbol = " "
+style = "bold foam"
+format = '[ $symbol ($version) ]($style)'
+
+[golang]
+symbol = " "
+style = "bold bold foam"
+format = '[ $symbol ($version) ]($style)'
+
+[haskell]
+symbol = " "
+style = "bold bold foam"
+format = '[ $symbol ($version) ]($style)'
+
+[java]
+symbol = " "
+style = "bold bold foam"
+format = '[ $symbol ($version) ]($style)'
+
+[nodejs]
+symbol = ""
+style = "bold bold foam"
+format = '[ $symbol ($version) ]($style)'
+
+[bun]
+symbol = ""
+style = "bold bold foam"
+format = '[ $symbol ($version) ]($style)'
+
+[rust]
+symbol = ""
+style = "bold bold foam"
+format = '[ $symbol ($version) ]($style)'
 
 [docker_context]
-format = '[  $context](cyan) '
+style = 'bold cyan'
+format = '[  $context]($style) '
 
 [lua]
-format = '[󰢱 $version](cyan) '
+style = "bold cyan"
+format = '[󰢱 $version]($style) '
 
 [package]
 symbol = " "
@@ -56,80 +144,3 @@ map_symbol = true
 style = 'bold fg:cyan'
 success_symbol = ''
 format = '[$symbol](yellow)$status ($style)'
-
-[directory]
-style = "pink"
-home_symbol = "~"
-truncation_length = 0
-fish_style_pwd_dir_length = 1
-format = '[$path]($style)[$read_only]($read_only_style) '
-
-[character]
-error_symbol = "[✗](bold red) "
-vimcmd_symbol = "[➜](bold green)"
-success_symbol = "[>_](bold green)"
-
-[git_branch]
-style = "cyan"
-symbol = ' '
-format = '[$symbol$branch(:$remote_branch)]($style) '
-
-[git_status]
-style = "bold comment"
-up_to_date = ''
-renamed = '👅'
-conflicted = '🏳'
-behind = "[😰 ${count} ](bold red)"
-stashed = "[ ${count} ](bold yellow)"
-staged = '[+$count](green) '
-deleted = '󰗨 ${count}(red) '
-ahead = '[⇡${count}](primary) '
-modified = '[ ${count}](orange) '
-untracked = "[ ${count}](red) "
-diverged = '⇕⇡${ahead_count}⇣${behind_count} '
-format = "[[($conflicted$untracked$modified$staged$renamed$deleted)](218)($ahead_behind$stashed)]($style)"
-
-[git_state]
-style = "bold fg"
-cherry_pick = '[🍒PICK](red)'
-format = '\([$state( $progress_current/$progress_total)]($style)\) '
-
-[git_metrics]
-disabled = false
-only_nonzero_diffs = true
-format = '[+$added](green)[-$deleted](maroon) '
-
-[cmd_duration]
-disabled = false
-style = "bold yellow"
-min_time = 10_000
-min_time_to_notify = 1000
-show_notifications = false
-format = "[ ⏰ $duration]($style) "
-
-[nodejs]
-symbol = ' '
-style = "bold yellow"
-format = '[$symbol($version)]($style) '
-detect_files = ['node_modules', 'package.json', '!bun.lock']
-
-[rust]
-symbol = "🦀 "
-format = '[$symbol($version)]($style) '
-style = "bold red"
-
-[c]
-symbol = ""
-style = "bold purple"
-version_format = "v${major}"
-format = '[$symbol($version)]($style) '
-
-[php]
-symbol = "🐘 "
-format = '[$symbol($version)]($style) '
-style = "bold purple"
-
-[haskell]
-symbol = "λ "
-format = '[$symbol($version)]($style) '
-style = "bold purple"
