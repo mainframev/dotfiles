@@ -49,7 +49,6 @@ truncation_length = 3
 truncation_symbol = "…/"
 
 [character]
-style = 'bold red'
 success_symbol = "[❯](pine)[❯](foam)[❯](text)"
 error_symbol = "[❯](love)[❯](rose)[❯](text)"
 vicmd_symbol = "[❮](pine)[❮](foam)[❮](text)"
