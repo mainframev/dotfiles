@@ -4,6 +4,7 @@
 	name = mainframev
 	email = vgenaev@gmail.com
   color = auto
+  signingKey = ~/.ssh/id_rsa_personal.pub
 [push]
 	default = current
 [core]
@@ -19,10 +20,15 @@
   user = mainframev
   protocol = https
 [delta]
-  features = mellow-barbet
+  dark = true
   navigate = true
+  side-by-side = true
+  line-numbers = true
+  features = mantis-shrimp-lite
+[diff]
+  colorMoved = default
 [difftool]
-  prompt = false
+  prompt = true
 [difftool "nvimdiff"]
   cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
 [difftool "kitty"]
@@ -54,7 +60,6 @@
 	interactive = true
   ui = true
   pager = true
-
 [includeIf "gitdir:~/work/"]
   path = ~/.gitconfig-work
 [includeIf "gitdir:~/repos/"]
