@@ -1,8 +1,12 @@
 ---@type LazySpec
 return {
   "lukas-reineke/indent-blankline.nvim",
-  dependencies = "TheGLander/indent-rainbowline.nvim",
-  opts = function()
+  dependencies = {
+    -- "TheGLander/indent-rainbowline.nvim",
+    "HiPhish/rainbow-delimiters.nvim",
+  },
+  main = "ibl",
+  config = function()
     local M = {
       indent = {
         char = "│",
@@ -26,7 +30,27 @@ return {
       },
     }
 
-    return require("indent-rainbowline").make_opts(M)
+    require("ibl").setup(M)
+
+    require("rainbow-delimiters.setup").setup({
+      strategy = {
+        [""] = require("rainbow-delimiters").strategy["global"],
+      },
+      query = {
+        [""] = "rainbow-delimiters",
+        javascript = "rainbow-parens",
+        typescript = "rainbow-parens",
+        tsx = "rainbow-parens",
+      },
+      highlight = {
+        "RainbowDelimiterRed",
+        "RainbowDelimiterYellow",
+        "RainbowDelimiterBlue",
+        "RainbowDelimiterOrange",
+        "RainbowDelimiterGreen",
+        "RainbowDelimiterViolet",
+        "RainbowDelimiterCyan",
+      },
+    })
   end,
-  main = "ibl",
 }

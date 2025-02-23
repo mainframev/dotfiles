@@ -3,9 +3,9 @@ local icons = require("mainframev.plugins.configs.icons")
 ---@type LazySpec
 return {
   "akinsho/bufferline.nvim",
-  event = "VeryLazy",
+  event = "ColorScheme",
   version = "*",
-  dependencies = { "nvim-tree/nvim-web-devicons", "moll/vim-bbye" },
+  dependencies = { "nvim-tree/nvim-web-devicons", "moll/vim-bbye", "rose-pine/neovim" },
   keys = {
     { "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle Pin" },
     { "<leader>bP", "<Cmd>BufferLineGroupClose ungrouped<CR>", desc = "Delete Non-Pinned Buffers" },
@@ -27,6 +27,7 @@ return {
     { "<Space>9", "<cmd>BufferLineGoToBuffer 9<CR>" },
   },
   opts = {
+    -- highlights = require("rose-pine.plugins.bufferline"),
     options = {
       mode = "buffers",
       view = "multiwindow",

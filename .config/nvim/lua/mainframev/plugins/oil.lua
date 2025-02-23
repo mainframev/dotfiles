@@ -4,9 +4,9 @@ return {
   dependencies = { "nvim-tree/nvim-web-devicons" },
   config = function()
     require("oil").setup({
-      -- experimental_watch_for_changes = true,
       default_file_explorer = true,
       delete_to_trash = true,
+      watch_for_changes = true,
       columns = {
         "icon",
         "size",

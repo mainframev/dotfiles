@@ -19,10 +19,9 @@ return {
           outdated = icons.gitRemove, -- Icon for outdated packages
         },
       },
-      autostart = true, -- Whether to autostart when `package.json` is opened
+      autostart = false, -- Whether to autostart when `package.json` is opened
       hide_up_to_date = true, -- It hides up to date versions when displaying virtual text
       hide_unstable_versions = true, -- It hides unstable versions from version list e.g next-11.1.3-canary3
-
       -- Can be `npm` or `yarn`. Used for `delete`, `install` etc...
       -- The plugin will try to auto-detect the package manager based on
       -- `yarn.lock` or `package-lock.json`. If none are found it will use the

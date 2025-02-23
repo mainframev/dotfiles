@@ -11,7 +11,7 @@ return {
       javascriptreact = { "eslint_d" },
       typescriptreact = { "eslint_d" },
       json = { "jsonlint" },
-      markdown = { "markdownlint-cli2" },
+      markdown = { "markdownlint-cli2", "prettier", "eslint_d" },
       yaml = { "yamllint" },
       svelte = { "eslint_d" },
       python = { "pylint" },

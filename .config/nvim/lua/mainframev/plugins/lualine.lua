@@ -23,6 +23,7 @@ return {
 
     local opts = {
       options = {
+        theme = "rose-pine",
         globalstatus = vim.o.laststatus == 3,
         disabled_filetypes = { statusline = { "dashboard", "alpha", "starter" } },
         component_separators = { left = "", right = "" },
