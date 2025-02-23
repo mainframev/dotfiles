@@ -1,4 +1,4 @@
-theme = eldritch
+theme = catppuccin-macchiato
 
 shell-integration = zsh
 shell-integration-features = cursor
