@@ -8,11 +8,29 @@ return {
     dependencies = {
       "rafamadriz/friendly-snippets",
       "giuxtaposition/blink-cmp-copilot",
+      {
+        "L3MON4D3/LuaSnip",
+        version = "v2.*",
+        build = "make install_jsregexp",
+        dependencies = {
+          {
+            "rafamadriz/friendly-snippets",
+            config = function()
+              require("luasnip.loaders.from_vscode").lazy_load()
+              -- /nvim/config/snippets
+              require("luasnip.loaders.from_vscode").lazy_load({ paths = { "./mainframev/lua/snippets" } })
+            end,
+          },
+        },
+      },
     },
     version = "*",
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
     opts = {
+      snippets = {
+        preset = "luasnip",
+      },
       -- 'default' for mappings similar to built-in completion
       -- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
       -- 'enter' for mappings similar to 'super-tab' but with 'enter' to accept
@@ -29,7 +47,6 @@ return {
 
         ["<C-b>"] = { "scroll_documentation_up", "fallback" },
         ["<C-f>"] = { "scroll_documentation_down", "fallback" },
-
         -- ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
         -- ["<C-e>"] = { "hide", "fallback" },
       },
@@ -81,17 +98,9 @@ return {
             name = "lsp",
             enabled = true,
             module = "blink.cmp.sources.lsp",
-            fallbacks = { "snippets", "buffer" },
+            -- fallbacks = { "snippets", "buffer" },
             score_offset = 90, -- the higher the number, the higher the priority
           },
-          -- luasnip = {
-          --   name = "luasnip",
-          --   enabled = true,
-          --   module = "blink.cmp.sources.snippets.luasnip",
-          --   min_keyword_length = 2,
-          --   fallbacks = { "snippets" },
-          --   score_offset = 85, -- the higher the number, the higher the priority
-          -- },
           buffer = {
             name = "Buffer",
             module = "blink.cmp.sources.buffer",
@@ -100,8 +109,9 @@ return {
           snippets = {
             name = "snippets",
             enabled = true,
-            module = "blink.cmp.sources.snippets",
-            score_offset = 80, -- the higher the number, the higher the priority
+            max_items = 15,
+            min_keyword_length = 2,
+            score_offset = 85,
           },
           copilot = {
             name = "copilot",
@@ -231,7 +241,7 @@ return {
         -- use_proximity = true,
         -- max_items = 200,
         prebuilt_binaries = {
-          download = false,
+          download = true,
         },
       },
     },

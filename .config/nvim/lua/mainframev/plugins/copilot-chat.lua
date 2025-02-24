@@ -1,6 +1,11 @@
 ---@type LazySpec
 return {
   "CopilotC-Nvim/CopilotChat.nvim",
+  dependencies = {
+    { "zbirenbaum/copilot.lua" },
+    { "nvim-lua/plenary.nvim", branch = "master" },
+  },
+  build = "make tiktoken",
   event = "VeryLazy",
   opts = {
     show_help = "no",
@@ -11,20 +16,14 @@ return {
       Refactor = "Refactor the code to improve clarity and readability.",
     },
   },
-  build = function()
-    vim.defer_fn(function()
-      vim.cmd("UpdateRemotePlugins")
-      vim.notify("CopilotChat - Updated remote plugins. Please restart Neovim.")
-    end, 3000)
-  end,
   keys = {
-    { "<leader>ccb", ":CopilotChatBuffer<cr>", desc = "CopilotChat - Buffer" },
+    { "<leader>ccb", "<cmd>CopilotChatOpen<cr>", desc = "CopilotChat - Buffer" },
     { "<leader>cce", "<cmd>CopilotChatExplain<cr>", desc = "CopilotChat - Explain code" },
     { "<leader>cct", "<cmd>CopilotChatTests<cr>", desc = "CopilotChat - Generate tests" },
     {
       "<leader>ccT",
       "<cmd>CopilotChatVsplitToggle<cr>",
-      desc = "CopilotChat - Toggle Vsplit", -- Toggle vertical split
+      desc = "CopilotChat - Toggle Vsplit",
     },
     {
       "<leader>ccv",
@@ -40,7 +39,7 @@ return {
     },
     {
       "<leader>ccf",
-      "<cmd>CopilotChatFixDiagnostic<cr>", -- Get a fix for the diagnostic message under the cursor.
+      "<cmd>CopilotChatFixDiagnostic<cr>",
       desc = "CopilotChat - Fix diagnostic",
     },
   },
