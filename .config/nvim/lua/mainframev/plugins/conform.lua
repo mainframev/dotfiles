@@ -13,6 +13,8 @@ return {
         javascriptreact = { "prettierd" },
         typescriptreact = { "prettierd" },
         svelte = { "prettierd" },
+        rust = { name = "rust_analyzer", timeout_ms = 500, lsp_format = "prefer" },
+        sh = { "shfmt" },
         css = { "prettierd" },
         html = { "prettierd" },
         json = { "prettierd" },
