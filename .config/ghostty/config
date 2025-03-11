@@ -12,14 +12,21 @@ font-size = 14
 font-thicken = true
 font-feature = dlig ss05 liga
 
+adjust-underline-position = 6
+adjust-underline-thickness = 40%
+adjust-cursor-thickness = 150%
+
+cursor-color = eb6f92
 cursor-style = block
-cursor-style-blink = true
+cursor-text = 000000
+cursor-style-blink = false
 
 mouse-hide-while-typing = true
 
 background-blur-radius = 20
 
 macos-titlebar-proxy-icon = hidden
+macos-option-as-alt = true
 
 adjust-underline-position = 4
 
@@ -40,9 +47,14 @@ quick-terminal-autohide = true
 
 keybind = global:ctrl+alt+k=toggle_quick_terminal
 
-selection-foreground = #FFFFFF
-selection-background = #323449
+selection-foreground = 000000
+selection-background = c4a7e7
 
-keybind = shift+ctrl+equal=increase_font_size:1
-keybind = shift+ctrl+minus=decrease_font_size:1
-keybind = shift+ctrl+backspace=reset_font_size
+keybind = alt+equal=increase_font_size:1
+keybind = alt+minus=decrease_font_size:1
+keybind = alt+zero=reset_font_size
+keybind = alt+shift+comma=reload_config
+keybind = alt+shift+i=inspector:toggle
+keybind = alt+shift+enter=toggle_fullscreen
+keybind = alt+shift+c=copy_to_clipboard
+keybind = alt+shift+b=write_screen_file:paste
