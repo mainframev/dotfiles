@@ -5,6 +5,8 @@ return {
   {
     "saghen/blink.cmp",
     -- optional: provides snippets for the snippet source
+    build = "cargo +nightly build --release",
+    event = "InsertEnter",
     dependencies = {
       "rafamadriz/friendly-snippets",
       "giuxtaposition/blink-cmp-copilot",
