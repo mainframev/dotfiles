@@ -4,11 +4,11 @@ local icons = require("mainframev.plugins.configs.icons")
 return {
   {
     "saghen/blink.cmp",
+    version = "0.12.4",
     -- optional: provides snippets for the snippet source
     build = "cargo +nightly build --release",
     event = "InsertEnter",
     dependencies = {
-      "rafamadriz/friendly-snippets",
       "giuxtaposition/blink-cmp-copilot",
       {
         "L3MON4D3/LuaSnip",
@@ -19,14 +19,11 @@ return {
             "rafamadriz/friendly-snippets",
             config = function()
               require("luasnip.loaders.from_vscode").lazy_load()
-              -- /nvim/config/snippets
-              require("luasnip.loaders.from_vscode").lazy_load({ paths = { "./mainframev/lua/snippets" } })
             end,
           },
         },
       },
     },
-    version = "*",
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
     opts = {
@@ -107,13 +104,6 @@ return {
             name = "Buffer",
             module = "blink.cmp.sources.buffer",
             min_keyword_length = 2,
-          },
-          snippets = {
-            name = "snippets",
-            enabled = true,
-            max_items = 15,
-            min_keyword_length = 2,
-            score_offset = 85,
           },
           copilot = {
             name = "copilot",
@@ -242,6 +232,7 @@ return {
         -- use_frecency = true,
         -- use_proximity = true,
         -- max_items = 200,
+        -- implementation = "rust",
         prebuilt_binaries = {
           download = true,
         },
