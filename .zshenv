@@ -15,6 +15,7 @@ export NVM_DIR="$HOME/.nvm"
 export DOTFILES="$HOME/dotfiles"
 export DOTFILES_ZSH="$HOME/dotfiles/.config/zsh"
 export STARSHIP_CONFIG="$DOTFILES/.config/starship/config.toml"
+export SNACKS_GHOSTTY=true
 
 # ZSH_THEME="powerlevel10k/powerlevel10k"
 ZSH_DISABLE_COMPFIX=true

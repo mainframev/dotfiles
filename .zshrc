@@ -1,9 +1,5 @@
 #!/bin/env zsh
 
-# | POWERSHELL10K (p10k) |
-# should be source at the top
-# source $DOTFILES_ZSH/p10k.zsh
-
 # | YAZI |
 source $DOTFILES_ZSH/yazi.zsh
 
@@ -18,7 +14,7 @@ fi
 # | ALIASES |
 source $DOTFILES_ZSH/aliases.zsh
 
-# STARSHIP
+# | STARSHIP |
 eval "$(starship init zsh)"
 
 
