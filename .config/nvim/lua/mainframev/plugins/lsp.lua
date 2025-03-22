@@ -244,6 +244,30 @@ return {
           capabilities = capabilities,
         })
       end,
+      ["rust_analyzer"] = function()
+        lspconfig.rust_analyzer.setup({
+          capabilities = capabilities,
+          settings = {
+            ["rust-analyzer"] = {
+              check = {
+                command = "clippy",
+              },
+              inlayHints = {
+                renderColons = true,
+                chainingHints = true,
+                typeHints = true,
+                parameterHints = true,
+              },
+              diagnostics = {
+                enable = true,
+                styleLints = {
+                  enable = true,
+                },
+              },
+            },
+          },
+        })
+      end,
     })
   end,
 }
