@@ -10,6 +10,16 @@ return {
     bigfile = { enabled = true },
     quickfile = { enabled = true },
     words = { enabled = true },
+    image = {
+      enabled = true,
+      doc = {
+        float = true,
+        inline = false,
+      },
+      markdown = {
+        enabled = true,
+      },
+    },
     dashboard = config.dashboard,
     statuscolumn = config.statuscolumn,
     -- input = config.input,
