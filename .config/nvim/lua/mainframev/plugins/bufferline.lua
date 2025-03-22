@@ -5,7 +5,7 @@ return {
   "akinsho/bufferline.nvim",
   event = "ColorScheme",
   version = "*",
-  dependencies = { "nvim-tree/nvim-web-devicons", "moll/vim-bbye", "rose-pine/neovim" },
+  dependencies = { "nvim-tree/nvim-web-devicons", "moll/vim-bbye" },
   keys = {
     { "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle Pin" },
     { "<leader>bP", "<Cmd>BufferLineGroupClose ungrouped<CR>", desc = "Delete Non-Pinned Buffers" },
@@ -27,7 +27,6 @@ return {
     { "<Space>9", "<cmd>BufferLineGoToBuffer 9<CR>" },
   },
   opts = {
-    -- highlights = require("rose-pine.plugins.bufferline"),
     options = {
       mode = "buffers",
       view = "multiwindow",
