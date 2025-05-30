@@ -73,199 +73,186 @@ return {
       },
     })
 
-    mason_lspconfig.setup_handlers({
-      -- default handler for installed servers
-      function(server_name)
-        lspconfig[server_name].setup({
-          capabilities = capabilities,
-        })
-      end,
+    vim.lsp.config("ts_ls", {
+      capabilities = capabilities,
+      filetypes = {
+        "typescript",
+        "typescriptreact",
+        "javascript",
+        "javascriptreact",
+        "javascript.jsx",
+        "typescript.tsx",
+        "vue",
+      },
+    })
 
-      ["ltex"] = function()
-        require("lspconfig").ltex.setup({
-          settings = {
-            ltex = {
-              language = "en-GB",
-              additionalRules = {
-                languageModel = "~/LanguageTool/",
-              },
-              disabledRules = {
-                ["en-GB"] = {
-                  "EN_QUOTES",
-                  "COMMA_PARENTHESIS_WHITESPACE",
-                },
-              },
-              enabled = {
-                "html",
-                "latex",
-                "markdown",
-                "gitcommit",
-                "text",
-                "mdx",
+    vim.lsp.config("rust_analyzer", {
+      capabilities = capabilities,
+      cmd = { "rust-analyzer" },
+      filetypes = { "rust" },
+      settings = {
+        ["rust-analyzer"] = {
+          check = {
+            command = "clippy",
+          },
+          inlayHints = {
+            renderColons = true,
+            chainingHints = true,
+            typeHints = true,
+            parameterHints = true,
+          },
+          diagnostics = {
+            enable = true,
+            styleLints = {
+              enable = true,
+            },
+          },
+        },
+      },
+    })
+
+    vim.lsp.config("lua_ls", {
+      capabilities = capabilities,
+      settings = {
+        Lua = {
+          codeLens = {
+            enable = true,
+          },
+          hint = {
+            enable = true,
+            setType = false,
+            paramType = true,
+            paramName = "Disable",
+            semicolon = "Disable",
+            arrayIndex = "Disable",
+          },
+          -- make the language server recognize "vim" global
+          diagnostics = {
+            globals = { "vim" },
+          },
+          completion = {
+            callSnippet = "Replace",
+          },
+        },
+      },
+    })
+
+    vim.lsp.config("tailwindcss", {
+      capabilities = require("mainframev.plugins.configs.lsp.tailwindcss").capabilities,
+      filetypes = require("mainframev.plugins.configs.lsp.tailwindcss").filetypes,
+      init_options = require("mainframev.plugins.configs.lsp.tailwindcss").init_options,
+      on_attach = require("mainframev.plugins.configs.lsp.tailwindcss").on_attach,
+      settings = require("mainframev.plugins.configs.lsp.tailwindcss").settings,
+      root_dir = lspconfig.util.root_pattern("tailwind.config.js", "tailwind.config.ts"),
+    })
+
+    vim.lsp.config("jsonls", {
+      capabilities = capabilities,
+      settings = {
+        json = {
+          schemas = require("schemastore").json.schemas({
+            ignore = {
+              ".eslintrc",
+              "package.json",
+            },
+          }),
+          validate = { enable = true },
+        },
+      },
+    })
+
+    vim.lsp.config("typos_lsp", {
+      capabilities = capabilities,
+      filetypes = { "markdown", "toml", "yaml", "json" },
+      init_options = {
+        diagnosticSeverity = "Hint",
+      },
+    })
+
+    vim.lsp.config("emmet_ls", {
+      capabilities = capabilities,
+      filetypes = { "html", "typescriptreact", "javascriptreact", "css", "sass", "scss", "less", "svelte" },
+      init_options = {
+        html = {
+          options = {
+            ["bem.enabled"] = true,
+          },
+        },
+      },
+    })
+
+    vim.lsp.config("svelte", {
+      capabilities = capabilities,
+      filetypes = { "svelte" },
+      root_dir = lspconfig.util.root_pattern("package.json", "svelte.config.js", "svelte.config.cjs", ".git"),
+      settings = {
+        svelte = {
+          plugin = {
+            svelte = {
+              completion = {
+                autoImport = true,
               },
             },
           },
-          filetypes = {
+        },
+      },
+    })
+
+    vim.lsp.config("graphql", {
+      capabilities = capabilities,
+      filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
+      root_dir = lspconfig.util.root_pattern("package.json", ".git"),
+    })
+
+    vim.lsp.config("eslint", {
+      capabilities = capabilities,
+      filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+      on_attach = function(_, bufnr)
+        vim.api.nvim_create_autocmd("BufWritePost", {
+          buffer = bufnr,
+          command = "EslintFixAll",
+        })
+      end,
+    })
+
+    vim.lsp.config("ltex", {
+      settings = {
+        ltex = {
+          language = "en-GB",
+          additionalRules = {
+            languageModel = "~/LanguageTool/",
+          },
+          disabledRules = {
+            ["en-GB"] = {
+              "EN_QUOTES",
+              "COMMA_PARENTHESIS_WHITESPACE",
+            },
+          },
+          enabled = {
             "html",
-            "gitcommit",
-            "text",
             "latex",
             "markdown",
+            "gitcommit",
+            "text",
             "mdx",
           },
-          -- capabilities = capabilities,
-          on_attach = function()
-            require("ltex_extra").setup({
-              load_langs = { "en-GB" },
-              init_check = true,
-              path = vim.fn.stdpath("config") .. "/spell", -- path to store dictionaries.
-              log_level = "none",
-            })
-          end,
-        })
-      end,
-
-      ["svelte"] = function()
-        -- configure svelte server
-        lspconfig["svelte"].setup({
-          capabilities = capabilities,
-          on_attach = function(client)
-            vim.api.nvim_create_autocmd("BufWritePost", {
-              pattern = { "*.js", "*.ts" },
-              callback = function(ctx)
-                -- Here use ctx.match instead of ctx.file
-                client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
-              end,
-            })
-          end,
-        })
-      end,
-      ["eslint"] = function()
-        lspconfig.eslint.setup({
-          capabilities = capabilities,
-          on_attach = function(_, bufnr)
-            vim.api.nvim_create_autocmd("BufWritePost", {
-              buffer = bufnr,
-              command = "EslintFixAll",
-            })
-          end,
-        })
-      end,
-      ["graphql"] = function()
-        -- configure graphql language server
-        lspconfig["graphql"].setup({
-          capabilities = capabilities,
-          filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
-        })
-      end,
-      ["emmet_ls"] = function()
-        -- configure emmet language server
-        lspconfig["emmet_ls"].setup({
-          capabilities = capabilities,
-          filetypes = { "html", "typescriptreact", "javascriptreact", "css", "sass", "scss", "less", "svelte" },
-        })
-      end,
-      -- configure typos_lsp language server
-      ["typos_lsp"] = function()
-        lspconfig.typos_lsp.setup({
-          capabilities = capabilities,
-          filetypes = { "markdown", "toml", "yaml", "json" },
-          init_options = {
-            diagnosticSeverity = "Hint",
-          },
-        })
-      end,
-      -- configure json language server
-      ["jsonls"] = function()
-        lspconfig.jsonls.setup({
-          capabilities = capabilities,
-          settings = {
-            json = {
-              schemas = require("schemastore").json.schemas({
-                ignore = {
-                  ".eslintrc",
-                  "package.json",
-                },
-              }),
-              validate = { enable = true },
-            },
-          },
-        })
-      end,
-      ["tailwindcss"] = function()
-        lspconfig.tailwindcss.setup({
-          capabilities = require("mainframev.plugins.configs.lsp.tailwindcss").capabilities,
-          filetypes = require("mainframev.plugins.configs.lsp.tailwindcss").filetypes,
-          init_options = require("mainframev.plugins.configs.lsp.tailwindcss").init_options,
-          on_attach = require("mainframev.plugins.configs.lsp.tailwindcss").on_attach,
-          settings = require("mainframev.plugins.configs.lsp.tailwindcss").settings,
-          root_dir = lspconfig.util.root_pattern("tailwind.config.js", "tailwind.config.ts"),
-        })
-      end,
-      ["lua_ls"] = function()
-        -- configure lua server (with special settings)
-        lspconfig["lua_ls"].setup({
-          capabilities = capabilities,
-          settings = {
-            Lua = {
-              codeLens = {
-                enable = true,
-              },
-              hint = {
-                enable = true,
-                setType = false,
-                paramType = true,
-                paramName = "Disable",
-                semicolon = "Disable",
-                arrayIndex = "Disable",
-              },
-              -- make the language server recognize "vim" global
-              diagnostics = {
-                globals = { "vim" },
-              },
-              completion = {
-                callSnippet = "Replace",
-              },
-            },
-          },
-        })
-      end,
-      ["ts_ls"] = function()
-        lspconfig["ts_ls"].setup({
-          filetypes = {
-            "typescript",
-            "typescriptreact",
-            "javascript",
-            "javascriptreact",
-            "javascript.jsx",
-            "typescript.tsx",
-            "vue",
-          },
-          capabilities = capabilities,
-        })
-      end,
-      ["rust_analyzer"] = function()
-        lspconfig.rust_analyzer.setup({
-          capabilities = capabilities,
-          settings = {
-            ["rust-analyzer"] = {
-              check = {
-                command = "clippy",
-              },
-              inlayHints = {
-                renderColons = true,
-                chainingHints = true,
-                typeHints = true,
-                parameterHints = true,
-              },
-              diagnostics = {
-                enable = true,
-                styleLints = {
-                  enable = true,
-                },
-              },
-            },
-          },
+        },
+      },
+      filetypes = {
+        "html",
+        "gitcommit",
+        "text",
+        "latex",
+        "markdown",
+        "mdx",
+      },
+      -- capabilities = capabilities,
+      on_attach = function()
+        require("ltex_extra").setup({
+          load_langs = { "en-GB" },
+          init_check = true,
+          path = vim.fn.stdpath("config") .. "/spell", -- path to store dictionaries.
+          log_level = "none",
         })
       end,
     })
