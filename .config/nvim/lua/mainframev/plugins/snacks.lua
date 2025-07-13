@@ -8,16 +8,16 @@ return {
   ---@type snacks.Config
   opts = {
     bigfile = { enabled = true },
-    quickfile = { enabled = true },
-    words = { enabled = true },
+    quickfile = { enabled = false },
+    words = { enabled = false },
     image = {
       enabled = true,
       doc = {
-        float = true,
+        float = false,
         inline = false,
       },
       markdown = {
-        enabled = true,
+        enabled = false,
       },
     },
     dashboard = config.dashboard,

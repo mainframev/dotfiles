@@ -208,9 +208,16 @@ return {
       capabilities = capabilities,
       filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
       on_attach = function(_, bufnr)
-        vim.api.nvim_create_autocmd("BufWritePost", {
+        vim.api.nvim_create_autocmd("BufWritePre", {
           buffer = bufnr,
-          command = "EslintFixAll",
+          callback = function()
+            vim.lsp.buf.code_action({
+              context = {
+                only = { "source.fixAll.eslint" },
+              },
+              apply = true,
+            })
+          end,
         })
       end,
     })
