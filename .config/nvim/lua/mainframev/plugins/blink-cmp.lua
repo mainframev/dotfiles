@@ -4,9 +4,9 @@ local icons = require("mainframev.plugins.configs.icons")
 return {
   {
     "saghen/blink.cmp",
-    version = "0.12.4",
+    version = "1.7.0",
     -- optional: provides snippets for the snippet source
-    build = "cargo +nightly build --release",
+    -- build = "cargo +nightly build --release",
     event = "InsertEnter",
     dependencies = {
       "giuxtaposition/blink-cmp-copilot",
@@ -232,7 +232,7 @@ return {
         -- use_frecency = true,
         -- use_proximity = true,
         -- max_items = 200,
-        -- implementation = "rust",
+        implementation = "prefer_rust_with_warning",
         prebuilt_binaries = {
           download = true,
         },
