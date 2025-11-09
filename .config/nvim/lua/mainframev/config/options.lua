@@ -38,6 +38,7 @@ opt.signcolumn = "yes"
 opt.backspace = "indent,eol,start"
 opt.clipboard:append("unnamedplus")
 
+opt.updatetime = 300
 opt.swapfile = false
 
 vim.filetype.add({

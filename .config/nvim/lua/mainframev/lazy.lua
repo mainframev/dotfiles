@@ -14,7 +14,6 @@ require("lazy").setup({
     lazy = true,
     version = false, -- always use the latest git commit
   },
-  install = { colorscheme = { "eldritch" } },
   checker = { enabled = true }, -- automatically check for plugin updates
   concurrency = 5,
   performance = {
