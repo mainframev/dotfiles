@@ -196,6 +196,8 @@ return {
 
     require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
+    vim.lsp.config("gdscript", {})
+
     for server, cfg in pairs(servers) do
       cfg.capabilities = vim.tbl_deep_extend("force", {}, capabilities, cfg.capabilities or {})
 
