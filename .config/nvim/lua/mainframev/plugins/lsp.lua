@@ -8,8 +8,32 @@ return {
     "barreiroleo/ltex-extra.nvim",
     "b0o/schemastore.nvim",
     "saghen/blink.cmp",
+    "SmiteshP/nvim-navic",
   },
   config = function()
+    vim.api.nvim_create_autocmd("LspAttach", {
+      group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
+      callback = function(ev)
+        -- show diagnostic on hover
+        vim.api.nvim_create_autocmd("CursorHold", {
+          buffer = ev.buf,
+          callback = function()
+            vim.diagnostic.open_float({
+              focus = false,
+              source = true,
+              close_events = {
+                "CursorMoved",
+                "CursorMovedI",
+                "BufHidden",
+                "InsertCharPre",
+                "WinLeave",
+              },
+            })
+          end,
+        })
+      end,
+    })
+
     local capabilities = vim.lsp.protocol.make_client_capabilities()
     capabilities = vim.tbl_deep_extend("force", capabilities, require("blink.cmp").get_lsp_capabilities())
 

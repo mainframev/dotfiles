@@ -22,6 +22,11 @@ return {
         show_hidden = true,
         natural_order = true,
         is_always_hidden = function(name, _)
+          if is_godot_project then
+            if vim.endswith(name, ".uid") then
+              return true
+            end
+          end
           return name == ".." or name == ".git"
         end,
       },
