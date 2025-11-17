@@ -24,6 +24,7 @@ return {
         graphql = { "prettierd" },
         lua = { "stylua" },
         python = { "isort", "black" },
+        gdscript = { "gdformat" },
       },
       format_on_save = {
         lsp_fallback = true,

@@ -18,6 +18,8 @@ return {
       lua = { "selene" },
       bash = { "shellcheck" },
       zsh = { "shellcheck" },
+      dockerfile = { "hadolint" },
+      gdscript = { "gdlint" },
     }
 
     local eslint = lint.linters.eslint_d

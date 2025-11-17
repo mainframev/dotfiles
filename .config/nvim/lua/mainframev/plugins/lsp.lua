@@ -40,6 +40,7 @@ return {
     local servers = {
       ts_ls = {},
       ruff = {},
+      gdtoolkit = {},
       ltex = {
         settings = {
           ltex = {
@@ -189,14 +190,16 @@ return {
       "markdownlint-cli2",
       "marksman",
       "markdown-toc",
-      "isort",
-      "black",
       "eslint_d",
+      "jq",
+      "shellcheck",
+      "black",
+      "ruff",
+      "pylint",
+      "hadolint",
     })
 
     require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-
-    vim.lsp.config("gdscript", {})
 
     for server, cfg in pairs(servers) do
       cfg.capabilities = vim.tbl_deep_extend("force", {}, capabilities, cfg.capabilities or {})
