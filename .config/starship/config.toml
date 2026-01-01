@@ -20,6 +20,7 @@ $java\
 $nodejs\
 $zig\
 $golang\
+$python\
 $bun\
 $lua\
 $rust\
@@ -124,7 +125,12 @@ format = '[  $context]($style) '
 
 [lua]
 style = "bold cyan"
-format = '[󰢱 $version]($style) '
+format = '[󰢱  $version]($style) '
+
+[python]
+format = "[$symbol$version( \\(venv:$virtualenv\\))]($style) "
+version_format = "${raw}"
+style = "bold bright-yellow"
 
 [package]
 symbol = " "
