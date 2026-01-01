@@ -3,26 +3,23 @@ local icons = require("mainframev.plugins.configs.icons")
 ---@type LazySpec[]
 return {
   {
+    "L3MON4D3/LuaSnip", -- Snippet engine
+    version = "v2.*",
+    dependencies = {},
+    config = function()
+      require("luasnip.loaders.from_vscode").lazy_load()
+    end,
+  },
+  {
     "saghen/blink.cmp",
-    version = "1.7.0",
-    -- optional: provides snippets for the snippet source
-    -- build = "cargo +nightly build --release",
+    version = "1.8.0",
     event = "InsertEnter",
+    build = "cargo build --release",
     dependencies = {
-      "giuxtaposition/blink-cmp-copilot",
-      {
-        "L3MON4D3/LuaSnip",
-        version = "v2.*",
-        build = "make install_jsregexp",
-        dependencies = {
-          {
-            "rafamadriz/friendly-snippets",
-            config = function()
-              require("luasnip.loaders.from_vscode").lazy_load()
-            end,
-          },
-        },
-      },
+      "fang2hou/blink-copilot",
+      -- Snippet source
+      "rafamadriz/friendly-snippets",
+      "xzbdmw/colorful-menu.nvim",
     },
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
@@ -43,13 +40,11 @@ return {
         ["<C-j>"] = { "select_next", "fallback" },
         ["<Up>"] = { "select_prev", "fallback" },
         ["<Down>"] = { "select_next", "fallback" },
-
         ["<C-b>"] = { "scroll_documentation_up", "fallback" },
         ["<C-f>"] = { "scroll_documentation_down", "fallback" },
         -- ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
         -- ["<C-e>"] = { "hide", "fallback" },
       },
-
       appearance = {
         use_nvim_cmp_as_default = true,
         nerd_font_variant = "mono",
@@ -93,24 +88,11 @@ return {
       sources = {
         default = { "copilot", "lsp", "snippets", "buffer" },
         providers = {
-          lsp = {
-            name = "lsp",
-            enabled = true,
-            module = "blink.cmp.sources.lsp",
-            -- fallbacks = { "snippets", "buffer" },
-            score_offset = 90, -- the higher the number, the higher the priority
-          },
-          buffer = {
-            name = "Buffer",
-            module = "blink.cmp.sources.buffer",
-            min_keyword_length = 2,
-          },
           copilot = {
             name = "copilot",
             enabled = true,
-            module = "blink-cmp-copilot",
-            min_keyword_length = 2,
-            score_offset = 100, -- the higher the number, the higher the priority
+            module = "blink-copilot",
+            score_offset = 100,
             async = true,
             transform_items = function(_, items)
               local CompletionItemKind = require("blink.cmp.types").CompletionItemKind
@@ -121,6 +103,17 @@ return {
               end
               return items
             end,
+          },
+          lsp = {
+            name = "lsp",
+            enabled = true,
+            module = "blink.cmp.sources.lsp",
+            score_offset = 90, -- the higher the number, the higher the priority
+          },
+          buffer = {
+            name = "Buffer",
+            module = "blink.cmp.sources.buffer",
+            min_keyword_length = 2,
           },
         },
       },
@@ -149,24 +142,8 @@ return {
             treesitter = { "lsp", "copilot" },
             padding = 1,
             gap = 1,
-            columns = {
-              { "kind_icon" },
-              { "label", "label_description", gap = 1 },
-              { "kind" },
-            },
+            columns = { { "kind_icon" }, { "label", "label_description", gap = 1 }, { "kind" } },
             components = {
-              kind_icon = {
-                ellipsis = false,
-                text = function(ctx)
-                  return ctx.kind_icon .. " "
-                end,
-                highlight = function(ctx)
-                  if ctx.item.source_name == "copilot" then
-                    return "BlinkCmpKindCopilot"
-                  end
-                  return "BlinkCmpKind" .. ctx.kind
-                end,
-              },
               kind = {
                 ellipsis = false,
                 text = function(ctx)
@@ -184,47 +161,95 @@ return {
                 end,
               },
               label = {
-                width = { fill = true, max = 60 },
                 text = function(ctx)
-                  return ctx.label .. (ctx.label_detail or "")
+                  return require("colorful-menu").blink_components_text(ctx)
                 end,
                 highlight = function(ctx)
-                  -- label and label details
-                  local highlights = {
-                    {
-                      0,
-                      #ctx.label,
-                      group = ctx.deprecated and "BlinkCmpLabelDeprecated" or "BlinkCmpLabel",
-                    },
-                  }
-                  if ctx.label_detail then
-                    table.insert(highlights, {
-                      #ctx.label + 1,
-                      #ctx.label + #ctx.label_detail,
-                      group = "BlinkCmpLabelDetail",
-                    })
-                  end
-
-                  -- characters matched on the label by the fuzzy matcher
-                  if ctx.label_matched_indices ~= nil then
-                    for _, idx in ipairs(ctx.label_matched_indices) do
-                      table.insert(highlights, { idx, idx + 1, group = "BlinkCmpLabelMatch" })
-                    end
-                  end
-
-                  return highlights
+                  return require("colorful-menu").blink_components_highlight(ctx)
                 end,
-              },
-
-              label_description = {
-                width = { max = 30 },
-                text = function(ctx)
-                  return ctx.label_description or ""
-                end,
-                highlight = "BlinkCmpLabelDescription",
               },
             },
           },
+          -- draw = {
+          --   treesitter = { "lsp", "copilot" },
+          --   padding = 1,
+          --   gap = 1,
+          --   columns = {
+          --     { "kind_icon" },
+          --     { "label", "label_description", gap = 1 },
+          --     { "kind" },
+          --   },
+          --   components = {
+          --     kind_icon = {
+          --       ellipsis = false,
+          --       text = function(ctx)
+          --         return ctx.kind_icon .. " "
+          --       end,
+          --       highlight = function(ctx)
+          --         if ctx.item.source_name == "copilot" then
+          --           return "BlinkCmpKindCopilot"
+          --         end
+          --         return "BlinkCmpKind" .. ctx.kind
+          --       end,
+          --     },
+          --     kind = {
+          --       ellipsis = false,
+          --       text = function(ctx)
+          --         if ctx.item.source_name == "copilot" then
+          --           local name = ctx.item.source_name
+          --           return name:sub(1, 1):upper() .. name:sub(2) .. " "
+          --         end
+          --         return ctx.kind .. " "
+          --       end,
+          --       highlight = function(ctx)
+          --         if ctx.item.source_name == "copilot" then
+          --           return "BlinkCmpKindCopilot"
+          --         end
+          --         return "BlinkCmpKind" .. ctx.kind
+          --       end,
+          --     },
+          --     label = {
+          --       width = { fill = true, max = 60 },
+          --       text = function(ctx)
+          --         return ctx.label .. (ctx.label_detail or "")
+          --       end,
+          --       highlight = function(ctx)
+          --         -- label and label details
+          --         local highlights = {
+          --           {
+          --             0,
+          --             #ctx.label,
+          --             group = ctx.deprecated and "BlinkCmpLabelDeprecated" or "BlinkCmpLabel",
+          --           },
+          --         }
+          --         if ctx.label_detail then
+          --           table.insert(highlights, {
+          --             #ctx.label + 1,
+          --             #ctx.label + #ctx.label_detail,
+          --             group = "BlinkCmpLabelDetail",
+          --           })
+          --         end
+          --
+          --         -- characters matched on the label by the fuzzy matcher
+          --         if ctx.label_matched_indices ~= nil then
+          --           for _, idx in ipairs(ctx.label_matched_indices) do
+          --             table.insert(highlights, { idx, idx + 1, group = "BlinkCmpLabelMatch" })
+          --           end
+          --         end
+          --
+          --         return highlights
+          --       end,
+          --     },
+
+          --       label_description = {
+          --         width = { max = 30 },
+          --         text = function(ctx)
+          --           return ctx.label_description or ""
+          --         end,
+          --         highlight = "BlinkCmpLabelDescription",
+          --       },
+          --     },
+          --   },
         },
       },
       fuzzy = {
@@ -232,7 +257,7 @@ return {
         -- use_frecency = true,
         -- use_proximity = true,
         -- max_items = 200,
-        implementation = "prefer_rust_with_warning",
+        implementation = "rust",
         prebuilt_binaries = {
           download = true,
         },

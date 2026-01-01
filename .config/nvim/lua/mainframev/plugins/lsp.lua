@@ -40,7 +40,6 @@ return {
     local servers = {
       ts_ls = {},
       ruff = {},
-      gdtoolkit = {},
       ltex = {
         settings = {
           ltex = {
@@ -201,9 +200,16 @@ return {
 
     require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
+    local lspconfig = require("lspconfig")
+
+    if is_godot_project then
+      lspconfig.gdscript.setup({})
+    end
+
     vim.lsp.config("gdscript", {
       capabilities = capabilities,
     })
+
     vim.lsp.enable("gdscript")
 
     for server, cfg in pairs(servers) do

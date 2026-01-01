@@ -3,6 +3,7 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     version = false,
+    branch = "main",
     build = ":TSUpdate",
     cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
     lazy = vim.fn.argc(-1) == 0, -- load treesitter early when opening a file from the cmdline
@@ -49,11 +50,6 @@ return {
         "yaml",
       },
     },
-    ---@param opts TSConfig
-    config = function(_, opts)
-      require("nvim-treesitter.configs").setup(opts)
-      vim.treesitter.language.register("markdown", "mdx")
-    end,
   },
   {
     "nvim-treesitter/nvim-treesitter-context",
