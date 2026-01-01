@@ -55,6 +55,7 @@ brew install shellcheck
 brew install selene
 brew install pngpast
 brew install sharship
+brew install postgresql
 
 sleep 1
 
@@ -81,4 +82,5 @@ brew install --cask keycastr
 brew install --cask firefox-developer-edition
 brew install --cask obsidian
 brew install --cask ghostty
+brew install --cask pgadmin4
 

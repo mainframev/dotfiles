@@ -7,3 +7,6 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 # Install brew with packages & casks, composer and yarn global packages
 . "$DOTFILES_DIR/install/brew.sh"
+
+# Install UV
+sh -c "$(curl -fsSL https://astral.sh/uv/install.sh)"
