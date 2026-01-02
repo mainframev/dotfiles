@@ -12,8 +12,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 sh -c "$(curl -fsSL https://astral.sh/uv/install.sh)"
 
 # Claude CLI
-curl -fsSL https://claude.ai/install.sh | bash
+curl -fsSL https://claude.ai/install.sh | sh
 
-# Aider: https://aider.chat/docs/install.html
-curl -LsSf https://aider.chat/install.sh | sh
-
+# OpenCode: https://opencode.ai/docs
+curl -fsSL https://opencode.ai/install | sh
