@@ -10,3 +10,6 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 # Install UV
 sh -c "$(curl -fsSL https://astral.sh/uv/install.sh)"
+
+# Claude CLI
+curl -fsSL https://claude.ai/install.sh | bash
