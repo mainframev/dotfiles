@@ -1,22 +1,23 @@
 {
-  "theme": "Moonlight Italic",
+  "buffer_font_weight": 500.0,
+  "theme": "Rosé Pine",
   "vim_mode": true,
   "base_keymap": "VSCode",
-  "buffer_font_size": 14,
+  "buffer_font_size": 16.0,
   "buffer_line_height": { "custom": 1.3 },
   "current_line_highlight": "line",
   "ui_font_size": 16,
   "agent": {
     "default_model": {
       "provider": "copilot_chat",
-      "model": "claude-sonnet-4.5"
+      "model": "claude-sonnet-4.5",
     },
     "enabled": true,
     "button": true,
-    "model_parameters": []
+    "model_parameters": [],
   },
   "tab_bar": {
-    "show": true
+    "show": true,
   },
   "scrollbar": {
     "show": "never",
@@ -24,39 +25,38 @@
     "git_diff": true,
     "search_results": true,
     "selected_symbol": true,
-    "diagnostics": "all"
+    "diagnostics": "all",
   },
   "preview_tabs": {
     "enabled": true,
     "enable_preview_from_file_finder": false,
-    "enable_preview_from_code_navigation": false
   },
   "centered_layout": {
     "left_padding": 0.1,
-    "right_padding": 0.1
+    "right_padding": 0.1,
   },
   "status_bar": {
-    "experimental.show": true
+    "experimental.show": true,
   },
   "relative_line_numbers": "enabled",
   "gutter": {
-    "line_numbers": true
+    "line_numbers": true,
   },
   "minimap": {
-    "show": "never"
+    "show": "never",
   },
   "toolbar": {
     "breadcrumbs": true,
     "quick_actions": false,
-    "selections_menu": false
+    "selections_menu": false,
   },
   "git": {
     "git_gutter": "tracked_files",
     "inline_blame": {
-      "enabled": true
-    }
+      "enabled": true,
+    },
   },
-  "cursor_shape": "hollow",
+  "cursor_shape": "block",
   "cursor_blink": false,
   "buffer_font_family": "JetBrainsMono Nerd Font",
   "linked_edits": true,
@@ -67,6 +67,6 @@
   "icon_theme": {
     "mode": "dark",
     "light": "Zed (Default)",
-    "dark": "Catppuccin Mocha"
-  }
+    "dark": "Material Icon Theme",
+  },
 }
