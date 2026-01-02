@@ -18,7 +18,7 @@ plugins=(
   zsh-autosuggestions
   zsh-syntax-highlighting
   Stack
-  tmux
+  # tmux
   tmuxinator
   z
   zsh-eza
