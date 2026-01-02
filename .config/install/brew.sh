@@ -4,83 +4,83 @@
 brew update
 brew upgrade
 
-brew tap homebrew/cask-versions
 brew tap homebrew/bundle
+brew tap homebrew/cask-versions
 brew tap homebrew/services
-brew tap microsoft/git
 brew tap laishulu/homebrew
+brew tap microsoft/git
 
 # Install packages
-brew install htop
-brew install curl
-brew install spotify_player
-brew install curlie
-brew install git
-brew install git-delta
-brew install difftastic
-brew install yazi
-brew install diff-so-fancy
-brew install gh
-brew install wget
-brew install yarn
-brew install pyenv
-brew install readline sqlite3 xz zlib tcl-tk
-brew install fzf
-brew install clipboard
-brew install cargo-c
 brew install bat
 brew install bat-extras
-brew install prettierd
-brew install tmux
-brew install qemu
+brew install cargo-c
+brew install clipboard
+brew install codex
+brew install curl
+brew install curlie
+brew install diff-so-fancy
+brew install difftastic
+brew install eza
+brew install fd
+brew install fzf
+brew install gh
+brew install git
+brew install git-delta
+brew install htop
+brew install jq
+brew install jsonlint
+brew install lua-language-server
+brew install luarocks
+brew install macism
 brew install neovim
 brew install node
-brew install nvm
-brew install eza
 brew install nowplaying-cli
-brew install stow
-brew install rust
-brew install ripgrep
-brew install luarocks
-brew install lua-language-server
-brew install fd
-brew install wget
-brew install sketchybar
-brew install zoxide
-brew install jq
-brew install macism
-brew install jsonlint
-brew install yamllint
-brew install shellcheck
-brew install selene
+brew install nvm
 brew install pngpast
-brew install sharship
 brew install postgresql
+brew install prettierd
+brew install pyenv
+brew install qemu
+brew install readline sqlite3 xz zlib tcl-tk
+brew install ripgrep
+brew install rust
+brew install selene
+brew install sharship
+brew install shellcheck
+brew install sketchybar
+brew install spotify_player
+brew install stow
+brew install tmux
+brew install wget
+brew install wget
+brew install yamllint
+brew install yarn
+brew install yazi
+brew install zoxide
 
 sleep 1
 
 echo "Basic brew packages are installed."
 
 # Cask packages
-brew install --cask spotify
-brew install --cask insomnia
-brew install --cask visual-studio-code
-brew install --cask google-chrome
-brew install --cask imageoptim
 brew install --cask figma
-brew install --cask zoom
-brew install --cask kitty
-brew install --cask nikitabobko/tap/aerospace
-brew install --cask sf-symbols
-brew install --cask font-sf-pro
-brew install --cask hammerspoon
+brew install --cask firefox-developer-edition
+brew install --cask font-3270-nerd-font
 brew install --cask font-jetbrains-mono-nerd-font
 brew install --cask font-monaspace-nerd-font
-brew install --cask font-3270-nerd-font
-brew install --cask obsidian
-brew install --cask keycastr
-brew install --cask firefox-developer-edition
-brew install --cask obsidian
+brew install --cask font-sf-pro
 brew install --cask ghostty
+brew install --cask google-chrome
+brew install --cask hammerspoon
+brew install --cask imageoptim
+brew install --cask insomnia
+brew install --cask keycastr
+brew install --cask kitty
+brew install --cask nikitabobko/tap/aerospace
+brew install --cask obsidian
+brew install --cask obsidian
 brew install --cask pgadmin4
-
+brew install --cask sf-symbols
+brew install --cask spotify
+brew install --cask visual-studio-code
+brew install --cask zoom
