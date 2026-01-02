@@ -13,3 +13,7 @@ sh -c "$(curl -fsSL https://astral.sh/uv/install.sh)"
 
 # Claude CLI
 curl -fsSL https://claude.ai/install.sh | bash
+
+# Aider: https://aider.chat/docs/install.html
+curl -LsSf https://aider.chat/install.sh | sh
+
