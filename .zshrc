@@ -11,6 +11,9 @@ else
     compinit -C
 fi
 
+# | SCRIPTS |
+source $DOTFILES_ZSH/scripts.zsh
+
 # | YAZI |
 source $DOTFILES_ZSH/yazi.zsh
 

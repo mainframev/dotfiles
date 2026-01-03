@@ -2,9 +2,10 @@
 
 # =============================================================================
 # FZF Configuration
-# =============================================================================
-#
-# FZF
+
+
+# FZF scripts
+source $DOTFILES_ZSH/scripts-fzf.zsh
 
 export FZF_BASE="/opt/homebrew/opt/fzf"
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
