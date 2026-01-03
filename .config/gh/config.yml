@@ -1,0 +1,11 @@
+version: 1
+git_protocol: https
+editor: nvim
+prompt: enabled
+pager:
+aliases:
+  gco: pr checkout
+  vpr: pr view --web
+  vr: repo view --web
+http_unix_socket:
+browser:
