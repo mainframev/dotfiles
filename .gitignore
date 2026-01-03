@@ -9,20 +9,21 @@
 !/.config/
 /.config/*
 
-!/.config/alacritty
-/.config/alacritty/themes/
 !/.config/aerospace
-!/.config/bottom
+!/.config/alacritty
 !/.config/bat
-!/.config/sketchybar/
-!/.config/nvim
-!/.config/kitty
+!/.config/bottom
+!/.config/ghostty
 !/.config/install/
+!/.config/kitty
+!/.config/nvim
+!/.config/opencode/
+!/.config/sketchybar/
+!/.config/starship/
 !/.config/tmux
 !/.config/yazi
-!/.config/ghostty
 !/.config/zsh
-!/.config/starship/
+/.config/alacritty/themes/
 # ignored
 /.config/tmux/plugins/
 
