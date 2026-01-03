@@ -75,7 +75,7 @@ keybindings:
     - key: C
       name: code review
       command: >
-        tmux new-window -c {{.RepoPath}} 'nvim -c ":silent Octo pr edit {{.PrNumber}}"'
+        tmux new-window -n octo nvim -c ":silent Octo pr edit {{.PrNumber}}"
     - key: v
       name: approve
       command: >
