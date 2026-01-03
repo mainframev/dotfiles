@@ -5,9 +5,13 @@ alias vi="nvim"
 alias cl="clear -x"
 alias y="yarn"
 alias ggf='gpf'
+alias ghd="gh dash"
+alias ghs="gh status"
+alias ghp="gh pr"
 alias gdc='git diff --cached'
 alias ai='opencode'
 alias src='source ~/.zshrc && echo "Reloaded .zshrc"'
+alias plugpull="find ${ZDOTDIR:-$HOME}/.zsh_plugins -type d -exec test -e '{}/.git' ';' -print0 | xargs -I {} -0 git -C {} pull"
 
 alias l='eza --git-ignore $eza_params'
 alias la='eza -lbhHigUmuSa'

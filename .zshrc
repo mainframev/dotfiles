@@ -1,5 +1,16 @@
 #!/bin/env zsh
 
+# enable zsh profiling
+# zmodload zsh/zprof
+
+# Do not rebuild completion dump file every time, only once a day
+autoload -Uz compinit
+if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
+    compinit
+else
+    compinit -C
+fi
+
 # | YAZI |
 source $DOTFILES_ZSH/yazi.zsh
 
@@ -22,3 +33,5 @@ source $DOTFILES_ZSH/aliases.zsh
 # | STARSHIP |
 eval "$(starship init zsh)"
 
+# End profiling
+# zprof
