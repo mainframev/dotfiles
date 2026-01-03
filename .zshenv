@@ -1,4 +1,4 @@
-#!/bin/env zsh
+#!/usr/bin/env zsh
 
 # PATH
 path+=/usr/local/bin/ghc
@@ -19,10 +19,10 @@ export STARSHIP_CONFIG="$DOTFILES/.config/starship/config.toml"
 export SNACKS_GHOSTTY=true
 
 # ZSH_THEME="powerlevel10k/powerlevel10k"
-ZSH_DISABLE_COMPFIX=true
-GIT_AUTO_FETCH_INTERVAL=4140
-GIT_PROMPT_EXECUTABLE="haskell"
-OWERLEVEL9K_INSTANT_PROMPT=quiet
+export ZSH_DISABLE_COMPFIX=true
+export GIT_AUTO_FETCH_INTERVAL=4140
+export GIT_PROMPT_EXECUTABLE="haskell"
+export POWERLEVEL9K_INSTANT_PROMPT=quiet
 
 eza_params=('--git' '--icons' '--classify' '--group-directories-first' '--time-style=long-iso' '--group' '--color-scale')
 
