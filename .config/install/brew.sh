@@ -46,6 +46,7 @@ brew install pyenv
 brew install qemu
 brew install readline sqlite3 xz zlib tcl-tk
 brew install ripgrep
+brew install ripgrep-all
 brew install rust
 brew install selene
 brew install sharship
