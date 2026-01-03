@@ -29,6 +29,7 @@
 
 !/.zshenv
 !/.zshrc
+!/.zprofile
 !/.hammerspoon/
 
 !README.md

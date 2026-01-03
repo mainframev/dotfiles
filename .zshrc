@@ -22,5 +22,3 @@ source $DOTFILES_ZSH/aliases.zsh
 # | STARSHIP |
 eval "$(starship init zsh)"
 
-
-export PATH="/Users/rejuv/dotfiles/git-fuzzy/bin:$PATH"
