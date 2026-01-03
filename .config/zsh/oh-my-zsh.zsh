@@ -41,7 +41,7 @@ github_plugins=(
 #   done
 # done
 #
-# source $ZSH/oh-my-zsh.sh
+source $ZSH/oh-my-zsh.sh
 #
 # unset github_plugins
 # unset plugin
