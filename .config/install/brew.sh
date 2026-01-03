@@ -20,13 +20,16 @@ brew install curl
 brew install curlie
 brew install diff-so-fancy
 brew install difftastic
+brew install diffnav
 brew install eza
 brew install fd
 brew install fzf
 brew install gh
 brew install git
 brew install git-delta
+brew install gum
 brew install htop
+brew install httpie
 brew install jq
 brew install jsonlint
 brew install lua-language-server
