@@ -21,17 +21,16 @@
 !/.config/nvim
 !/.config/opencode/
 !/.config/sketchybar/
-!/.config/starship
 !/.config/tmux
 !/.config/yazi
 !/.config/zsh
-/.config/alacritty/themes/
+!/.config/starship.toml
 # ignored
 /.config/tmux/plugins/
+/.config/alacritty/themes/
 
 !/.zshenv
 !/.zshrc
 !/.zprofile
-!/.hammerspoon/
 
 !README.md
