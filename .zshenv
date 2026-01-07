@@ -1,14 +1,38 @@
 #!/usr/bin/env zsh
 
+# Dynamically detect dotfiles directory from this file's location
+# This works both locally and in CI where the repo path may differ
+if [ -L "${(%):-%x}" ]; then
+    # If .zshenv is a symlink (stow), resolve to find dotfiles root
+    # readlink gives us the target: dotfiles/.zshenv
+    # We need to get the directory containing that file
+    local real_path
+    real_path="$(readlink "${(%):-%x}" 2>/dev/null)"
+    if [ -n "$real_path" ]; then
+        # Handle both absolute and relative symlinks
+        if [[ "$real_path" = /* ]]; then
+            # Absolute path: /full/path/to/dotfiles/.zshenv -> /full/path/to/dotfiles
+            DOTFILES="${real_path:h}"
+        else
+            # Relative path: dotfiles/.zshenv -> resolve from $HOME
+            DOTFILES="$HOME/${real_path:h}"
+        fi
+    else
+        DOTFILES="$HOME/dotfiles"
+    fi
+else
+    # Fallback to default location
+    DOTFILES="$HOME/dotfiles"
+fi
+
 # Path to your oh-my-zsh installation.
 ZSH="$HOME/.oh-my-zsh"
 TIMING=0
 EDITOR="nvim"
 VISUAL="nvim"
 NVM_DIR="$HOME/.nvm"
-DOTFILES="$HOME/dotfiles"
-DOTFILES_ZSH="$HOME/dotfiles/.config/zsh"
-STARSHIP_CONFIG="$DOTFILES/.config/starship/config.toml"
+DOTFILES_ZSH="$DOTFILES/.config/zsh"
+STARSHIP_CONFIG="$DOTFILES/.config/starship.toml"
 SNACKS_GHOSTTY=true
 
 # DISABLE_AUTO_UPDATE="true"

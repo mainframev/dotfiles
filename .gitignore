@@ -1,10 +1,12 @@
 /*
 !/.git[a-z]*
+!/.github/
 !/delta.gitconfig
 !.editorconfig
 !.stowrc
 !.stow-local-ignore
 !/*.zsh
+!/test.sh
 
 !/.config/
 /.config/*
@@ -16,7 +18,8 @@
 !/.config/gh
 !/.config/gh-dash
 !/.config/ghostty
-!/.config/install/
+!/.config/brew/
+!/.config/install.sh
 !/.config/kitty
 !/.config/nvim
 !/.config/opencode/

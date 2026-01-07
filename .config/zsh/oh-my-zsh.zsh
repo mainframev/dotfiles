@@ -1,7 +1,6 @@
 
 #!/bin/env zsh
 
-
 # Disable auto-update checks
 zstyle ':omz:plugins:nvm' lazy yes
 
@@ -17,33 +16,33 @@ plugins=(
   z
   zsh-eza
   zsh-interactive-cd
-  zsh-autosuggestions
-  zsh-syntax-highlighting
 )
 
+# Auto-install custom plugins from GitHub if not present
+# This runs on shell startup and ensures all plugins are available
 github_plugins=(
-  wfxr/forgit
+  zsh-users/zsh-autosuggestions
+  zsh-users/zsh-syntax-highlighting
 )
 
-# for plugin in $github_plugins; do
-#   plugin_name=${plugin#*/}
-#   # clone the plugin from github if it doesn't exist
-#   if [[ ! -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name ]]; then
-#     mkdir -p ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins
-#     git clone --depth 1 --recursive https://github.com/$plugin.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name
-#   fi
-#   # load the plugin
-#   for initscript in ${plugin_name}.zsh ${plugin_name}.plugin.zsh ${plugin_name}.sh; do
-#     if [[ -f ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name/$initscript ]]; then
-#       source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name/$initscript
-#       break
-#     fi
-#   done
-# done
-#
+for plugin in $github_plugins; do
+  plugin_name=${plugin#*/}
+  # clone the plugin from github if it doesn't exist
+  if [[ ! -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name ]]; then
+    mkdir -p ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins
+    git clone --depth 1 --recursive https://github.com/$plugin.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name
+  fi
+  # load the plugin
+  for initscript in ${plugin_name}.zsh ${plugin_name}.plugin.zsh ${plugin_name}.sh; do
+    if [[ -f ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name/$initscript ]]; then
+      source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name/$initscript
+      break
+    fi
+  done
+done
+
 source $ZSH/oh-my-zsh.sh
-#
-# unset github_plugins
-# unset plugin
-# unset initscript
-#
+
+unset github_plugins
+unset plugin
+unset initscript

@@ -38,3 +38,4 @@ eval "$(starship init zsh)"
 
 # End profiling
 # zprof
+export PATH="$HOME/.local/bin:$PATH"

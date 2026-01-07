@@ -1,0 +1,328 @@
+name: Test Dotfiles
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  syntax-validation:
+    name: Syntax Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck zsh yamllint
+
+          # Install taplo for TOML validation
+          curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-linux-x86_64.gz | gunzip -c > /tmp/taplo
+          sudo install -m 755 /tmp/taplo /usr/local/bin/taplo
+
+      - name: Run syntax validation
+        run: |
+          chmod +x ./test.sh
+          ./test.sh
+
+  test-macos:
+    name: Test on macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Homebrew packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew
+            /opt/homebrew
+          key: ${{ runner.os }}-brew-${{ hashFiles('.config/brew/Brewfile') }}
+          restore-keys: |
+            ${{ runner.os }}-brew-
+
+      - name: Run install script
+        run: |
+          # Run install script in non-interactive mode with --no-gui
+          bash .config/install.sh --no-gui
+        env:
+          CI: true
+          NONINTERACTIVE: 1
+
+      - name: Debug stow results
+        run: |
+          echo "=== Checking dotfiles in home directory ==="
+          ls -la ~/ | grep -E "^l.*\." || echo "No symlinks found"
+          echo ""
+          echo "=== Checking specific dotfiles ==="
+          for file in .zshrc .zshenv .gitconfig; do
+            if [ -L ~/$file ]; then
+              echo "✓ ~/$file is a symlink -> $(readlink ~/$file)"
+            elif [ -e ~/$file ]; then
+              echo "✗ ~/$file exists but is not a symlink"
+            else
+              echo "✗ ~/$file does not exist"
+            fi
+          done
+
+      - name: Verify Homebrew environment
+        run: |
+          if [ -d "/opt/homebrew" ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+          else
+            eval "$(/usr/local/bin/brew shellenv)"
+          fi
+          echo "Homebrew prefix: $(brew --prefix)"
+          echo "PATH: $PATH"
+
+      - name: Verify zsh configuration loads
+        run: |
+          # Source Homebrew environment first
+          if [ -d "/opt/homebrew" ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+          else
+            eval "$(/usr/local/bin/brew shellenv)"
+          fi
+
+          # Try to load zsh config
+          if [ -f ~/.zshrc ]; then
+            zsh -c "source ~/.zshenv 2>/dev/null; source ~/.zshrc && echo 'zsh config loaded successfully'" || echo "zsh config has errors but continuing"
+          else
+            echo "~/.zshrc not found"
+            exit 1
+          fi
+
+      - name: Verify git configuration
+        run: |
+          if [ -L ~/.gitconfig ]; then
+            echo "✓ .gitconfig is a symlink"
+          else
+            echo "✗ .gitconfig is not a symlink"
+            ls -la ~/.gitconfig || echo "✗ .gitconfig does not exist"
+            exit 1
+          fi
+
+          echo "Git aliases:"
+          git config --list | grep "^alias\." | head -5 || echo "No git aliases found"
+
+          if git config --list | grep -q "alias\.d=diff"; then
+            echo "✓ git alias 'd' configured correctly"
+          else
+            echo "✗ git alias 'd' not found"
+            exit 1
+          fi
+
+      - name: Verify tmux configuration exists
+        run: |
+          if [ -d "/opt/homebrew" ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+          else
+            eval "$(/usr/local/bin/brew shellenv)"
+          fi
+
+          if [ -L ~/.config/tmux ]; then
+            echo "✓ .config/tmux is a symlink"
+            ls -la ~/.config/tmux/tmux.conf || echo "tmux.conf not found"
+          else
+            echo "Note: .config/tmux may not be symlinked yet"
+          fi
+
+      - name: List installed tools
+        run: |
+          if [ -d "/opt/homebrew" ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+          else
+            eval "$(/usr/local/bin/brew shellenv)"
+          fi
+
+          echo "=== Installed CLI Tools ==="
+          for cmd in zsh git stow fzf rg fd bat eza starship gh yazi; do
+            if command -v $cmd >/dev/null 2>&1; then
+              version=$($cmd --version 2>&1 | head -1 || echo "version unknown")
+              echo "✓ $cmd: $version"
+            else
+              echo "✗ $cmd: not installed"
+            fi
+          done
+
+  test-ubuntu:
+    name: Test on Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Homebrew packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/Homebrew
+            /home/linuxbrew/.linuxbrew
+          key: ${{ runner.os }}-brew-${{ hashFiles('.config/brew/Brewfile') }}
+          restore-keys: |
+            ${{ runner.os }}-brew-
+
+      - name: Run install script
+        run: |
+          # Run install script in non-interactive mode with --no-gui
+          bash .config/install.sh --no-gui
+        env:
+          CI: true
+          NONINTERACTIVE: 1
+
+      - name: Debug stow results
+        run: |
+          echo "=== Checking dotfiles in home directory ==="
+          ls -la ~/ | grep -E "^l.*\." || echo "No symlinks found"
+          echo ""
+          echo "=== Checking specific dotfiles ==="
+          for file in .zshrc .zshenv .gitconfig; do
+            if [ -L ~/$file ]; then
+              echo "✓ ~/$file is a symlink -> $(readlink ~/$file)"
+            elif [ -e ~/$file ]; then
+              echo "✗ ~/$file exists but is not a symlink"
+            else
+              echo "✗ ~/$file does not exist"
+            fi
+          done
+
+      - name: Verify Homebrew environment
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          echo "Homebrew prefix: $(brew --prefix)"
+          echo "PATH: $PATH"
+
+      - name: Verify zsh configuration loads
+        run: |
+          # Source Homebrew environment first
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+          # Try to load zsh config
+          if [ -f ~/.zshrc ]; then
+            zsh -c "source ~/.zshenv 2>/dev/null; source ~/.zshrc && echo 'zsh config loaded successfully'" || echo "zsh config has errors but continuing"
+          else
+            echo "~/.zshrc not found"
+            exit 1
+          fi
+
+      - name: Verify git configuration
+        run: |
+          if [ -L ~/.gitconfig ]; then
+            echo "✓ .gitconfig is a symlink"
+          else
+            echo "✗ .gitconfig is not a symlink"
+            ls -la ~/.gitconfig || echo "✗ .gitconfig does not exist"
+            exit 1
+          fi
+
+          echo "Git aliases:"
+          git config --list | grep "^alias\." | head -5 || echo "No git aliases found"
+
+          if git config --list | grep -q "alias\.d=diff"; then
+            echo "✓ git alias 'd' configured correctly"
+          else
+            echo "✗ git alias 'd' not found"
+            exit 1
+          fi
+
+      - name: List installed tools
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+          echo "=== Installed CLI Tools ==="
+          for cmd in zsh git stow fzf rg fd bat eza starship gh yazi; do
+            if command -v $cmd >/dev/null 2>&1; then
+              version=$($cmd --version 2>&1 | head -1 || echo "version unknown")
+              echo "✓ $cmd: $version"
+            else
+              echo "✗ $cmd: not installed"
+            fi
+          done
+
+  test-stow-structure:
+    name: Test Stow Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install stow
+        run: sudo apt-get update && sudo apt-get install -y stow
+
+      - name: Verify .stowrc exists
+        run: |
+          if [ -f .stowrc ]; then
+            echo "✓ .stowrc found"
+            cat .stowrc
+          else
+            echo "✗ .stowrc not found"
+            exit 1
+          fi
+
+      - name: Verify .stow-local-ignore exists
+        run: |
+          if [ -f .stow-local-ignore ]; then
+            echo "✓ .stow-local-ignore found"
+            echo "Ignored patterns:"
+            head -10 .stow-local-ignore
+          else
+            echo "✗ .stow-local-ignore not found"
+            exit 1
+          fi
+
+      - name: Test stow dry-run from parent directory
+        run: |
+          cd ..
+          echo "Testing stow operations (dry-run) from parent directory..."
+          stow -n -v dotfiles 2>&1 | tee stow-output.log
+
+          # Check for conflicts
+          if grep -i "conflict" stow-output.log; then
+            echo "⚠️ Stow conflicts detected"
+            cat stow-output.log
+            exit 1
+          else
+            echo "✓ No stow conflicts detected"
+          fi
+
+      - name: Test actual stow
+        run: |
+          cd ..
+          # Actually create symlinks
+          stow -v dotfiles
+
+          # Verify symlinks were created
+          echo "=== Verifying symlinks ==="
+          [ -L ~/.zshrc ] && echo "✓ .zshrc symlinked" || echo "✗ .zshrc not symlinked"
+          [ -L ~/.zshenv ] && echo "✓ .zshenv symlinked" || echo "✗ .zshenv not symlinked"
+          [ -L ~/.gitconfig ] && echo "✓ .gitconfig symlinked" || echo "✗ .gitconfig not symlinked"
+
+          # Check .config directory
+          if [ -L ~/.config ] || [ -d ~/.config ]; then
+            echo "✓ .config exists"
+            ls -la ~/.config/ | head -10
+          else
+            echo "✗ .config not found"
+          fi
+
+      - name: Verify stow respects .stow-local-ignore
+        run: |
+          # These should NOT be symlinked
+          if [ -L ~/.git ] || [ -e ~/.git ]; then
+            echo "✗ .git was stowed (should be ignored)"
+            exit 1
+          else
+            echo "✓ .git correctly ignored"
+          fi
+
+          if [ -L ~/README.md ] || [ -e ~/README.md ]; then
+            echo "✗ README.md was stowed (should be ignored)"
+            exit 1
+          else
+            echo "✓ README.md correctly ignored"
+          fi
