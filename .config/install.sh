@@ -271,6 +271,55 @@ install_opencode() {
     print_success "OpenCode installed"
 }
 
+# Install GitHub CLI extensions
+install_gh_extensions() {
+    if ! command_exists gh; then
+        print_warning "gh CLI not installed, skipping extensions"
+        return
+    fi
+
+    local extensions_file="$DOTFILES/.config/gh/extensions"
+
+    if [ ! -f "$extensions_file" ]; then
+        print_info "No gh extensions file found at $extensions_file"
+        return
+    fi
+
+    print_header "Installing GitHub CLI extensions..."
+
+    local installed=0
+    local skipped=0
+
+    # Read extensions file line by line
+    while IFS= read -r extension || [ -n "$extension" ]; do
+        # Skip empty lines and comments
+        [[ -z "$extension" || "$extension" =~ ^# ]] && continue
+
+        # Trim whitespace
+        extension=$(echo "$extension" | xargs)
+
+        # Check if already installed
+        if gh extension list 2>/dev/null | grep -q "$extension"; then
+            print_success "$extension already installed"
+            skipped=$((skipped + 1))
+        else
+            echo "  Installing $extension..."
+            if gh extension install "$extension"; then
+                print_success "$extension installed"
+                installed=$((installed + 1))
+            else
+                print_warning "Failed to install $extension"
+            fi
+        fi
+    done < "$extensions_file"
+
+    if [ $installed -eq 0 ] && [ $skipped -eq 0 ]; then
+        print_info "No extensions to install"
+    else
+        echo "  Installed: $installed, Already present: $skipped"
+    fi
+}
+
 # Stow dotfiles
 stow_dotfiles() {
     if ! command_exists stow; then
@@ -372,6 +421,7 @@ main() {
     detect_os
     install_homebrew
     install_brew_packages
+    install_gh_extensions
     install_oh_my_zsh
     set_zsh_default
     install_tpm
