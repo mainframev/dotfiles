@@ -36,16 +36,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache Homebrew packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Caches/Homebrew
-            /opt/homebrew
-          key: ${{ runner.os }}-brew-${{ hashFiles('.config/brew/Brewfile') }}
-          restore-keys: |
-            ${{ runner.os }}-brew-
-
       - name: Run install script
         run: |
           # Run install script in non-interactive mode with --no-gui
@@ -156,16 +146,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Cache Homebrew packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/Homebrew
-            /home/linuxbrew/.linuxbrew
-          key: ${{ runner.os }}-brew-${{ hashFiles('.config/brew/Brewfile') }}
-          restore-keys: |
-            ${{ runner.os }}-brew-
 
       - name: Run install script
         run: |
