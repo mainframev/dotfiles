@@ -1,10 +1,6 @@
 # Taps
-tap "homebrew/bundle"
-tap "homebrew/cask-versions"
-tap "homebrew/services"
-tap "laishulu/homebrew"
 tap "microsoft/git"
-tap "nikitabobko/tap"
+tap "laishulu/homebrew"
 
 # CLI Tools
 brew "bat"
