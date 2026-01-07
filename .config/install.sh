@@ -136,11 +136,13 @@ install_homebrew() {
                 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
                 # Add to shell profiles
+                # shellcheck disable=SC2016
                 if ! grep -q "linuxbrew" "$HOME/.profile" 2>/dev/null; then
                     echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.profile"
                 fi
 
                 if [ -f "$HOME/.zshrc" ]; then
+                    # shellcheck disable=SC2016
                     if ! grep -q "linuxbrew" "$HOME/.zshrc"; then
                         echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.zshrc"
                     fi
@@ -279,12 +281,15 @@ stow_dotfiles() {
     print_header "Stowing dotfiles..."
 
     # Navigate to parent of dotfiles directory to run stow
-    local parent_dir="$(dirname "$DOTFILES")"
-    local dotfiles_name="$(basename "$DOTFILES")"
+    local parent_dir
+    local dotfiles_name
+    parent_dir="$(dirname "$DOTFILES")"
+    dotfiles_name="$(basename "$DOTFILES")"
     cd "$parent_dir"
 
     # Backup existing dotfiles that might conflict
-    local backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+    local backup_dir
+    backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
     local needs_backup=false
 
     # Common dotfiles that might exist and aren't symlinks
