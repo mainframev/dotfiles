@@ -41,6 +41,7 @@ unless ENV['CODESPACES']
   brew "jq"
   brew "lua-language-server"
   brew "luarocks"
+  brew "man-db"
   brew "neomutt"
   brew "node"
   brew "nowplaying-cli" if OS.mac?
