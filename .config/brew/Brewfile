@@ -39,9 +39,9 @@ brew "ripgrep"
 brew "ripgrep-all"
 brew "rust"
 brew "selene"
-brew "starship"
 brew "shellcheck"
 brew "sqlite3"
+brew "starship"
 brew "stow"
 brew "tcl-tk"
 brew "tmux"
@@ -52,6 +52,7 @@ brew "yarn"
 brew "yazi"
 brew "zlib"
 brew "zoxide"
+brew "zsh"
 
 # Cask Applications
 cask "aerospace" if OS.mac?

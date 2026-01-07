@@ -161,6 +161,11 @@ install_oh_my_zsh() {
         return
     fi
 
+    if ! command_exists zsh; then
+        print_warning "zsh not installed, skipping oh-my-zsh"
+        return
+    fi
+
     print_header "Installing oh-my-zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     print_success "oh-my-zsh installed"
@@ -219,6 +224,11 @@ install_brew_packages() {
         brew bundle --file="$BREWFILE"
         print_success "All packages installed"
     fi
+
+    # Ensure Homebrew binaries are in PATH (important for CI)
+    if command_exists brew; then
+        eval "$(brew shellenv)"
+    fi
 }
 
 # Install tmux plugin manager
@@ -243,8 +253,11 @@ install_uv() {
     fi
 
     print_header "Installing UV..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    print_success "UV installed"
+    if curl -LsSf https://astral.sh/uv/install.sh | sh; then
+        print_success "UV installed"
+    else
+        print_warning "UV installation failed (may not be available in this environment)"
+    fi
 }
 
 # Install Claude CLI
@@ -255,8 +268,11 @@ install_claude_cli() {
     fi
 
     print_header "Installing Claude CLI..."
-    curl -fsSL https://claude.ai/install.sh | sh
-    print_success "Claude CLI installed"
+    if curl -fsSL https://claude.ai/install.sh | sh; then
+        print_success "Claude CLI installed"
+    else
+        print_warning "Claude CLI installation failed (may not be available in this environment)"
+    fi
 }
 
 # Install OpenCode
@@ -267,14 +283,23 @@ install_opencode() {
     fi
 
     print_header "Installing OpenCode..."
-    curl -fsSL https://opencode.ai/install | sh
-    print_success "OpenCode installed"
+    if curl -fsSL https://opencode.ai/install | sh; then
+        print_success "OpenCode installed"
+    else
+        print_warning "OpenCode installation failed (may not be available in this environment)"
+    fi
 }
 
 # Install GitHub CLI extensions
 install_gh_extensions() {
     if ! command_exists gh; then
         print_warning "gh CLI not installed, skipping extensions"
+        return
+    fi
+
+    # Check if we're authenticated (required for extension installation)
+    if ! gh auth status >/dev/null 2>&1; then
+        print_warning "gh not authenticated, skipping extensions (set GH_TOKEN in CI)"
         return
     fi
 
@@ -329,13 +354,6 @@ stow_dotfiles() {
 
     print_header "Stowing dotfiles..."
 
-    # Navigate to parent of dotfiles directory to run stow
-    local parent_dir
-    local dotfiles_name
-    parent_dir="$(dirname "$DOTFILES")"
-    dotfiles_name="$(basename "$DOTFILES")"
-    cd "$parent_dir"
-
     # Backup existing dotfiles that might conflict
     local backup_dir
     backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
@@ -356,12 +374,17 @@ stow_dotfiles() {
         fi
     done
 
-    # Unstow first (in case of previous installation)
-    stow -D "$dotfiles_name" 2>/dev/null || true
+    # Get parent directory and dotfiles name for stow
+    local parent_dir
+    local dotfiles_name
+    parent_dir="$(dirname "$DOTFILES")"
+    dotfiles_name="$(basename "$DOTFILES")"
 
-    # Stow the dotfiles directory
-    # The .stowrc in the dotfiles directory sets --target=$HOME
-    stow "$dotfiles_name"
+    # Unstow first (in case of previous installation)
+    stow --dir="$parent_dir" --target="$HOME" -D "$dotfiles_name" 2>/dev/null || true
+
+    # Stow the dotfiles directory with explicit flags
+    stow --dir="$parent_dir" --target="$HOME" --verbose "$dotfiles_name"
 
     print_success "Dotfiles stowed"
 
