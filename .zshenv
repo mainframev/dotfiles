@@ -8,7 +8,7 @@ VISUAL="nvim"
 NVM_DIR="$HOME/.nvm"
 DOTFILES="$HOME/dotfiles"
 DOTFILES_ZSH="$HOME/dotfiles/.config/zsh"
-STARSHIP_CONFIG="$DOTFILES/.config/starship/config.toml"
+STARSHIP_CONFIG="$DOTFILES/.config/starship.toml"
 SNACKS_GHOSTTY=true
 
 # DISABLE_AUTO_UPDATE="true"

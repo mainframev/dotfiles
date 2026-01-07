@@ -1,6 +1,8 @@
 prSections:
   - title: Opened
     filters: is:open
+  - title: Mine
+    filters: is:open is:pr author:@me
     layout:
       author:
         hidden: true

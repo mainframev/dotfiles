@@ -10,6 +10,7 @@
 [core]
 	editor = nvim
 	sparseCheckout = true
+  fsmonitor = false
   pager = delta --dark --diff-so-fancy
 	multiPackIndex = true
 [rebase]
