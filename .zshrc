@@ -5,11 +5,26 @@
 
 # Do not rebuild completion dump file every time, only once a day
 autoload -Uz compinit
-if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
+
+# Cross-platform stat command for checking file modification date
+if [ -n "$IS_MACOS" ]; then
+    # macOS uses BSD stat
+    zcompdump_date="$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)"
+else
+    # Linux uses GNU stat - convert timestamp to day of year
+    if [ -f ~/.zcompdump ]; then
+        zcompdump_date="$(date -d @$(stat -c '%Y' ~/.zcompdump 2>/dev/null) +'%j' 2>/dev/null)"
+    else
+        zcompdump_date=""
+    fi
+fi
+
+if [ "$(date +'%j')" != "$zcompdump_date" ]; then
     compinit
 else
     compinit -C
 fi
+unset zcompdump_date
 
 # | SCRIPTS |
 source $DOTFILES_ZSH/scripts.zsh

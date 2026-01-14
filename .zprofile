@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
+# Additional PATH entries
 path=(
   $HOME/.local/bin
   $HOME/.cargo/bin

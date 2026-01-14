@@ -299,7 +299,7 @@ install_claude_cli() {
     fi
 
     print_header "Installing Claude CLI..."
-    if curl -fsSL https://claude.ai/install.sh | sh; then
+    if curl -fsSL https://claude.ai/install.sh | bash; then
         print_success "Claude CLI installed"
     else
         print_warning "Claude CLI installation failed (may not be available in this environment)"
@@ -314,7 +314,7 @@ install_opencode() {
     fi
 
     print_header "Installing OpenCode..."
-    if curl -fsSL https://opencode.ai/install | sh; then
+    if curl -fsSL https://opencode.ai/install | bash; then
         print_success "OpenCode installed"
     else
         print_warning "OpenCode installation failed (may not be available in this environment)"

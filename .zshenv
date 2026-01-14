@@ -1,5 +1,32 @@
 #!/usr/bin/env zsh
 
+# Platform detection
+case "$(uname -s)" in
+  Darwin)
+    export IS_MACOS=1
+    # Detect Homebrew location (Apple Silicon vs Intel)
+    if [ -d "/opt/homebrew" ]; then
+      export HOMEBREW_PREFIX="/opt/homebrew"
+    elif [ -d "/usr/local/Homebrew" ]; then
+      export HOMEBREW_PREFIX="/usr/local"
+    fi
+    ;;
+  Linux)
+    export IS_LINUX=1
+    # Check for Homebrew on Linux
+    if [ -d "/home/linuxbrew/.linuxbrew" ]; then
+      export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
+    elif [ -d "$HOME/.linuxbrew" ]; then
+      export HOMEBREW_PREFIX="$HOME/.linuxbrew"
+    fi
+    ;;
+esac
+
+# Initialize Homebrew environment if it exists
+if [ -n "$HOMEBREW_PREFIX" ] && [ -x "$HOMEBREW_PREFIX/bin/brew" ]; then
+  eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
+fi
+
 # Dynamically detect dotfiles directory from this file's location
 # This works both locally and in CI where the repo path may differ
 if [ -L "${(%):-%x}" ]; then

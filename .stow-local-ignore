@@ -22,3 +22,6 @@ _darcs
 ^/\.others
 ^/install_deps.sh
 ^/install.sh
+^/test.sh
+^/\.github
+^/\.claude
