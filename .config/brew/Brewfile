@@ -3,12 +3,6 @@ tap "microsoft/git"
 tap "nikitabobko/tap"
 
 # CLI Tools
-brew "bat"
-brew "bat-extras"
-brew "cargo-c" unless ENV['CODESPACES']
-brew "clipboard"
-brew "curl"
-brew "curlie"
 brew "diff-so-fancy"
 brew "diffnav"
 brew "difftastic"
@@ -18,45 +12,54 @@ brew "fzf"
 brew "gh"
 brew "git"
 brew "git-delta"
-brew "go" unless ENV['CODESPACES']
 brew "gum"
 brew "highlight"
-brew "htop"
 brew "httpie"
 brew "jq"
 brew "jsonlint"
-brew "lua-language-server"
-brew "luarocks" unless ENV['CODESPACES']
 brew "neovim"
-brew "node" unless ENV['CODESPACES']
-brew "nowplaying-cli" if OS.mac?
-brew "nvm" unless ENV['CODESPACES']
-brew "postgresql" unless ENV['CODESPACES']
 brew "prettierd"
-brew "pyenv" unless ENV['CODESPACES']
-brew "qemu" unless ENV['CODESPACES']
 brew "readline"
 brew "ripgrep"
 brew "ripgrep-all"
-brew "rust" unless ENV['CODESPACES']
-brew "selene"
-brew "shellcheck"
-brew "sqlite3"
 brew "starship"
 brew "stow"
 brew "tcl-tk"
 brew "tmux"
-brew "wget"
 brew "xz"
 brew "yamllint"
-brew "yarn"
 brew "yazi"
 brew "zlib"
 brew "zoxide"
 brew "zsh"
 
-# Cask Applications (skipped in Codespaces)
+# skip installing in GitHub Codespaces
 unless ENV['CODESPACES']
+  brew "bat"
+  brew "bat-extras"
+  brew "btop"
+  brew "cargo-c"
+  brew "clipboard"
+  brew "curl"
+  brew "curlie"
+  brew "go"
+  brew "lua-language-server"
+  brew "luarocks"
+  brew "neomutt"
+  brew "node"
+  brew "nowplaying-cli" if OS.mac?
+  brew "nvm"
+  brew "postgresql"
+  brew "pyenv"
+  brew "qemu"
+  brew "rust"
+  brew "selene"
+  brew "shellcheck"
+  brew "sqlite3"
+  brew "taskwarrior-tui"
+  brew "wget"
+  brew "yarn"
+
   cask "nikitabobko/tap/aerospace" if OS.mac?
   cask "figma"
   cask "font-3270-nerd-font"
