@@ -83,6 +83,50 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Setup Codespaces-specific environment
+setup_codespaces_environment() {
+    if [ "$IN_CODESPACES" != true ]; then
+        return
+    fi
+
+    print_header "Setting up Codespaces environment..."
+
+    # Ensure USER variable is set
+    if [ -z "$USER" ]; then
+        USER=$(id -un)
+        export USER
+        print_info "Set USER=$USER"
+    fi
+
+    # Enable passwordless sudo
+    export SUDO_ASKPASS=/bin/true
+    print_info "Enabled passwordless sudo"
+
+    # Move dotfiles from persisted share if it exists
+    local PERSISTED_DOTFILES="/workspaces/.codespaces/.persistedshare/dotfiles"
+    local TARGET_DOTFILES="$HOME/dotfiles"
+
+    if [ -d "$PERSISTED_DOTFILES" ] && [ ! -d "$TARGET_DOTFILES" ]; then
+        print_info "Moving dotfiles from persisted share..."
+        mv "$PERSISTED_DOTFILES" "$TARGET_DOTFILES"
+        print_success "Dotfiles moved to $TARGET_DOTFILES"
+    elif [ -d "$TARGET_DOTFILES" ]; then
+        print_success "Dotfiles already in $TARGET_DOTFILES"
+    else
+        print_warning "Persisted dotfiles not found, assuming repo is already cloned"
+    fi
+
+    # Change to home directory
+    cd "$HOME"
+
+    # Update DOTFILES path for Codespaces
+    if [ -d "$TARGET_DOTFILES" ]; then
+        DOTFILES="$TARGET_DOTFILES"
+        BREWFILE="$DOTFILES/.config/brew/Brewfile"
+        print_info "Using dotfiles at: $DOTFILES"
+    fi
+}
+
 # Detect OS
 detect_os() {
     case "$(uname -s)" in
@@ -298,6 +342,12 @@ install_gh_extensions() {
         return
     fi
 
+    # Skip extension installation in Codespaces
+    if [ "$IN_CODESPACES" = true ]; then
+        print_info "Skipping gh extensions in Codespaces"
+        return
+    fi
+
     # Check if we're authenticated (required for extension installation)
     if ! gh auth status >/dev/null 2>&1; then
         print_warning "gh not authenticated, skipping extensions (set GH_TOKEN in CI)"
@@ -433,6 +483,8 @@ print_summary() {
 main() {
     parse_args "$@"
 
+    setup_codespaces_environment
+
     echo -e "${MAGENTA}"
     echo "╔════════════════════════════════════════╗"
     echo "║     Dotfiles Setup & Installation     ║"
@@ -446,8 +498,8 @@ main() {
     install_homebrew
     install_brew_packages
     install_gh_extensions
-    install_oh_my_zsh
     set_zsh_default
+    install_oh_my_zsh
     install_tpm
     install_uv
     install_claude_cli
