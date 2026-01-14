@@ -166,7 +166,6 @@ install_homebrew() {
                 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             fi
 
-            # Add Homebrew to PATH for Linux
             if [ -d /home/linuxbrew/.linuxbrew ]; then
                 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
@@ -249,11 +248,7 @@ install_brew_packages() {
 
     if [ "$NO_GUI" = true ]; then
         print_header "Installing CLI packages only (skipping GUI applications)..."
-        # Filter out cask lines from Brewfile
-        local temp_brewfile="/tmp/brewfile-no-gui-$$"
-        grep -v '^cask' "$BREWFILE" > "$temp_brewfile"
-        brew bundle --file="$temp_brewfile"
-        rm -f "$temp_brewfile"
+        HOMEBREW_BUNDLE_CASK_SKIP=1 brew bundle --file="$BREWFILE"
         print_success "CLI packages installed"
     else
         print_header "Installing all packages from Brewfile..."
