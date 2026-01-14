@@ -12,7 +12,6 @@ brew "fzf"
 brew "git-delta"
 brew "gum"
 brew "highlight"
-brew "jsonlint"
 brew "neovim"
 brew "prettierd"
 brew "starship"
@@ -20,8 +19,6 @@ brew "stow"
 brew "tcl-tk"
 brew "tmux"
 brew "xz"
-brew "yamllint"
-brew "zlib"
 brew "zoxide"
 brew "zsh"
 
@@ -39,6 +36,7 @@ unless ENV['CODESPACES']
   brew "go"
   brew "httpie"
   brew "jq"
+  brew "jsonlint"
   brew "lua-language-server"
   brew "luarocks"
   brew "man-db"
@@ -60,6 +58,8 @@ unless ENV['CODESPACES']
   brew "wget"
   brew "yarn"
   brew "yazi"
+  brew "yamllint"
+  brew "zlib"
 
 
   cask "nikitabobko/tap/aerospace" if OS.mac?
