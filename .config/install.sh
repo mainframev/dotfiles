@@ -178,7 +178,8 @@ set_zsh_default() {
         return
     fi
 
-    if [ "$SHELL" = "$(command -v zsh)" ]; then
+    # Compare basename to handle different zsh paths (e.g., /bin/zsh vs /usr/bin/zsh)
+    if [ "$(basename "$SHELL")" = "zsh" ]; then
         print_success "zsh is already the default shell"
         return
     fi

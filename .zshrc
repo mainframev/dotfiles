@@ -34,7 +34,9 @@ fi
 source $DOTFILES_ZSH/aliases.zsh
 
 # | STARSHIP |
-eval "$(starship init zsh)"
+if [ $(command -v "starship") ]; then
+  eval "$(starship init zsh)"
+fi
 
 # End profiling
 # zprof

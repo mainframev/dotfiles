@@ -11,6 +11,7 @@ alias ghp="gh pr"
 alias gdc='git diff --cached'
 alias ai='opencode'
 alias src='source ~/.zshrc && echo "Reloaded .zshrc"'
+alias tasks='taskwarrior-tui'
 alias plugpull="find ${ZDOTDIR:-$HOME}/.zsh_plugins -type d -exec test -e '{}/.git' ';' -print0 | xargs -I {} -0 git -C {} pull"
 
 alias l='eza --git-ignore $eza_params'
