@@ -36,5 +36,6 @@
 !/.zshenv
 !/.zshrc
 !/.zprofile
+!/install.sh
 
 !README.md

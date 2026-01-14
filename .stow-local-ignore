@@ -17,7 +17,8 @@ _darcs
 ^/COPYING
 
 # Personal ignore
-\.stowrc
+.stowrc
 \.DS_Store
 ^/\.others
 ^/install_deps.sh
+^/install.sh
