@@ -23,7 +23,7 @@ plugins=(
 github_plugins=(
   zsh-users/zsh-autosuggestions
   zsh-users/zsh-syntax-highlighting
-  zplugin/zsh-eza
+  z-shell/zsh-eza
 )
 
 for plugin in $github_plugins; do
