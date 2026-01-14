@@ -12,7 +12,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
-DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd .. && pwd)"
+DOTFILES="$HOME/dotfiles"
 BREWFILE="$DOTFILES/.config/brew/Brewfile"
 NO_GUI=false
 IN_CODESPACES=false
@@ -102,29 +102,20 @@ setup_codespaces_environment() {
     export SUDO_ASKPASS=/bin/true
     print_info "Enabled passwordless sudo"
 
-    # Move dotfiles from persisted share if it exists
+    # Codespaces clones dotfiles to persisted share and symlinks them
+    # We need to use the persisted share location for running install scripts
     local PERSISTED_DOTFILES="/workspaces/.codespaces/.persistedshare/dotfiles"
-    local TARGET_DOTFILES="$HOME/dotfiles"
 
-    if [ -d "$PERSISTED_DOTFILES" ] && [ ! -d "$TARGET_DOTFILES" ]; then
-        print_info "Moving dotfiles from persisted share..."
-        mv "$PERSISTED_DOTFILES" "$TARGET_DOTFILES"
-        print_success "Dotfiles moved to $TARGET_DOTFILES"
-    elif [ -d "$TARGET_DOTFILES" ]; then
-        print_success "Dotfiles already in $TARGET_DOTFILES"
+    if [ -d "$PERSISTED_DOTFILES" ]; then
+        DOTFILES="$PERSISTED_DOTFILES"
+        BREWFILE="$DOTFILES/.config/brew/Brewfile"
+        print_success "Using dotfiles at: $DOTFILES"
     else
-        print_warning "Persisted dotfiles not found, assuming repo is already cloned"
+        print_warning "Persisted dotfiles not found at $PERSISTED_DOTFILES"
     fi
 
     # Change to home directory
     cd "$HOME"
-
-    # Update DOTFILES path for Codespaces
-    if [ -d "$TARGET_DOTFILES" ]; then
-        DOTFILES="$TARGET_DOTFILES"
-        BREWFILE="$DOTFILES/.config/brew/Brewfile"
-        print_info "Using dotfiles at: $DOTFILES"
-    fi
 }
 
 # Detect OS
