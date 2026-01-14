@@ -58,3 +58,4 @@ keybind = alt+shift+i=inspector:toggle
 keybind = alt+shift+enter=toggle_fullscreen
 keybind = alt+shift+c=copy_to_clipboard
 keybind = alt+shift+b=write_screen_file:paste
+keybind = shift+enter=text:\x1b\r
