@@ -60,6 +60,8 @@ VISUAL="nvim"
 NVM_DIR="$HOME/.nvm"
 DOTFILES_ZSH="$DOTFILES/.config/zsh"
 STARSHIP_CONFIG="$DOTFILES/.config/starship.toml"
+TASKRC="$DOTFILES/.config/task/taskrc"
+TASKDATA="~/.local/share/task"
 SNACKS_GHOSTTY=true
 
 # DISABLE_AUTO_UPDATE="true"

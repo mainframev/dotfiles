@@ -15,20 +15,21 @@
 !/.config/alacritty
 !/.config/bat
 !/.config/bottom
+!/.config/brew/
+!/.config/btop
 !/.config/gh
 !/.config/gh-dash
-!/.config/btop
 !/.config/ghostty
-!/.config/brew/
 !/.config/install.sh
 !/.config/kitty
 !/.config/nvim
 !/.config/opencode/
 !/.config/sketchybar/
+!/.config/starship.toml
+!/.config/task
 !/.config/tmux
 !/.config/yazi
 !/.config/zsh
-!/.config/starship.toml
 # ignored
 /.config/tmux/plugins/
 /.config/alacritty/themes/
