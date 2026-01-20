@@ -14,7 +14,7 @@ return {
       markdown = { "markdownlint-cli2" },
       yaml = { "yamllint" },
       svelte = { "eslint_d" },
-      python = { "pylint" },
+      python = { "ruff" },
       lua = { "selene" },
       bash = { "shellcheck" },
       zsh = { "shellcheck" },

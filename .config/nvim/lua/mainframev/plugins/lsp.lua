@@ -194,7 +194,6 @@ return {
       "shellcheck",
       "black",
       "ruff",
-      "pylint",
       "hadolint",
     })
 
