@@ -1,0 +1,80 @@
+# [Created by task 3.4.2 1/18/2026 10:45:25]
+news.version=3.4.2
+
+# Color theme (uncomment one to use)
+#include light-16.theme
+#include light-256.theme
+#include bubblegum-256.theme
+#include dark-16.theme
+#include dark-256.theme
+#include dark-red-256.theme
+#include dark-green-256.theme
+#include dark-blue-256.theme
+#include dark-violets-256.theme
+#include dark-yellow-green.theme
+#include dark-gray-256.theme
+#include dark-gray-blue-256.theme
+include solarized-dark-256.theme
+editor=nvim
+context.none.read=true
+
+weekstart=monday
+dateformat=D-M-y
+
+alias.burndown=burndown.daily
+search.case.sensitive=no
+active.indicator=>
+
+alias.burndown=burndown.daily
+alias.cal=calendar
+alias.rm=delete
+alias.a=add
+alias.d=done
+alias.m=modify
+alias.l=list
+alias.s=sync
+
+report.list.columns=id,priority,project,due,size,description,urgency
+report.list.labels=ID,Prio,Project,Due,Size,Description,Urg
+
+
+uda.habitica_uuid.label=Habitica UUID
+uda.habitica_uuid.type=string
+
+uda.habitica_difficulty.label=Habitica Difficulty
+uda.habitica_difficulty.type=string
+uda.habitica_difficulty.values=trivial,easy,medium,hard
+
+uda.habitica_task_type.label=Habitica Task Type
+uda.habitica_task_type.type=string
+uda.habitica_task_type.values=daily,todo
+
+uda.size.type=string
+uda.size.label=Size
+uda.size.values=s,m,l,xl,xxl
+
+priority.values=P1,P2,P3,P4,P5
+priority.default=P2
+
+urgency.uda.size.s.coefficient=0.0
+urgency.uda.size.m.coefficient=0.2
+urgency.uda.size.l.coefficient=0.4
+urgency.uda.size.xl.coefficient=0.6
+urgency.uda.size.xxl.coefficient=0.8
+
+urgency.priority.P1.coefficient=6.0
+urgency.priority.P2.coefficient=4.0
+urgency.priority.P3.coefficient=2.0
+urgency.priority.P4.coefficient=0.5
+urgency.priority.P5.coefficient=0.0
+
+urgency.due.coefficient=12.0
+urgency.scheduled.coefficient=5.0
+urgency.start.coefficient=3.0
+urgency.active.coefficient=4.0
+urgency.blocked.coefficient=-5.0
+
+report.next.sort=urgency-,priority,due
+report.list.sort=urgency-,priority,due
+
+color=on
