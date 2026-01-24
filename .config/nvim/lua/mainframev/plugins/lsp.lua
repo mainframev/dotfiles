@@ -93,29 +93,7 @@ return {
       --   filetypes = { "graphql", "gql" },
       --   root_dir = require("lspconfig.util").root_pattern(".git", ".graphqlrc", ".graphqlrc.json"),
       -- },
-      rust_analyzer = {
-        cmd = { "rust-analyzer" },
-        filetypes = { "rust" },
-        settings = {
-          ["rust-analyzer"] = {
-            check = {
-              command = "clippy",
-            },
-            inlayHints = {
-              renderColons = true,
-              chainingHints = true,
-              typeHints = true,
-              parameterHints = true,
-            },
-            diagnostics = {
-              enable = true,
-              styleLints = {
-                enable = true,
-              },
-            },
-          },
-        },
-      },
+      -- rust_analyzer is handled by rustaceanvim plugin (see rustacean.lua)
       pylsp = {
         settings = {
           pylsp = {
