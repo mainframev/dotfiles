@@ -41,5 +41,3 @@ alias tskst='task stats'
 alias tskts='task timesheet'
 alias vi="nvim"
 alias y="yarn"
-alias faliases='alias | fzf --prompt="alias> " \
-  --preview '\''echo {} | sed "s/^[^=]*=//" | sed "s/^'\'''\''//; s/'\'''\''$//" | bat --language=bash --style=plain --color=always'\'''

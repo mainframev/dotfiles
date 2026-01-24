@@ -37,12 +37,9 @@ source $DOTFILES_ZSH/oh-my-zsh.zsh
 
 # | FZF |
 if [ $(command -v "fzf") ]; then
-  source $DOTFILES_ZSH/fzf.zsh
-fi
-
-# | BREW |
-if [ $(command -v "brew") ]; then
-  source $DOTFILES_ZSH/brew.zsh
+  for file in $DOTFILES_ZSH/fzf/*.zsh; do
+    source "$file"
+  done
 fi
 
 # | ALIASES |

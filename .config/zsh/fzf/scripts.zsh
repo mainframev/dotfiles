@@ -18,4 +18,25 @@ fifa() {
         && print -z "./$file" || return 1;
 }
 
+# fzf and zoxide QOL functions
+zz() {
+  local dir
+  dir=$(zoxide query -l | fzf) && z "$dir"
+}
+
+# with tree preview
+zfp() {
+  local dir
+  dir=$(zoxide query -l | fzf --preview 'tree -CL 2 {}')
+  [ -n "$dir" ] && z "$dir" && ls -la
+ }
+
+# recent dirs
+zr() {
+  local dir
+  dir=$(zoxide query -l | sort -k2 -rn | fzf)
+  [ -n "$dir" ] && z "$dir"
+ }
+
+
 

@@ -33,7 +33,14 @@ for plugin in $github_plugins; do
     mkdir -p ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins
     git clone --depth 1 --recursive https://github.com/$plugin.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name
   fi
-  # load the plugin
+done
+
+# Load oh-my-zsh FIRST (it runs compinit internally)
+source $ZSH/oh-my-zsh.sh
+
+# Load custom github plugins AFTER oh-my-zsh
+for plugin in $github_plugins; do
+  plugin_name=${plugin#*/}
   for initscript in ${plugin_name}.zsh ${plugin_name}.plugin.zsh ${plugin_name}.sh; do
     if [[ -f ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name/$initscript ]]; then
       source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name/$initscript
@@ -41,8 +48,6 @@ for plugin in $github_plugins; do
     fi
   done
 done
-
-source $ZSH/oh-my-zsh.sh
 
 unset github_plugins
 unset plugin
