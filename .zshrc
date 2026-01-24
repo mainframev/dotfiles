@@ -48,6 +48,11 @@ fi
 # | ALIASES |
 source $DOTFILES_ZSH/aliases.zsh
 
+# | SECRETS |
+if [[ -f "$DOTFILES_ZSH/secrets.zsh" ]]; then
+  source "$DOTFILES_ZSH/secrets.zsh"
+fi
+
 # | STARSHIP |
 if [ $(command -v "starship") ]; then
   eval "$(starship init zsh)"
