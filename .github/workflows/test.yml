@@ -39,7 +39,7 @@ jobs:
       - name: Run install script
         run: |
           # Run install script in non-interactive mode with --no-gui
-          bash .config/install.sh --no-gui
+          bash install.sh --no-gui
         env:
           CI: true
           NONINTERACTIVE: 1
@@ -150,7 +150,7 @@ jobs:
       - name: Run install script
         run: |
           # Run install script in non-interactive mode with --no-gui
-          bash .config/install.sh --no-gui
+          bash install.sh --no-gui
         env:
           CI: true
           NONINTERACTIVE: 1
