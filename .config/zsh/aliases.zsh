@@ -1,7 +1,6 @@
 #!/bin/env zsh
 
 # own aliases
-
 alias ai='opencode'
 alias cl="clear -x"
 alias gdc='git diff --cached'
@@ -16,6 +15,7 @@ alias llm='eza --all --header --long --sort=modified $eza_params'
 alias ls='eza $eza_params'
 alias lt='eza --tree $eza_params'
 alias lx='eza -lbhHigUmuSa@'
+alias mail="neomutt"
 alias pip='/usr/bin/pip3'
 alias plugpull="find ${ZDOTDIR:-$HOME}/.zsh_plugins -type d -exec test -e '{}/.git' ';' -print0 | xargs -I {} -0 git -C {} pull"
 alias src='source ~/.zshrc && echo "Reloaded .zshrc"'
