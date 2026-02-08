@@ -4,17 +4,19 @@ news.version=3.4.2
 # Color theme (uncomment one to use)
 #include light-16.theme
 #include light-256.theme
-#include bubblegum-256.theme
+# include bubblegum-256.theme
 #include dark-16.theme
 #include dark-256.theme
 #include dark-red-256.theme
-#include dark-green-256.theme
+# include dark-green-256.theme
 #include dark-blue-256.theme
 #include dark-violets-256.theme
 #include dark-yellow-green.theme
 #include dark-gray-256.theme
 #include dark-gray-blue-256.theme
-include solarized-dark-256.theme
+#include solarized-dark-256.theme
+include dark-256.theme
+
 editor=nvim
 context.none.read=true
 
@@ -51,7 +53,7 @@ uda.habitica_task_type.values=daily,todo
 
 uda.size.type=string
 uda.size.label=Size
-uda.size.values=s,m,l,xl,xxl
+uda.size.values=S,M,L,XL,XXL
 
 priority.values=P1,P2,P3,P4,P5
 priority.default=P2
@@ -78,3 +80,4 @@ report.next.sort=urgency-,priority,due
 report.list.sort=urgency-,priority,due
 
 color=on
+print.empty.columns=yes
