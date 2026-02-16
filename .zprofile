@@ -1,10 +1,13 @@
 #!/usr/bin/env zsh
 
-# Additional PATH entries
+if [ -n "$HOMEBREW_PREFIX" ] && [ -x "$HOMEBREW_PREFIX/bin/brew" ]; then
+  eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
+fi
+
 path=(
-  $HOME/.local/bin
-  $HOME/.cargo/bin
-  $HOME/.opencode/bin
+  /usr/local/sbin
+  /usr/sbin
+  /sbin
   $path
 )
 

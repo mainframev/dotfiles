@@ -55,8 +55,8 @@ uda.size.type=string
 uda.size.label=Size
 uda.size.values=S,M,L,XL,XXL
 
-priority.values=P1,P2,P3,P4,P5
-priority.default=P2
+uda.priority.values=P1,P2,P3,P4,P5
+uda.priority.default=P2
 
 urgency.uda.size.s.coefficient=0.0
 urgency.uda.size.m.coefficient=0.2

@@ -169,17 +169,10 @@ install_homebrew() {
             if [ -d /home/linuxbrew/.linuxbrew ]; then
                 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-                # Add to shell profiles
+                # Add to shell profiles (only .profile, since .zshenv handles zsh via HOMEBREW_PREFIX)
                 # shellcheck disable=SC2016
                 if ! grep -q "linuxbrew" "$HOME/.profile" 2>/dev/null; then
                     echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.profile"
-                fi
-
-                if [ -f "$HOME/.zshrc" ]; then
-                    # shellcheck disable=SC2016
-                    if ! grep -q "linuxbrew" "$HOME/.zshrc"; then
-                        echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.zshrc"
-                    fi
                 fi
             fi
             ;;

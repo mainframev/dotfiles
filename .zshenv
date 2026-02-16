@@ -1,5 +1,8 @@
 #!/usr/bin/env zsh
 
+# Deduplicate PATH entries
+typeset -U path
+
 # Platform detection
 case "$(uname -s)" in
   Darwin)
@@ -22,10 +25,12 @@ case "$(uname -s)" in
     ;;
 esac
 
-# Initialize Homebrew environment if it exists
-if [ -n "$HOMEBREW_PREFIX" ] && [ -x "$HOMEBREW_PREFIX/bin/brew" ]; then
-  eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
-fi
+path=(
+  $HOME/.local/bin
+  $HOME/.cargo/bin
+  $HOME/.opencode/bin
+  $path
+)
 
 # Dynamically detect dotfiles directory from this file's location
 # This works both locally and in CI where the repo path may differ
