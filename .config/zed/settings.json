@@ -1,4 +1,41 @@
 {
+  "context_servers": {
+    "fluent": {
+      "enabled": true,
+      "url": "https://chat.fluentui.dev/mcp/server",
+      "headers": {}
+    }
+  },
+  "ssh_connections": [
+    {
+      "host": "cs.vigilant-funicular-g45qgx56675rfv7v7.main",
+      "args": [],
+      "projects": [
+        {
+          "paths": ["/workspaces/client-web/"]
+        }
+      ],
+      "nickname": "OWA codespace"
+    }
+  ],
+  "multi_cursor_modifier": "cmd_or_ctrl",
+  "terminal": {
+    "cursor_shape": "block",
+    "shell": {
+      "with_arguments": {
+        "program": "/bin/zsh",
+        "args": ["-c", "tmux new-session -A -s \"$(basename \"$PWD\")\""]
+      }
+    }
+  },
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    },
+    "opencode": {
+      "type": "registry"
+    }
+  },
   "buffer_font_weight": 500.0,
   "theme": "Rosé Pine",
   "vim_mode": true,
@@ -8,16 +45,44 @@
   "current_line_highlight": "line",
   "ui_font_size": 16,
   "agent": {
+    "default_profile": "write",
+    "profiles": {
+      "plan": {
+        "name": "Plan",
+        "tools": {},
+        "enable_all_context_servers": false,
+        "context_servers": {}
+      }
+    },
+    "tool_permissions": {
+      "tools": {
+        "web_search": {
+          "default": "allow"
+        },
+        "fetch": {
+          "default": "confirm"
+        },
+        "copy_path": {
+          "default": "allow"
+        },
+        "edit_file": {
+          "default": "allow"
+        },
+        "terminal": {
+          "default": "allow"
+        }
+      }
+    },
     "default_model": {
       "provider": "copilot_chat",
-      "model": "claude-sonnet-4.5",
+      "model": "claude-opus-4.6"
     },
     "enabled": true,
     "button": true,
-    "model_parameters": [],
+    "model_parameters": []
   },
   "tab_bar": {
-    "show": true,
+    "show": true
   },
   "scrollbar": {
     "show": "never",
@@ -25,39 +90,39 @@
     "git_diff": true,
     "search_results": true,
     "selected_symbol": true,
-    "diagnostics": "all",
+    "diagnostics": "all"
   },
   "preview_tabs": {
     "enabled": true,
-    "enable_preview_from_file_finder": false,
+    "enable_preview_from_file_finder": false
   },
   "centered_layout": {
     "left_padding": 0.1,
-    "right_padding": 0.1,
+    "right_padding": 0.1
   },
   "status_bar": {
-    "experimental.show": true,
+    "experimental.show": true
   },
   "relative_line_numbers": "enabled",
   "gutter": {
-    "line_numbers": true,
+    "line_numbers": true
   },
   "minimap": {
-    "show": "never",
+    "show": "never"
   },
   "toolbar": {
     "breadcrumbs": true,
     "quick_actions": false,
-    "selections_menu": false,
+    "selections_menu": false
   },
   "git": {
     "git_gutter": "tracked_files",
     "inline_blame": {
-      "enabled": true,
-    },
+      "enabled": true
+    }
   },
-  "cursor_shape": "block",
-  "cursor_blink": false,
+  "cursor_shape": "bar",
+  "cursor_blink": true,
   "buffer_font_family": "JetBrainsMono Nerd Font",
   "linked_edits": true,
   "show_edit_predictions": true,
@@ -67,6 +132,6 @@
   "icon_theme": {
     "mode": "dark",
     "light": "Zed (Default)",
-    "dark": "Material Icon Theme",
-  },
+    "dark": "Material Icon Theme"
+  }
 }
