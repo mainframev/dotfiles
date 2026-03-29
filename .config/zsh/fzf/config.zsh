@@ -2,10 +2,7 @@
 
 # =============================================================================
 # FZF Configuration
-
-
-
-
+#
 export FZF_BASE="/opt/homebrew/opt/fzf"
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
@@ -38,6 +35,7 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --color=separator:#ff9e64 \
   --color=spinner:#ff007c \
 "
+
 _fzf_comprun() {
     local command=$1
     shift
