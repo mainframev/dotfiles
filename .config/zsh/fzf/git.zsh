@@ -24,9 +24,10 @@ function _fzf_git_add() {
 					--ansi --delimiter=: \
 					--multi \
 					--ghost="add files:" \
-					--bind="focus:transform-footer:GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always -- {1} __NOVAR__" \
+					--preview='diff=$(git diff --color=always -- {1}); [[ -n "$diff" ]] && echo "$diff" || bat --color=always {1}' \
+					--preview-window=up:70%:border-horizontal \
 					--expect="enter,ctrl-d" \
-          --header=$'Enter: add file(s), Tab: select file(s), Ctrl-d: diff file(s)\n\n' \
+					--header=$'Enter: add file(s), Tab: select file(s), Ctrl-d: diff file(s)\n\n' \
 					--no-info
 
 		)"
@@ -114,32 +115,63 @@ function _fzf_git_branches() {
 	esac
 }
 
-function _fzf_git_diffs() {
+function _fzf_git_diff() {
 	if ! is_git_repo; then {
 		echo "not a git repo"
 		exit
 	}; fi
 
-	lines="$(
-		git diff --name-only | awk -F'.' '{print $NF}' | sort -u |
-			fzf -d' ' \
-				--no-multi \
-				--exit-0 \
-				--ghost="select extension:" \
-				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always -- '*.{1}'" \
-				--expect="enter,ctrl-d,ctrl-x" \
-				--header=$'Enter: add file(s), Ctrl-d: diff file(s), Ctrl-x: checkout file(s)\n\n' \
-				--no-info
-	)"
+	local cached_flag=""
+	local ghost="unstaged files:"
+	local empty_msg="no unstaged files"
+	local expect="enter,ctrl-d,ctrl-x"
+	local header=$'Enter: add file(s), Tab: select, Ctrl-d: diff, Ctrl-x: discard\n\n'
 
-	key="$(head -1 <<<"$lines")"
-	extension="$(sed 1d <<<"$lines" | cut -d: -f2 | tr -d ' ')"
+	[[ "$1" == "--cached" ]] && {
+		cached_flag="--cached"
+		ghost="staged files:"
+		empty_msg="no staged files"
+		expect="enter,ctrl-d"
+		header=$'Enter: unstage file(s), Tab: select, Ctrl-d: diff\n\n'
+	}
 
-	case "$key" in
-	enter) git diff --name-only | grep ".*\.$extension" | xargs -n 1 -t git add ;;
-	ctrl-d) git diff -- "*.$extension" ;;
-	ctrl-x) git diff --name-only | grep ".*\.$extension" | xargs -n 1 -t git checkout ;;
-	esac
+	local file_list="$(git diff $cached_flag --name-only)"
+
+	if [[ -n "$file_list" ]]; then
+		local lines="$(
+			echo "$file_list" |
+				fzf \
+					--exit-0 \
+					--ansi \
+					--multi \
+					--ghost="$ghost" \
+					--preview="git diff $cached_flag --color=always -- {1}" \
+					--preview-window=up:70%:border-sharp \
+					--expect="$expect" \
+					--header="$header" \
+					--no-info
+		)"
+
+		local key="$(head -1 <<<"$lines")"
+		local files="$(sed 1d <<<"$lines")"
+
+		if [[ -n "$cached_flag" ]]; then
+			case "$key" in
+			enter) echo "$files" | xargs -n1 -t git restore --staged ;;
+			ctrl-d) echo "$files" | xargs -n1 git diff --cached ;;
+			esac
+		else
+			case "$key" in
+			enter) echo "$files" | xargs -n1 -t git add ;;
+			ctrl-d) echo "$files" | xargs -n1 git diff ;;
+			ctrl-x) echo "$files" | xargs -n1 -t git checkout ;;
+			esac
+		fi
+
+	else
+		echo "$empty_msg"
+		return
+	fi
 }
 
 function _fzf_git_reset() {
@@ -179,9 +211,10 @@ function _fzf_git_reset() {
 }
 
 function register_fzf_git() {
-  alias gd=_fzf_git_diffs
+  alias fgd='_fzf_git_diff'
+  alias fgdc='_fzf_git_diff --cached'
   alias fgb=_fzf_git_branches
-  alias fpr=_fzf_git_prs
+  alias fgpr=_fzf_git_prs
   alias fga=_fzf_git_add
   alias fgr=_fzf_git_reset
 }

@@ -3,7 +3,6 @@
 # own aliases
 alias ai='opencode'
 alias cl="clear -x"
-alias gdc='git diff --cached'
 alias ggf='gpf'
 alias ghd="gh dash"
 alias ghp="gh pr"

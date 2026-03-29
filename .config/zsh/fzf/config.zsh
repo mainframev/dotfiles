@@ -1,39 +1,23 @@
 #!/bin/env zsh
 
-# =============================================================================
 # FZF Configuration
-#
+
+
 export FZF_BASE="/opt/homebrew/opt/fzf"
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -n 10'"
 export FZF_COMPLETION_DIR_COMMANDS="cd pushd rmdir tree ls"
 
-# fzf tokyonight theme and default options
-export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
-  --prompt '❯ '\
-  --marker '⇒' \
-  --pointer '▶'\
-  --highlight-line \
-  --info=inline-right \
-  --ansi \
-  --border sharp \
-  --color=bg+:#283457 \
-  --color=bg:#16161e \
-  --color=border:#27a1b9 \
-  --color=fg:#c0caf5 \
-  --color=gutter:#16161e \
-  --color=header:#ff9e64 \
-  --color=hl+:#2ac3de \
-  --color=hl:#2ac3de \
-  --color=info:#545c7e \
-  --color=marker:#ff007c \
-  --color=pointer:#ff007c \
-  --color=prompt:#2ac3de \
-  --color=query:#c0caf5:regular \
-  --color=scrollbar:#27a1b9 \
-  --color=separator:#ff9e64 \
-  --color=spinner:#ff007c \
+
+export FZF_DEFAULT_OPTS="
+  --highlight-line
+	--color=fg:#908caa,bg:#232136,hl:#ea9a97
+	--color=fg+:#e0def4,bg+:#393552,hl+:#ea9a97
+	--color=border:#44415a,header:#3e8fb0,gutter:#232136
+	--color=spinner:#f6c177,info:#9ccfd8
+	--color=pointer:#c4a7e7,marker:#eb6f92,prompt:#908caa
+  --preview-window=border-sharp --padding=1
 "
 
 _fzf_comprun() {
