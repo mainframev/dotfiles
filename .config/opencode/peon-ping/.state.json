@@ -1,9 +1,9 @@
 {
   "last_played": {
     "task.complete": "sounds/PeonYesAttack3.wav",
-    "input.required": "sounds/PeonWhat2.wav",
+    "input.required": "sounds/PeonWhat4.wav",
     "session.start": "sounds/PeonWhat1.wav",
-    "task.error": "sounds/PeonAngry4.wav"
+    "task.error": "sounds/PeonDeath.wav"
   },
   "session_packs": {}
 }
