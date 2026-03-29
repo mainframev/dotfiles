@@ -12,7 +12,7 @@ return {
         "size",
       },
       buf_options = {
-        buflisted = true,
+        buflisted = false,
       },
       win_options = {
         signcolumn = "yes",

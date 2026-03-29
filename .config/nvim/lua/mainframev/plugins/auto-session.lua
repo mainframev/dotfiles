@@ -14,8 +14,9 @@ return {
     },
     config = function()
       require("auto-session").setup({
-        auto_session_enable_last_session = vim.loop.cwd() == vim.loop.os_homedir(),
+        auto_session_enable_last_session = vim.uv.cwd() == vim.uv.os_homedir(),
         auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
+        bypass_save_filetypes = { "oil" },
         session_lens = {
           buftypes_to_ignore = {},
           load_on_setup = true,

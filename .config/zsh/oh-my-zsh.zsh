@@ -7,8 +7,7 @@ zstyle ':omz:plugins:nvm' lazy yes
 plugins=(
   git
   git-auto-fetch
-  last-working-dir
-  nvm
+nvm
   sudo
   themes
   encode64
