@@ -1,0 +1,134 @@
+{
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(awk:*)",
+      "Bash(cargo:*)",
+      "Bash(cp:*)",
+      "Bash(git add:*)",
+      "Bash(git blame:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git clone:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(git log:*)",
+      "Bash(git merge:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(git remote:*)",
+      "Bash(git restore:*)",
+      "Bash(git show:*)",
+      "Bash(git stash:*)",
+      "Bash(git status:*)",
+      "Bash(go:*)",
+      "Bash(jq:*)",
+      "Bash(make:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(npx playwright:*)",
+      "Bash(sed:*)",
+      "Bash(sort:*)",
+      "Bash(tar:*)",
+      "Bash(touch:*)",
+      "Bash(uniq:*)",
+      "Bash(unzip:*)",
+      "Bash(wc:*)",
+      "Bash(zip:*)",
+      "Edit(**)",
+      "Glob(**)",
+      "Grep(**)",
+      "LS(**)",
+      "MultiEdit(**)",
+      "Read(**)",
+      "Skill(agent-browser:*)",
+      "WebFetch(domain:*)",
+      "WebSearch",
+      "Write(**)",
+      "mcp__chrome-devtools__*"
+    ],
+    "deny": [
+      "Bash(cat ~/.aws/*)",
+      "Bash(cat ~/.ssh/id_*)",
+      "Bash(curl:*)",
+      "Bash(docker run --pid=host:*)",
+      "Bash(docker run --privileged:*)",
+      "Bash(docker run -v /:/host *)",
+      "Bash(git push --force origin main:*)",
+      "Bash(git push --force origin master:*)",
+      "Bash(git push -f origin main:*)",
+      "Bash(git push -f origin master:*)",
+      "Bash(halt:*)",
+      "Bash(poweroff:*)",
+      "Bash(reboot:*)",
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)",
+      "Bash(shutdown:*)",
+      "Bash(sudo > /etc/*)",
+      "Bash(sudo iptables -F:*)",
+      "Bash(sudo passwd:*)",
+      "Bash(sudo rm -rf /)",
+      "Bash(sudo rm /etc/*)",
+      "Bash(sudo ufw disable:*)",
+      "Bash(sudo useradd:*)",
+      "Bash(sudo userdel:*)",
+      "Bash(wget:*)",
+      "Read(*/secrets/*)",
+      "Read(*password*)",
+      "Read(*secret*)",
+      "Read(.env*)"
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "enableAllProjectMcpServers": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y ccstatusline@latest --hook"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y ccstatusline@latest --hook"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y ccstatusline@latest",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "agent-browser@agent-browser": true,
+    "superpowers@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "microsoft-docs@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "lua-lsp@claude-plugins-official": true
+  },
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
+  "keybindings": {
+    "interrupt": "ctrl+c"
+  }
+}
