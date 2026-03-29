@@ -143,10 +143,10 @@ function _fzf_git_diffs() {
 }
 
 function register_fzf_git() {
-  alias gfd=_fzf_git_diffs
-  alias gfb=_fzf_git_branches
-  alias gfp=_fzf_git_prs
-  alias gfa=_fzf_git_add
+  alias gd=_fzf_git_diffs
+  alias fgb=_fzf_git_branches
+  alias fpr=_fzf_git_prs
+  alias fga=_fzf_git_add
 }
 
 
