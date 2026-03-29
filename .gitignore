@@ -17,6 +17,7 @@
 !/.config/bottom
 !/.config/brew/
 !/.config/btop
+!/.config/claude/
 !/.config/gh
 !/.config/gh-dash
 !/.config/ghostty
@@ -37,7 +38,9 @@
 
 !/.zshenv
 !/.zshrc
+!/.claude.json
 !/.zprofile
+
 !/install.sh
 
 !README.md
