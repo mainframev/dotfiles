@@ -7,8 +7,7 @@ return {
     -- its a dependency from crates.nvim
     "nvim-lua/plenary.nvim",
   },
-  -- the plugin is already lazy
-  lazy = false,
+  ft = "rust",
   init = function()
     vim.g.rustaceanvim = function()
       require("crates").setup({

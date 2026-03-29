@@ -1,7 +1,7 @@
 ---@type LazySpec
 return {
   "akinsho/git-conflict.nvim",
-  lazy = false,
+  event = "BufReadPre",
   version = "2.1.0",
   config = function()
     local present, conflict = pcall(require, "git-conflict")
