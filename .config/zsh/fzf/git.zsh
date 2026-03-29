@@ -26,13 +26,13 @@ function _fzf_git_add() {
 					--ghost="add files:" \
 					--bind="focus:transform-footer:GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always -- {1} __NOVAR__" \
 					--expect="enter,ctrl-d" \
-					--header=$'Enter: add file(s), Ctrl-d: diff file(s)\n\n' \
+          --header=$'Enter: add file(s), Tab: select file(s), Ctrl-d: diff file(s)\n\n' \
 					--no-info
 
 		)"
 
 		key="$(head -1 <<<"$lines")"
-		files="$(sed 1d <<<"$lines" | cut -d: -f2 | tr -d ' ')"
+		files="$(sed 1d <<<"$lines")"
 
 		case "$key" in
 		enter) echo "$files" | xargs -n1 -t git add ;;
@@ -142,11 +142,48 @@ function _fzf_git_diffs() {
 	esac
 }
 
+function _fzf_git_reset() {
+	if ! is_git_repo; then {
+		echo "not a git repo"
+		exit
+	}; fi
+
+	staged_list="$(git diff --name-only --cached)"
+
+	if [[ -n "$staged_list" ]]; then
+		lines="$(
+			echo "$staged_list" |
+				fzf -d' ' \
+					--exit-0 \
+					--ansi --delimiter=: \
+					--multi \
+					--ghost="reset files:" \
+					--bind="focus:transform-footer:GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --cached --stat --color=always -- {1} __NOVAR__" \
+					--expect="enter,ctrl-d" \
+					--header=$'Enter: unstage file(s), Tab: select file(s), Ctrl-d: diff file(s)\n\n' \
+					--no-info
+		)"
+
+		key="$(head -1 <<<"$lines")"
+		files="$(sed 1d <<<"$lines")"
+
+		case "$key" in
+		enter) echo "$files" | xargs -n1 -t git restore --staged ;;
+		ctrl-d) echo "$files" | xargs -n1 git diff --cached ;;
+		esac
+
+	else
+		echo "no staged files"
+		exit
+	fi
+}
+
 function register_fzf_git() {
   alias gd=_fzf_git_diffs
   alias fgb=_fzf_git_branches
   alias fpr=_fzf_git_prs
   alias fga=_fzf_git_add
+  alias fgr=_fzf_git_reset
 }
 
 
