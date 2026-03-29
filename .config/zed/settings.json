@@ -12,7 +12,14 @@
       "args": [],
       "projects": [
         {
-          "paths": ["/workspaces/client-web/"]
+          "paths": [
+            "/"
+          ]
+        },
+        {
+          "paths": [
+            "/workspaces/client-web/"
+          ]
         }
       ],
       "nickname": "OWA codespace"
