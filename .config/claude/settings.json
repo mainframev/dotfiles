@@ -137,7 +137,9 @@
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true,
   "keybindings": {
     "interrupt": "ctrl+c"
-  }
+  },
+  "model": "opus[1m]"
 }
