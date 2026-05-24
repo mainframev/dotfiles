@@ -40,3 +40,46 @@ alias tskst='task stats'
 alias tskts='task timesheet'
 alias vi="nvim"
 alias y="yarn"
+
+memtop() {
+  local width=${COLUMNS:-$(tput cols 2>/dev/null || echo 120)}
+  local cmd_max=$((width - 22))
+  (( cmd_max < 40 )) && cmd_max=40
+  {
+    printf 'PID\tMEM\tCOMMAND\n'
+    ps -axo pid,rss,command | sort -k2 -nr | head -20 | awk -v max="$cmd_max" '{
+      pid=$1; rss=$2; $1=$2=""; sub(/^  /,"")
+      if (rss >= 1048576)      mem=sprintf("%.1f GB", rss/1048576)
+      else if (rss >= 1024)    mem=sprintf("%.0f MB", rss/1024)
+      else                     mem=sprintf("%d KB", rss)
+      if (length($0) > max) $0 = substr($0, 1, max-1) "\xe2\x80\xa6"
+      printf "%s\t%s\t%s\n", pid, mem, $0
+    }'
+  } | column -t -s $'\t'
+}
+
+memsusp() {
+  local width=${COLUMNS:-$(tput cols 2>/dev/null || echo 120)}
+  local cmd_max=$((width - 28))
+  (( cmd_max < 40 )) && cmd_max=40
+  {
+    printf 'PID\tSTAT\tELAPSED\tCOMMAND\n'
+    ps -axo pid,stat,etime,command | awk -v max="$cmd_max" '$2 ~ /T/ && $1 != "PID" {
+      pid=$1; stat=$2; etime=$3; $1=$2=$3=""; sub(/^   /,"")
+      if (length($0) > max) $0 = substr($0, 1, max-1) "\xe2\x80\xa6"
+      printf "%s\t%s\t%s\t%s\n", pid, stat, etime, $0
+    }'
+  } | column -t -s $'\t'
+}
+
+memclean() {
+  echo "Suspended processes (will be killed if you confirm):"
+  ps -axo pid,stat,etime,command | awk '$2 ~ /T/ && $1 != "PID"'
+  printf "Proceed? [y/N] "
+  read -r ans
+  [[ "$ans" == "y" ]] || return 1
+  ps -axo pid,stat | awk '$2 ~ /T/ {print $1}' | xargs -r kill -CONT 2>/dev/null
+  ps -axo pid,stat | awk '$2 ~ /T/ {print $1}' | xargs -r kill -TERM 2>/dev/null
+  sleep 2
+  ps -axo pid,stat | awk '$2 ~ /T/ {print $1}' | xargs -r kill -KILL 2>/dev/null
+}
