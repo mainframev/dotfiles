@@ -1,0 +1,19 @@
+{
+  "name": "mainframev",
+  "owner": {
+    "name": "Viktor Genaev",
+    "url": "https://github.com/mainframev"
+  },
+  "plugins": [
+    {
+      "name": "engineering",
+      "source": "./engineering",
+      "description": "Engineering skills: diagnose, etc."
+    },
+    {
+      "name": "productivity",
+      "source": "./productivity",
+      "description": "Productivity skills: caveman, grill-me, handoff, write-a-skill."
+    }
+  ]
+}

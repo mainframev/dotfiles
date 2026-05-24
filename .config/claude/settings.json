@@ -125,13 +125,21 @@
     "skill-creator@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "lua-lsp@claude-plugins-official": true,
-    "claude-code-wakatime@wakatime": true
+    "claude-code-wakatime@wakatime": true,
+    "engineering@mainframev": true,
+    "productivity@mainframev": true
   },
   "extraKnownMarketplaces": {
     "wakatime": {
       "source": {
         "source": "git",
         "url": "https://github.com/wakatime/claude-code-wakatime.git"
+      }
+    },
+    "mainframev": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/rejuv/.config/claude/marketplace"
       }
     }
   },
