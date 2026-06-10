@@ -220,9 +220,14 @@ set_zsh_default() {
         echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
     fi
 
-    # Change default shell
     if command_exists chsh; then
-        if chsh -s "$ZSH_PATH"; then
+        if [ "$IN_CODESPACES" = true ]; then
+            if sudo chsh -s "$ZSH_PATH" "$(whoami)"; then
+                print_success "Default shell set to zsh (takes effect on next login)"
+            else
+                print_warning "Could not change default shell. Try manually: sudo chsh -s $ZSH_PATH $(whoami)"
+            fi
+        elif chsh -s "$ZSH_PATH"; then
             print_success "Default shell set to zsh (takes effect on next login)"
         else
             print_warning "Could not change default shell. Try manually: chsh -s $ZSH_PATH"
