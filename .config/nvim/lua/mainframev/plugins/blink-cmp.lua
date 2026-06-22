@@ -12,15 +12,18 @@ return {
   },
   {
     "saghen/blink.cmp",
-    version = "1.8.0",
+    version = "v1.*.*",
     event = "InsertEnter",
-    build = "cargo build --release",
     dependencies = {
+      "saghen/blink.lib",
       "fang2hou/blink-copilot",
       -- Snippet source
       "rafamadriz/friendly-snippets",
       "xzbdmw/colorful-menu.nvim",
     },
+    build = function()
+      require("blink.cmp").download({ force = true, tags = "*" }):pwait()
+    end,
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
     opts = {
