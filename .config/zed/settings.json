@@ -1,5 +1,14 @@
 {
+  "edit_predictions": {
+    "provider": "copilot"
+  },
+  "cli_default_open_behavior": "existing_window",
   "context_servers": {
+    "mcp-server-github": {
+      "enabled": true,
+      "remote": false,
+      "settings": {}
+    },
     "fluent": {
       "enabled": true,
       "url": "https://chat.fluentui.dev/mcp/server",
@@ -8,21 +17,14 @@
   },
   "ssh_connections": [
     {
-      "host": "cs.vigilant-funicular-g45qgx56675rfv7v7.main",
+      "host": "cs.bookish-journey-r4rgj7rww4vx25gwx.codespace_midgard_fullclone",
       "args": [],
       "projects": [
         {
-          "paths": [
-            "/"
-          ]
-        },
-        {
-          "paths": [
-            "/workspaces/client-web/"
-          ]
+          "paths": ["/workspaces/1JS/midgard"]
         }
       ],
-      "nickname": "OWA codespace"
+      "nickname": "midgard"
     }
   ],
   "multi_cursor_modifier": "cmd_or_ctrl",
@@ -36,10 +38,18 @@
     }
   },
   "agent_servers": {
+    "codex-acp": {
+      "type": "registry"
+    },
     "claude-acp": {
       "type": "registry"
     },
     "opencode": {
+      "default_config_options": {
+        "mode": "plan",
+        "effort": "medium",
+        "model": "github-copilot/claude-opus-4.8-fast"
+      },
       "type": "registry"
     }
   },

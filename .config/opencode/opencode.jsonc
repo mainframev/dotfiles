@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "anthropic/claude-opus-4-6",
+  "model": "github-copilot/claude-opus-4.8",
   "instructions": [
     "CONTRIBUTING.md",
     "docs/guidelines.md",
@@ -8,10 +8,13 @@
     "AGENTS.md",
     "*.instructions.md"
   ],
-  "small_model": "anthropic/claude-sonnet-4-5",
+  "small_model": "github-copilot/claude-opus-4.8-fast",
   "autoupdate": true,
   "plugin": [
     "@franlol/opencode-md-table-formatter@latest",
+    "superpowers@git+https://github.com/obra/superpowers.git",
+    "@franlol/opencode-md-table-formatter@latest",
+    "@mohak34/opencode-notifier@latest",
     "opencode-wakatime"
   ],
   "mcp": {
@@ -19,5 +22,6 @@
       "type": "remote",
       "url": "https://chat.fluentui.dev/mcp/server"
     }
-  }
+  },
+  "lsp": true
 }
