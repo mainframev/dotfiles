@@ -1,0 +1,11 @@
+{
+  "model": "GPT-5.6 Sol",
+  "effortLevel": "medium",
+  "includeCoAuthoredBy": false,
+  "banner": "never",
+  "theme": "auto",
+  "renderMarkdown": true,
+  "respectGitignore": true,
+  "beep": true,
+  "keepAlive": "busy"
+}
