@@ -13,8 +13,8 @@
         "is_linked_worktree": false
       },
       "public_pane_numbers": {
-        "1": 1,
-        "2": 2
+        "2": 2,
+        "1": 1
       },
       "next_public_pane_number": 3,
       "public_tab_numbers": [
@@ -66,19 +66,19 @@
         "is_linked_worktree": false
       },
       "public_pane_numbers": {
-        "5": 7,
         "4": 6,
-        "3": 2,
-        "6": 9
+        "5": 7,
+        "19": 21,
+        "3": 2
       },
-      "next_public_pane_number": 19,
+      "next_public_pane_number": 23,
       "public_tab_numbers": [
         2,
         3,
         4,
-        6
+        10
       ],
-      "next_public_tab_number": 9,
+      "next_public_tab_number": 12,
       "tabs": [
         {
           "custom_name": "ghosty",
@@ -129,58 +129,21 @@
           "root_pane": 5
         },
         {
-          "custom_name": "herdr",
+          "custom_name": "testing",
           "layout": {
-            "Pane": 6
+            "Pane": 19
           },
           "panes": {
-            "6": {
+            "19": {
               "cwd": "/Users/rejuv/dotfiles"
             }
           },
           "zoomed": false,
-          "focused": 6,
-          "root_pane": 6
+          "focused": 19,
+          "root_pane": 19
         }
       ],
-      "active_tab": 1
-    },
-    {
-      "id": "wE",
-      "custom_name": null,
-      "identity_cwd": "/Users/rejuv/dotfiles",
-      "worktree_space": {
-        "key": "/Users/rejuv/dotfiles/.git",
-        "label": "dotfiles",
-        "repo_root": "/Users/rejuv/dotfiles",
-        "checkout_path": "/Users/rejuv/dotfiles",
-        "is_linked_worktree": false
-      },
-      "public_pane_numbers": {
-        "7": 1
-      },
-      "next_public_pane_number": 3,
-      "public_tab_numbers": [
-        1
-      ],
-      "next_public_tab_number": 2,
-      "tabs": [
-        {
-          "custom_name": null,
-          "layout": {
-            "Pane": 7
-          },
-          "panes": {
-            "7": {
-              "cwd": "/Users/rejuv/dotfiles"
-            }
-          },
-          "zoomed": false,
-          "focused": 7,
-          "root_pane": 7
-        }
-      ],
-      "active_tab": 0
+      "active_tab": 3
     }
   ],
   "active": 1,

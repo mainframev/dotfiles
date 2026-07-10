@@ -52,3 +52,6 @@
 2026-07-10T22:17:26.379445Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=4076
 2026-07-10T22:17:26.379483Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
 2026-07-10T22:17:26.410446Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T22:35:19.813326Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=13125
+2026-07-10T22:35:19.813854Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T22:35:19.994314Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame

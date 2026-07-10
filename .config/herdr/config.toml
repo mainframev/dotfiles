@@ -65,6 +65,12 @@ type = "plugin_action"
 command = "worktrunk.remove"
 description = "Worktree: remove"
 
+[[keys.command]]
+key = "prefix+shift+e"
+type = "plugin_action"
+command = "persiyanov.reviewr.toggle"
+description = "Reviewr: toggle"
+
 [ui]
 sidebar_collapsed_mode = "compact"
 prompt_new_tab_name = true
