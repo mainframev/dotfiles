@@ -3,6 +3,8 @@
 # own aliases
 alias ai='opencode'
 alias cl="clear -x"
+alias cppy='copilot --yolo --mode plan'
+alias cpp='copilot --mode plan'
 alias ggf='gpf'
 alias ghd="gh dash"
 alias ghp="gh pr"
