@@ -21,10 +21,11 @@
 !/.config/gh
 !/.config/gh-dash
 !/.config/ghostty
+!/.config/herdr
 !/.config/install.sh
 !/.config/kitty
 !/.config/nvim
-!/.config/opencode/
+!/.config/opencode
 !/.config/sketchybar/
 !/.config/starship.toml
 !/.config/task
@@ -35,6 +36,7 @@
 /.config/tmux/plugins/
 /.config/zsh/secrets.zsh
 /.config/alacritty/themes/
+/.config/opencode/opencode-notifier-state.json
 
 !/.zshenv
 !/.zshrc
