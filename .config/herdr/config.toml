@@ -1,0 +1,95 @@
+onboarding = false
+
+[theme]
+name = "rose-pine"
+auto_switch = false
+
+[update]
+channel = "stable"
+version_check = true
+
+[keys]
+prefix = "ctrl+s"
+help = "prefix+?"
+settings = "prefix+s"
+detach = "prefix+d"
+reload_config = "prefix+shift+r"
+open_notification_target = "prefix+o"
+workspace_picker = "prefix+w"
+goto = "prefix+g"
+new_workspace = "prefix+ctrl+c"
+# new_worktree = "prefix+shift+g"
+open_worktree = "prefix+shift+o"
+# remove_worktree = "prefix+shift+q"
+rename_workspace = "prefix+ctrl+r"
+previous_workspace = "prefix+ctrl+["
+next_workspace = "prefix+ctrl+]"
+close_workspace = "prefix+ctrl+x"
+remote_image_paste = "ctrl+v"
+new_tab = "prefix+c"
+rename_tab = "prefix+r"
+previous_tab = "prefix+["
+next_tab = "prefix+]"
+switch_tab = "prefix+1..9"
+switch_workspace = "prefix+ctrl+1..9"
+close_tab = "prefix+x"
+rename_pane = "prefix+shift+p"
+edit_scrollback = "prefix+e"
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+cycle_pane_next = "prefix+tab"
+cycle_pane_previous = "prefix+shift+tab"
+split_vertical = "prefix+shift+v"
+split_horizontal = "prefix+shift+h"
+close_pane = "prefix+shift+x"
+zoom = "prefix+z"
+toggle_sidebar = "prefix+b"
+navigate_workspace_up = "up"
+navigate_workspace_down = "down"
+navigate_pane_left = "h"
+navigate_pane_down = "j"
+navigate_pane_up = "k"
+navigate_pane_right = "l"
+
+[[keys.command]]
+key = "prefix+shift+g"
+type = "plugin_action"
+command = "worktrunk.open"
+description = "Worktree: switch / create"
+
+[[keys.command]]
+key = "prefix+shift+d"
+type = "plugin_action"
+command = "worktrunk.remove"
+description = "Worktree: remove"
+
+[ui]
+sidebar_collapsed_mode = "compact"
+prompt_new_tab_name = true
+pane_borders = true
+confirm_close = true
+pane_gaps = true
+show_agent_labels_on_pane_borders = true
+sidebar_start_collapsed = true
+
+[ui.toast]
+delivery = "terminal"
+
+[ui.toast.herdr]
+position = "bottom-right"
+
+[ui.toast.clipboard]
+enabled = true
+position = "bottom-center"
+
+[ui.sound]
+enabled = true
+
+[remote]
+manage_ssh_config = true
+
+[experimental]
+kitty_graphics = true
+pane_history = true

@@ -1,0 +1,191 @@
+{
+  "version": 3,
+  "workspaces": [
+    {
+      "id": "wA",
+      "custom_name": "lina-app",
+      "identity_cwd": "/Users/rejuv/wishlist-mini-app",
+      "worktree_space": {
+        "key": "/Users/rejuv/wishlist-mini-app/.git",
+        "label": "wishlist-mini-app",
+        "repo_root": "/Users/rejuv/wishlist-mini-app",
+        "checkout_path": "/Users/rejuv/wishlist-mini-app",
+        "is_linked_worktree": false
+      },
+      "public_pane_numbers": {
+        "1": 1,
+        "2": 2
+      },
+      "next_public_pane_number": 3,
+      "public_tab_numbers": [
+        1,
+        2
+      ],
+      "next_public_tab_number": 3,
+      "tabs": [
+        {
+          "custom_name": "lina-ai",
+          "layout": {
+            "Pane": 1
+          },
+          "panes": {
+            "1": {
+              "cwd": "/Users/rejuv/wishlist-mini-app"
+            }
+          },
+          "zoomed": false,
+          "focused": 1,
+          "root_pane": 1
+        },
+        {
+          "custom_name": "lina-code",
+          "layout": {
+            "Pane": 2
+          },
+          "panes": {
+            "2": {
+              "cwd": "/Users/rejuv/dotfiles"
+            }
+          },
+          "zoomed": false,
+          "focused": 2,
+          "root_pane": 2
+        }
+      ],
+      "active_tab": 0
+    },
+    {
+      "id": "wC",
+      "custom_name": "dotfiles",
+      "identity_cwd": "/Users/rejuv/dotfiles",
+      "worktree_space": {
+        "key": "/Users/rejuv/dotfiles/.git",
+        "label": "dotfiles",
+        "repo_root": "/Users/rejuv/dotfiles",
+        "checkout_path": "/Users/rejuv/dotfiles",
+        "is_linked_worktree": false
+      },
+      "public_pane_numbers": {
+        "5": 7,
+        "4": 6,
+        "3": 2,
+        "6": 9
+      },
+      "next_public_pane_number": 19,
+      "public_tab_numbers": [
+        2,
+        3,
+        4,
+        6
+      ],
+      "next_public_tab_number": 9,
+      "tabs": [
+        {
+          "custom_name": "ghosty",
+          "layout": {
+            "Pane": 3
+          },
+          "panes": {
+            "3": {
+              "cwd": "/Users/rejuv/dotfiles"
+            }
+          },
+          "zoomed": false,
+          "focused": 3,
+          "root_pane": 3
+        },
+        {
+          "custom_name": "cli",
+          "layout": {
+            "Pane": 4
+          },
+          "panes": {
+            "4": {
+              "cwd": "/Users/rejuv/dotfiles"
+            }
+          },
+          "zoomed": false,
+          "focused": 4,
+          "root_pane": 4
+        },
+        {
+          "custom_name": "ai",
+          "layout": {
+            "Pane": 5
+          },
+          "panes": {
+            "5": {
+              "cwd": "/Users/rejuv/dotfiles",
+              "agent_session": {
+                "source": "herdr:copilot",
+                "agent": "copilot",
+                "kind": "id",
+                "value": "0058d1b8-bac5-44ed-91ba-9f98ee6dff8c"
+              }
+            }
+          },
+          "zoomed": false,
+          "focused": 5,
+          "root_pane": 5
+        },
+        {
+          "custom_name": "herdr",
+          "layout": {
+            "Pane": 6
+          },
+          "panes": {
+            "6": {
+              "cwd": "/Users/rejuv/dotfiles"
+            }
+          },
+          "zoomed": false,
+          "focused": 6,
+          "root_pane": 6
+        }
+      ],
+      "active_tab": 1
+    },
+    {
+      "id": "wE",
+      "custom_name": null,
+      "identity_cwd": "/Users/rejuv/dotfiles",
+      "worktree_space": {
+        "key": "/Users/rejuv/dotfiles/.git",
+        "label": "dotfiles",
+        "repo_root": "/Users/rejuv/dotfiles",
+        "checkout_path": "/Users/rejuv/dotfiles",
+        "is_linked_worktree": false
+      },
+      "public_pane_numbers": {
+        "7": 1
+      },
+      "next_public_pane_number": 3,
+      "public_tab_numbers": [
+        1
+      ],
+      "next_public_tab_number": 2,
+      "tabs": [
+        {
+          "custom_name": null,
+          "layout": {
+            "Pane": 7
+          },
+          "panes": {
+            "7": {
+              "cwd": "/Users/rejuv/dotfiles"
+            }
+          },
+          "zoomed": false,
+          "focused": 7,
+          "root_pane": 7
+        }
+      ],
+      "active_tab": 0
+    }
+  ],
+  "active": 1,
+  "selected": 1,
+  "sidebar_width": 26,
+  "sidebar_section_split": 0.5,
+  "collapsed_space_keys": []
+}

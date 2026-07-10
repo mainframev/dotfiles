@@ -1,0 +1,8 @@
+toggle_placement = 'tab'
+auto_open = true
+theme = 'rose-pine'
+
+[[keys.command]]
+key = 'cmd+r'
+type = 'plugin_action'
+command =  'persiyanov.reviewer.toggle'

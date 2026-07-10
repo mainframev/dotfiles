@@ -1,0 +1,54 @@
+2026-07-10T19:17:04.959557Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=39158
+2026-07-10T19:17:04.959606Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T19:17:05.156625Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T19:20:16.234683Z  WARN herdr::raw_input: flushing lone escape after input timeout; if this follows an alt chord or focus switch it may reach the pane as plain esc bytes=[27]
+2026-07-10T19:20:16.236642Z  WARN herdr::raw_input: flushing lone escape after input timeout; if this follows an alt chord or focus switch it may reach the pane as plain esc bytes=[27]
+2026-07-10T19:20:42.466123Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=52538
+2026-07-10T19:20:42.466526Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T19:20:42.469730Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T19:40:52.786907Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=99831
+2026-07-10T19:40:52.787445Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T19:40:52.942463Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T19:53:42.057082Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=40794
+2026-07-10T19:53:42.057484Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T19:53:42.084245Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T19:59:24.926325Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=61936
+2026-07-10T19:59:24.926918Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T19:59:25.124276Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T20:00:03.897510Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=64624
+2026-07-10T20:00:03.897951Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T20:00:03.973101Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T20:01:05.482150Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=68377
+2026-07-10T20:01:05.482872Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T20:01:05.667655Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T20:02:11.160086Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=72628
+2026-07-10T20:02:11.160228Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T20:02:11.364877Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T20:02:47.295503Z  INFO herdr::logging: herdr exiting event="app.shutdown" subsystem="client" outcome="completed" pid=72628
+2026-07-10T20:02:49.535626Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=75561
+2026-07-10T20:02:49.535686Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T20:02:49.590423Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T20:02:50.944351Z  INFO herdr::logging: herdr exiting event="app.shutdown" subsystem="client" outcome="completed" pid=75561
+2026-07-10T20:02:54.162621Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=76042
+2026-07-10T20:02:54.162677Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T20:02:54.264995Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T20:09:16.166904Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=94995
+2026-07-10T20:09:16.167134Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T20:09:16.320848Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T20:09:21.471803Z  WARN herdr::raw_input: flushing lone escape after input timeout; if this follows an alt chord or focus switch it may reach the pane as plain esc bytes=[27]
+2026-07-10T20:09:21.472015Z  WARN herdr::raw_input: flushing lone escape after input timeout; if this follows an alt chord or focus switch it may reach the pane as plain esc bytes=[27]
+2026-07-10T20:48:39.733289Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=4956
+2026-07-10T20:48:39.733943Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T20:48:39.955739Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T21:00:49.902703Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=47302
+2026-07-10T21:00:49.903604Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T21:00:50.047784Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T21:10:38.250341Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=75254
+2026-07-10T21:10:38.251022Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T21:10:38.420015Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T21:22:57.687786Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=7295
+2026-07-10T21:22:57.688489Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T21:22:57.779261Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
+2026-07-10T22:17:26.379445Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=4076
+2026-07-10T22:17:26.379483Z  INFO herdr::client: connecting to server path=/Users/rejuv/.config/herdr/herdr-client.sock
+2026-07-10T22:17:26.410446Z  INFO herdr::client: handshake succeeded version=16 encoding=SemanticFrame
