@@ -38,8 +38,12 @@ alias tskrpy='task ghistory.annual'
 alias tsksm='task summary'
 alias tskst='task stats'
 alias tskts='task timesheet'
-alias vi="nvim"
-alias y="yarn"
+alias vi='nvim'
+alias wtl='wt list'
+alias wtm='wt merge'
+alias wtr='wt remove'
+alias wts='wt switch'
+alias y='yarn'
 
 memtop() {
   local width=${COLUMNS:-$(tput cols 2>/dev/null || echo 120)}
@@ -70,16 +74,4 @@ memsusp() {
       printf "%s\t%s\t%s\t%s\n", pid, stat, etime, $0
     }'
   } | column -t -s $'\t'
-}
-
-memclean() {
-  echo "Suspended processes (will be killed if you confirm):"
-  ps -axo pid,stat,etime,command | awk '$2 ~ /T/ && $1 != "PID"'
-  printf "Proceed? [y/N] "
-  read -r ans
-  [[ "$ans" == "y" ]] || return 1
-  ps -axo pid,stat | awk '$2 ~ /T/ {print $1}' | xargs -r kill -CONT 2>/dev/null
-  ps -axo pid,stat | awk '$2 ~ /T/ {print $1}' | xargs -r kill -TERM 2>/dev/null
-  sleep 2
-  ps -axo pid,stat | awk '$2 ~ /T/ {print $1}' | xargs -r kill -KILL 2>/dev/null
 }
