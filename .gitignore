@@ -1,12 +1,18 @@
 /*
 !/.git[a-z]*
 !/.github/
-!/delta.gitconfig
+!/.copilot/
+/delta.gitconfig
 !.editorconfig
 !.stowrc
 !.stow-local-ignore
 !/*.zsh
 !/test.sh
+
+/.copilot/*
+!/.copilot/config.json
+!/.copilot/settings.json
+!/.copilot/permissions-config.json
 
 !/.config/
 /.config/*
@@ -18,6 +24,7 @@
 !/.config/brew/
 !/.config/btop
 !/.config/claude/
+!/.config/copilot/
 !/.config/gh
 !/.config/gh-dash
 !/.config/ghostty
@@ -32,10 +39,14 @@
 !/.config/tmux
 !/.config/yazi
 !/.config/zsh
+
 # ignored
+*.log
 /.config/tmux/plugins/
 /.config/zsh/secrets.zsh
 /.config/alacritty/themes/
+/.config/herdr/session-history.json
+/.config/herdr/session.json
 /.config/opencode/opencode-notifier-state.json
 
 !/.zshenv
