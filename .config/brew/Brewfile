@@ -79,7 +79,7 @@ cask "copilot-cli"
 
 if OS.mac?
   brew "nowplaying-cli"
-  cask "nikitabobko/tap/aerospace"
+  cask "nikitabobko/tap/aerospace", trusted: true
   cask "sf-symbols"
   cask "keycastr"
   cask "imageoptim"
