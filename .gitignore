@@ -10,9 +10,7 @@
 !/test.sh
 
 /.copilot/*
-!/.copilot/config.json
 !/.copilot/settings.json
-!/.copilot/permissions-config.json
 
 !/.config/
 /.config/*
@@ -24,7 +22,7 @@
 !/.config/brew/
 !/.config/btop
 !/.config/claude/
-!/.config/copilot/
+!/.config/copilot
 !/.config/gh
 !/.config/gh-dash
 !/.config/ghostty
@@ -47,7 +45,10 @@
 /.config/alacritty/themes/
 /.config/herdr/session-history.json
 /.config/herdr/session.json
+/.config/herdr/release-notes.json
 /.config/opencode/opencode-notifier-state.json
+/.config/copilot/permissions-config.json
+/.config/copilot/config.json
 
 !/.zshenv
 !/.zshrc
