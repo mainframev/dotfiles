@@ -423,17 +423,11 @@ stow_dotfiles() {
         fi
     done
 
-    # Get parent directory and dotfiles name for stow
-    local parent_dir
-    local dotfiles_name
-    parent_dir="$(dirname "$DOTFILES")"
-    dotfiles_name="$(basename "$DOTFILES")"
-
     # Unstow first (in case of previous installation)
-    stow --dir="$parent_dir" --target="$HOME" -D "$dotfiles_name" 2>/dev/null || true
+    stow --dir="$DOTFILES" --target="$HOME" -D . 2>/dev/null || true
 
     # Stow the dotfiles directory with explicit flags
-    stow --dir="$parent_dir" --target="$HOME" --verbose "$dotfiles_name"
+    stow --dir="$DOTFILES" --target="$HOME" --verbose .
 
     print_success "Dotfiles stowed"
 
