@@ -61,7 +61,6 @@ fi
 
 # task2habitica Habitica credentials
 export HABITICA_USER_ID="8d0152d8-a4b3-4bf3-8636-519a0a18404d"
-export HABITICA_API_KEY="7c20e2b9-225f-4e73-8578-f343c2b39829"
 
 eval "$(fnm env --use-on-cd --shell zsh)"
 
