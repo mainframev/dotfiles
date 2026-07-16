@@ -1,6 +1,7 @@
 # Taps
 tap "microsoft/git"
 tap "nikitabobko/tap"
+tap "aws/tap", trusted: { formula: "copilot-cli" }
 
 # CLI Tools
 brew "bat"
