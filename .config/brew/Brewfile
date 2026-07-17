@@ -1,7 +1,5 @@
 # Taps
-tap "microsoft/git"
-tap "nikitabobko/tap"
-tap "aws/tap", trusted: { formula: "copilot-cli" }
+tap "microsoft/git", trusted: true
 
 # CLI Tools
 brew "bash"
@@ -39,7 +37,6 @@ brew "postgresql"
 brew "prettierd"
 brew "pyenv"
 brew "qemu"
-brew "readline"
 brew "ripgrep"
 brew "ripgrep-all"
 brew "rust"
@@ -76,9 +73,11 @@ cask "pgadmin4"
 cask "spotify"
 cask "visual-studio-code"
 cask "zoom"
-cask "copilot-cli"
+cask "homebrew/cask/copilot-cli"
 
 if OS.mac?
+  tap "nikitabobko/tap", trusted: true
+
   brew "nowplaying-cli"
   cask "nikitabobko/tap/aerospace", trusted: true
   cask "sf-symbols"

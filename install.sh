@@ -246,11 +246,17 @@ install_brew_packages() {
 
     if [ "$NO_GUI" = true ]; then
         print_header "Installing CLI packages only (skipping GUI applications)..."
-        HOMEBREW_BUNDLE_CASK_SKIP=1 brew bundle --file="$BREWFILE"
+        if ! HOMEBREW_BUNDLE_CASK_SKIP=1 brew bundle --file="$BREWFILE"; then
+            print_error "Homebrew failed to install CLI packages from: $BREWFILE"
+            return 1
+        fi
         print_success "CLI packages installed"
     else
         print_header "Installing all packages from Brewfile..."
-        brew bundle --file="$BREWFILE"
+        if ! brew bundle --file="$BREWFILE"; then
+            print_error "Homebrew failed to install packages from: $BREWFILE"
+            return 1
+        fi
         print_success "All packages installed"
     fi
 
