@@ -227,7 +227,36 @@ else
 fi
 echo
 
-# Test 6: YAML configuration (GitHub workflows)
+# Test 6: Homebrew installation serialization
+echo -e "${BLUE}→ Checking Homebrew installation serialization...${NC}"
+BREW_ERRORS=0
+BUNDLE_COMMANDS=$(grep -E 'brew bundle .*--file=' install.sh || true)
+
+if [ -z "$BUNDLE_COMMANDS" ]; then
+    echo -e "${RED}✗ No Homebrew Bundle installation commands found${NC}"
+    BREW_ERRORS=$((BREW_ERRORS + 1))
+else
+    if echo "$BUNDLE_COMMANDS" | grep -vq 'HOMEBREW_BUNDLE_NO_JOBS=1'; then
+        echo -e "${RED}✗ Homebrew Bundle jobs must be disabled${NC}"
+        BREW_ERRORS=$((BREW_ERRORS + 1))
+    else
+        echo -e "${GREEN}✓ Homebrew Bundle jobs are disabled${NC}"
+    fi
+
+    if echo "$BUNDLE_COMMANDS" | grep -vq 'HOMEBREW_DOWNLOAD_CONCURRENCY=1'; then
+        echo -e "${RED}✗ Homebrew downloads must run sequentially${NC}"
+        BREW_ERRORS=$((BREW_ERRORS + 1))
+    else
+        echo -e "${GREEN}✓ Homebrew downloads run sequentially${NC}"
+    fi
+fi
+
+if [ $BREW_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + 1))
+fi
+echo
+
+# Test 7: YAML configuration (GitHub workflows)
 echo -e "${BLUE}→ Checking YAML configurations...${NC}"
 if command_exists yamllint; then
     YAML_ERRORS=0
