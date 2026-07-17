@@ -4,6 +4,7 @@ tap "nikitabobko/tap"
 tap "aws/tap", trusted: { formula: "copilot-cli" }
 
 # CLI Tools
+brew "bash"
 brew "bat"
 brew "bat-extras"
 brew "btop"
