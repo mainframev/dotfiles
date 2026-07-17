@@ -139,6 +139,28 @@ detect_os() {
     esac
 }
 
+# Install Homebrew's Linux bootstrap dependencies
+install_linux_homebrew_dependencies() {
+    if [ "$OS" != "linux" ] || { command_exists bwrap && command_exists cc; }; then
+        return
+    fi
+
+    if ! command_exists apt-get; then
+        print_warning "Install your distribution's build tools and bubblewrap before using Homebrew"
+        return
+    fi
+
+    if ! command_exists sudo; then
+        print_error "sudo is required to install Homebrew's Linux dependencies"
+        return 1
+    fi
+
+    print_header "Installing Homebrew dependencies..."
+    sudo apt-get update
+    sudo apt-get install -y build-essential bubblewrap
+    print_success "Homebrew dependencies installed"
+}
+
 # Install Homebrew
 install_homebrew() {
     if command_exists brew; then
@@ -493,6 +515,7 @@ main() {
     echo -e "${NC}"
 
     detect_os
+    install_linux_homebrew_dependencies
     install_homebrew
     install_brew_packages
     install_gh_extensions

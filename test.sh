@@ -251,6 +251,15 @@ else
     fi
 fi
 
+if grep -q '^install_linux_homebrew_dependencies()' install.sh &&
+   grep -q 'sudo apt-get install -y build-essential bubblewrap' install.sh &&
+   grep -q '^    install_linux_homebrew_dependencies$' install.sh; then
+    echo -e "${GREEN}✓ Linux Homebrew prerequisites are installed before packages${NC}"
+else
+    echo -e "${RED}✗ Linux Homebrew prerequisites must install build-essential and bubblewrap${NC}"
+    BREW_ERRORS=$((BREW_ERRORS + 1))
+fi
+
 if [ $BREW_ERRORS -gt 0 ]; then
     ERRORS=$((ERRORS + 1))
 fi
