@@ -268,13 +268,21 @@ else
     BREW_ERRORS=$((BREW_ERRORS + 1))
 fi
 
-BOOTSTRAP_INSTALLS=$(grep -F "brew install --formula \"\$formula\"" install.sh || true)
+BOOTSTRAP_INSTALLS=$(grep -F "brew \"\$action\" --formula \"\$formula\"" install.sh || true)
 if [ -n "$BOOTSTRAP_INSTALLS" ] &&
    ! echo "$BOOTSTRAP_INSTALLS" | grep -vq 'HOMEBREW_BUNDLE_NO_JOBS=1' &&
    ! echo "$BOOTSTRAP_INSTALLS" | grep -vq 'HOMEBREW_DOWNLOAD_CONCURRENCY=1'; then
     echo -e "${GREEN}✓ Codespaces bootstrap formulae install sequentially${NC}"
 else
     echo -e "${RED}✗ Codespaces bootstrap formula installs must disable both concurrency layers${NC}"
+    BREW_ERRORS=$((BREW_ERRORS + 1))
+fi
+
+if grep -Fq "brew outdated --quiet --formula \"\$formula\"" install.sh &&
+   grep -q 'action="upgrade"' install.sh; then
+    echo -e "${GREEN}✓ Codespaces bootstrap upgrades outdated toolchain formulae${NC}"
+else
+    echo -e "${RED}✗ Codespaces bootstrap must upgrade outdated toolchain formulae${NC}"
     BREW_ERRORS=$((BREW_ERRORS + 1))
 fi
 

@@ -210,8 +210,11 @@ bootstrap_codespaces_homebrew() {
     fi
 
     local dependencies
+    local action
     local formula
     local formulae=""
+    local installed_version
+    local outdated
 
     print_header "Bootstrapping Homebrew toolchain for Codespaces..."
 
@@ -232,13 +235,20 @@ gcc
 EOF
 
     while IFS= read -r formula; do
-        if brew list --formula "$formula" >/dev/null 2>&1; then
-            continue
+        installed_version="$(brew list --versions "$formula" 2>/dev/null || true)"
+        if [ -z "$installed_version" ]; then
+            action="install"
+        else
+            outdated="$(brew outdated --quiet --formula "$formula" 2>/dev/null || true)"
+            if [ -z "$outdated" ]; then
+                continue
+            fi
+            action="upgrade"
         fi
 
-        print_info "Installing Homebrew bootstrap formula: $formula"
-        if ! HOMEBREW_BUNDLE_NO_JOBS=1 HOMEBREW_DOWNLOAD_CONCURRENCY=1 brew install --formula "$formula"; then
-            print_error "Failed to install Homebrew bootstrap formula: $formula"
+        print_info "Running Homebrew $action for bootstrap formula: $formula"
+        if ! HOMEBREW_BUNDLE_NO_JOBS=1 HOMEBREW_DOWNLOAD_CONCURRENCY=1 brew "$action" --formula "$formula"; then
+            print_error "Failed to $action Homebrew bootstrap formula: $formula"
             return 1
         fi
     done <<< "$formulae"
