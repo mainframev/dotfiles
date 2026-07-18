@@ -203,6 +203,49 @@ install_homebrew() {
     print_success "Homebrew installed"
 }
 
+# Bootstrap Homebrew's Linux runtime before installing the full Codespaces Brewfile
+bootstrap_codespaces_homebrew() {
+    if [ "$IN_CODESPACES" != true ]; then
+        return
+    fi
+
+    local dependencies
+    local formula
+    local formulae=""
+
+    print_header "Bootstrapping Homebrew toolchain for Codespaces..."
+
+    if ! dependencies="$(brew deps --topological glibc gcc)"; then
+        print_error "Could not resolve Homebrew's glibc and GCC dependencies"
+        return 1
+    fi
+
+    while IFS= read -r formula; do
+        if [ -z "$formula" ] || printf '%s\n' "$formulae" | grep -Fxq "$formula"; then
+            continue
+        fi
+        formulae+="${formulae:+$'\n'}$formula"
+    done <<EOF
+$dependencies
+glibc
+gcc
+EOF
+
+    while IFS= read -r formula; do
+        if brew list --formula "$formula" >/dev/null 2>&1; then
+            continue
+        fi
+
+        print_info "Installing Homebrew bootstrap formula: $formula"
+        if ! HOMEBREW_BUNDLE_NO_JOBS=1 HOMEBREW_DOWNLOAD_CONCURRENCY=1 brew install --formula "$formula"; then
+            print_error "Failed to install Homebrew bootstrap formula: $formula"
+            return 1
+        fi
+    done <<< "$formulae"
+
+    print_success "Homebrew toolchain bootstrapped"
+}
+
 # Install oh-my-zsh
 install_oh_my_zsh() {
     if [ -d "$HOME/.oh-my-zsh" ]; then
@@ -517,6 +560,7 @@ main() {
     detect_os
     install_linux_homebrew_dependencies
     install_homebrew
+    bootstrap_codespaces_homebrew
     install_brew_packages
     install_gh_extensions
     set_zsh_default

@@ -28,11 +28,11 @@ if command_exists shellcheck; then
     SHELL_ERRORS=0
 
     # Check install.sh
-    if [ -f ".config/install.sh" ]; then
-        if shellcheck .config/install.sh; then
-            echo -e "${GREEN}✓ .config/install.sh passed shellcheck${NC}"
+    if [ -f "install.sh" ]; then
+        if shellcheck install.sh; then
+            echo -e "${GREEN}✓ install.sh passed shellcheck${NC}"
         else
-            echo -e "${RED}✗ .config/install.sh has shellcheck issues${NC}"
+            echo -e "${RED}✗ install.sh has shellcheck issues${NC}"
             SHELL_ERRORS=$((SHELL_ERRORS + 1))
         fi
     fi
@@ -257,6 +257,35 @@ if grep -q '^install_linux_homebrew_dependencies()' install.sh &&
     echo -e "${GREEN}✓ Linux Homebrew prerequisites are installed before packages${NC}"
 else
     echo -e "${RED}✗ Linux Homebrew prerequisites must install build-essential and bubblewrap${NC}"
+    BREW_ERRORS=$((BREW_ERRORS + 1))
+fi
+
+if grep -q '^bootstrap_codespaces_homebrew()' install.sh &&
+   grep -q 'brew deps --topological glibc gcc' install.sh; then
+    echo -e "${GREEN}✓ Codespaces bootstrap derives the Homebrew toolchain dynamically${NC}"
+else
+    echo -e "${RED}✗ Codespaces bootstrap must derive glibc and GCC dependencies dynamically${NC}"
+    BREW_ERRORS=$((BREW_ERRORS + 1))
+fi
+
+BOOTSTRAP_INSTALLS=$(grep -F "brew install --formula \"\$formula\"" install.sh || true)
+if [ -n "$BOOTSTRAP_INSTALLS" ] &&
+   ! echo "$BOOTSTRAP_INSTALLS" | grep -vq 'HOMEBREW_BUNDLE_NO_JOBS=1' &&
+   ! echo "$BOOTSTRAP_INSTALLS" | grep -vq 'HOMEBREW_DOWNLOAD_CONCURRENCY=1'; then
+    echo -e "${GREEN}✓ Codespaces bootstrap formulae install sequentially${NC}"
+else
+    echo -e "${RED}✗ Codespaces bootstrap formula installs must disable both concurrency layers${NC}"
+    BREW_ERRORS=$((BREW_ERRORS + 1))
+fi
+
+HOMEBREW_LINE=$(grep -n '^    install_homebrew$' install.sh | cut -d: -f1)
+BOOTSTRAP_LINE=$(grep -n '^    bootstrap_codespaces_homebrew$' install.sh | cut -d: -f1)
+PACKAGES_LINE=$(grep -n '^    install_brew_packages$' install.sh | cut -d: -f1)
+if [ -n "$HOMEBREW_LINE" ] && [ -n "$BOOTSTRAP_LINE" ] && [ -n "$PACKAGES_LINE" ] &&
+   [ "$HOMEBREW_LINE" -lt "$BOOTSTRAP_LINE" ] && [ "$BOOTSTRAP_LINE" -lt "$PACKAGES_LINE" ]; then
+    echo -e "${GREEN}✓ Codespaces bootstrap runs before Brewfile installation${NC}"
+else
+    echo -e "${RED}✗ Codespaces bootstrap must run after Homebrew and before Brewfile installation${NC}"
     BREW_ERRORS=$((BREW_ERRORS + 1))
 fi
 
