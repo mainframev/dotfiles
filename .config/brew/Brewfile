@@ -73,13 +73,15 @@ cask "pgadmin4"
 cask "spotify"
 cask "visual-studio-code"
 cask "zoom"
-cask "homebrew/cask/copilot-cli"
 
 if OS.mac?
   tap "nikitabobko/tap", trusted: true
+  tap "FelixKratz/formulae", trusted: true
 
+  brew "borders"
   brew "nowplaying-cli"
   cask "nikitabobko/tap/aerospace", trusted: true
+  cask "homebrew/cask/copilot-cli"
   cask "sf-symbols"
   cask "keycastr"
   cask "imageoptim"
