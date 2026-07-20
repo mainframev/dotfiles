@@ -278,10 +278,11 @@ fi
 BOOTSTRAP_INSTALLS=$(grep -F "brew \"\$action\" --formula \"\$formula\"" install.sh || true)
 if [ -n "$BOOTSTRAP_INSTALLS" ] &&
    ! echo "$BOOTSTRAP_INSTALLS" | grep -vq 'HOMEBREW_DOWNLOAD_CONCURRENCY=1' &&
-   ! echo "$BOOTSTRAP_INSTALLS" | grep -vq 'HOMEBREW_NO_INSTALL_CLEANUP=1'; then
+   ! echo "$BOOTSTRAP_INSTALLS" | grep -vq 'HOMEBREW_NO_INSTALL_CLEANUP=1' &&
+   ! echo "$BOOTSTRAP_INSTALLS" | grep -vq '</dev/null'; then
     echo -e "${GREEN}✓ Codespaces bootstrap formulae install without cache races${NC}"
 else
-    echo -e "${RED}✗ Codespaces bootstrap must serialize downloads and defer cleanup${NC}"
+    echo -e "${RED}✗ Codespaces bootstrap must serialize downloads, defer cleanup, and isolate stdin${NC}"
     BREW_ERRORS=$((BREW_ERRORS + 1))
 fi
 
@@ -301,10 +302,11 @@ fi
 LINUX_FORMULA_INSTALLS=$(grep -F 'brew install --formula "$entry"' install.sh || true)
 if [ -n "$LINUX_FORMULA_INSTALLS" ] &&
    ! echo "$LINUX_FORMULA_INSTALLS" | grep -vq 'HOMEBREW_DOWNLOAD_CONCURRENCY=1' &&
-   ! echo "$LINUX_FORMULA_INSTALLS" | grep -vq 'HOMEBREW_NO_INSTALL_CLEANUP=1'; then
+   ! echo "$LINUX_FORMULA_INSTALLS" | grep -vq 'HOMEBREW_NO_INSTALL_CLEANUP=1' &&
+   ! echo "$LINUX_FORMULA_INSTALLS" | grep -vq '</dev/null'; then
     echo -e "${GREEN}✓ Linux formulae install without download or cleanup races${NC}"
 else
-    echo -e "${RED}✗ Linux formula installs must serialize downloads and defer cleanup${NC}"
+    echo -e "${RED}✗ Linux formula installs must serialize downloads, defer cleanup, and isolate stdin${NC}"
     BREW_ERRORS=$((BREW_ERRORS + 1))
 fi
 

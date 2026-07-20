@@ -247,7 +247,7 @@ EOF
         fi
 
         print_info "Running Homebrew $action for bootstrap formula: $formula"
-        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew "$action" --formula "$formula"; then
+        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew "$action" --formula "$formula" </dev/null; then
             print_error "Failed to $action Homebrew bootstrap formula: $formula"
             return 1
         fi
@@ -271,7 +271,7 @@ install_linux_brew_packages() {
         [ -z "$entry" ] && continue
 
         print_info "Installing Homebrew tap: $entry"
-        if ! brew tap "$entry"; then
+        if ! brew tap "$entry" </dev/null; then
             print_error "Failed to install Homebrew tap: $entry"
             return 1
         fi
@@ -286,7 +286,7 @@ install_linux_brew_packages() {
         [ -z "$entry" ] && continue
 
         print_info "Installing Homebrew formula: $entry"
-        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install --formula "$entry"; then
+        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install --formula "$entry" </dev/null; then
             print_error "Failed to install Homebrew formula: $entry"
             return 1
         fi
