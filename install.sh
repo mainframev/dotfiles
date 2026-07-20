@@ -541,7 +541,7 @@ stow_dotfiles() {
     local needs_backup=false
 
     # Common dotfiles that might exist and aren't symlinks
-    local common_files=(".zshrc" ".zshenv" ".zprofile" ".gitconfig" ".tmux.conf" ".editorconfig")
+    local common_files=(".zshrc" ".zshenv" ".zprofile" ".gitconfig" ".tmux.conf" ".editorconfig", ".claude.json")
 
     for file in "${common_files[@]}"; do
         if [ -e "$HOME/$file" ] && [ ! -L "$HOME/$file" ]; then
