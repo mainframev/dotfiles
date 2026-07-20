@@ -239,6 +239,13 @@ jobs:
           CODESPACES: true
           NONINTERACTIVE: 1
 
+      - name: Verify Codespaces install is idempotent
+        run: bash install.sh --no-gui
+        env:
+          CI: true
+          CODESPACES: true
+          NONINTERACTIVE: 1
+
   test-stow-structure:
     name: Test Stow Structure
     runs-on: ubuntu-latest
