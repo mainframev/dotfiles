@@ -236,11 +236,11 @@ if [ -z "$BUNDLE_COMMANDS" ]; then
     echo -e "${RED}✗ No Homebrew Bundle installation commands found${NC}"
     BREW_ERRORS=$((BREW_ERRORS + 1))
 else
-    if echo "$BUNDLE_COMMANDS" | grep -vq 'HOMEBREW_BUNDLE_NO_JOBS=1'; then
-        echo -e "${RED}✗ Homebrew Bundle jobs must be disabled${NC}"
+    if echo "$BUNDLE_COMMANDS" | grep -vq 'brew bundle --jobs=1'; then
+        echo -e "${RED}✗ Homebrew Bundle must use one explicit install job${NC}"
         BREW_ERRORS=$((BREW_ERRORS + 1))
     else
-        echo -e "${GREEN}✓ Homebrew Bundle jobs are disabled${NC}"
+        echo -e "${GREEN}✓ Homebrew Bundle uses one explicit install job${NC}"
     fi
 
     if echo "$BUNDLE_COMMANDS" | grep -vq 'HOMEBREW_DOWNLOAD_CONCURRENCY=1'; then
@@ -248,6 +248,13 @@ else
         BREW_ERRORS=$((BREW_ERRORS + 1))
     else
         echo -e "${GREEN}✓ Homebrew downloads run sequentially${NC}"
+    fi
+
+    if echo "$BUNDLE_COMMANDS" | grep -vq 'HOMEBREW_NO_INSTALL_CLEANUP=1'; then
+        echo -e "${RED}✗ Homebrew automatic cleanup must be deferred during bundle installation${NC}"
+        BREW_ERRORS=$((BREW_ERRORS + 1))
+    else
+        echo -e "${GREEN}✓ Homebrew automatic cleanup is deferred during bundle installation${NC}"
     fi
 fi
 
@@ -270,11 +277,11 @@ fi
 
 BOOTSTRAP_INSTALLS=$(grep -F "brew \"\$action\" --formula \"\$formula\"" install.sh || true)
 if [ -n "$BOOTSTRAP_INSTALLS" ] &&
-   ! echo "$BOOTSTRAP_INSTALLS" | grep -vq 'HOMEBREW_BUNDLE_NO_JOBS=1' &&
-   ! echo "$BOOTSTRAP_INSTALLS" | grep -vq 'HOMEBREW_DOWNLOAD_CONCURRENCY=1'; then
-    echo -e "${GREEN}✓ Codespaces bootstrap formulae install sequentially${NC}"
+   ! echo "$BOOTSTRAP_INSTALLS" | grep -vq 'HOMEBREW_DOWNLOAD_CONCURRENCY=1' &&
+   ! echo "$BOOTSTRAP_INSTALLS" | grep -vq 'HOMEBREW_NO_INSTALL_CLEANUP=1'; then
+    echo -e "${GREEN}✓ Codespaces bootstrap formulae install without cache races${NC}"
 else
-    echo -e "${RED}✗ Codespaces bootstrap formula installs must disable both concurrency layers${NC}"
+    echo -e "${RED}✗ Codespaces bootstrap must serialize downloads and defer cleanup${NC}"
     BREW_ERRORS=$((BREW_ERRORS + 1))
 fi
 
@@ -294,6 +301,17 @@ if [ -n "$HOMEBREW_LINE" ] && [ -n "$BOOTSTRAP_LINE" ] && [ -n "$PACKAGES_LINE" 
     echo -e "${GREEN}✓ Codespaces bootstrap runs before Brewfile installation${NC}"
 else
     echo -e "${RED}✗ Codespaces bootstrap must run after Homebrew and before Brewfile installation${NC}"
+    BREW_ERRORS=$((BREW_ERRORS + 1))
+fi
+
+CLEANUP_LINE=$(grep -n '^    if brew cleanup; then$' install.sh | cut -d: -f1)
+BUNDLE_SUCCESS_LINE=$(grep -n 'print_success "All packages installed"' install.sh | cut -d: -f1)
+if [ -n "$CLEANUP_LINE" ] && [ -n "$BUNDLE_SUCCESS_LINE" ] &&
+   [ "$BUNDLE_SUCCESS_LINE" -lt "$CLEANUP_LINE" ] &&
+   grep -q 'print_warning "Homebrew cleanup failed; installed packages are unaffected"' install.sh; then
+    echo -e "${GREEN}✓ Homebrew cleanup runs non-fatally after bundle installation${NC}"
+else
+    echo -e "${RED}✗ Homebrew cleanup must run non-fatally after successful bundle installation${NC}"
     BREW_ERRORS=$((BREW_ERRORS + 1))
 fi
 

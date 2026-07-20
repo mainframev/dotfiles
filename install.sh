@@ -247,7 +247,7 @@ EOF
         fi
 
         print_info "Running Homebrew $action for bootstrap formula: $formula"
-        if ! HOMEBREW_BUNDLE_NO_JOBS=1 HOMEBREW_DOWNLOAD_CONCURRENCY=1 brew "$action" --formula "$formula"; then
+        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew "$action" --formula "$formula"; then
             print_error "Failed to $action Homebrew bootstrap formula: $formula"
             return 1
         fi
@@ -321,18 +321,25 @@ install_brew_packages() {
 
     if [ "$NO_GUI" = true ]; then
         print_header "Installing CLI packages only (skipping GUI applications)..."
-        if ! HOMEBREW_BUNDLE_NO_JOBS=1 HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_BUNDLE_CASK_SKIP=1 brew bundle --file="$BREWFILE"; then
+        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_BUNDLE_CASK_SKIP=1 brew bundle --jobs=1 --file="$BREWFILE"; then
             print_error "Homebrew failed to install CLI packages from: $BREWFILE"
             return 1
         fi
         print_success "CLI packages installed"
     else
         print_header "Installing all packages from Brewfile..."
-        if ! HOMEBREW_BUNDLE_NO_JOBS=1 HOMEBREW_DOWNLOAD_CONCURRENCY=1 brew bundle --file="$BREWFILE"; then
+        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew bundle --jobs=1 --file="$BREWFILE"; then
             print_error "Homebrew failed to install packages from: $BREWFILE"
             return 1
         fi
         print_success "All packages installed"
+    fi
+
+    print_info "Cleaning up Homebrew cache..."
+    if brew cleanup; then
+        print_success "Homebrew cache cleaned"
+    else
+        print_warning "Homebrew cleanup failed; installed packages are unaffected"
     fi
 
     # Ensure Homebrew binaries are in PATH (important for CI)
