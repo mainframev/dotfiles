@@ -232,12 +232,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Reset Homebrew cache
-        run: |
-          cache_dir="$(brew --cache)"
-          rm -rf "$cache_dir"
-          mkdir -p "$cache_dir"
-
       - name: Run Codespaces install
         run: bash install.sh --no-gui
         env:
