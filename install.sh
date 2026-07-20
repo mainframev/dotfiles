@@ -256,6 +256,43 @@ EOF
     print_success "Homebrew toolchain bootstrapped"
 }
 
+# Install Linux Brewfile entries without Homebrew Bundle's parallel prefetch.
+install_linux_brew_packages() {
+    local entry
+    local formulae
+    local taps
+
+    if ! taps="$(brew bundle list --tap --file="$BREWFILE")"; then
+        print_error "Could not read taps from Brewfile: $BREWFILE"
+        return 1
+    fi
+
+    while IFS= read -r entry; do
+        [ -z "$entry" ] && continue
+
+        print_info "Installing Homebrew tap: $entry"
+        if ! brew tap "$entry"; then
+            print_error "Failed to install Homebrew tap: $entry"
+            return 1
+        fi
+    done <<< "$taps"
+
+    if ! formulae="$(brew bundle list --formula --file="$BREWFILE")"; then
+        print_error "Could not read formulae from Brewfile: $BREWFILE"
+        return 1
+    fi
+
+    while IFS= read -r entry; do
+        [ -z "$entry" ] && continue
+
+        print_info "Installing Homebrew formula: $entry"
+        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install --formula "$entry"; then
+            print_error "Failed to install Homebrew formula: $entry"
+            return 1
+        fi
+    done <<< "$formulae"
+}
+
 # Install oh-my-zsh
 install_oh_my_zsh() {
     if [ -d "$HOME/.oh-my-zsh" ]; then
@@ -319,7 +356,14 @@ install_brew_packages() {
         exit 1
     fi
 
-    if [ "$NO_GUI" = true ]; then
+    if [ "$OS" = "linux" ]; then
+        print_header "Installing Linux CLI packages sequentially..."
+        if ! install_linux_brew_packages; then
+            print_error "Homebrew failed to install Linux packages from: $BREWFILE"
+            return 1
+        fi
+        print_success "Linux CLI packages installed"
+    elif [ "$NO_GUI" = true ]; then
         print_header "Installing CLI packages only (skipping GUI applications)..."
         if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_BUNDLE_CASK_SKIP=1 brew bundle --jobs=1 --file="$BREWFILE"; then
             print_error "Homebrew failed to install CLI packages from: $BREWFILE"

@@ -230,7 +230,7 @@ echo
 # Test 6: Homebrew installation serialization
 echo -e "${BLUE}→ Checking Homebrew installation serialization...${NC}"
 BREW_ERRORS=0
-BUNDLE_COMMANDS=$(grep -E 'brew bundle .*--file=' install.sh || true)
+BUNDLE_COMMANDS=$(grep -E 'brew bundle --jobs=1 .*--file=' install.sh || true)
 
 if [ -z "$BUNDLE_COMMANDS" ]; then
     echo -e "${RED}✗ No Homebrew Bundle installation commands found${NC}"
@@ -282,6 +282,29 @@ if [ -n "$BOOTSTRAP_INSTALLS" ] &&
     echo -e "${GREEN}✓ Codespaces bootstrap formulae install without cache races${NC}"
 else
     echo -e "${RED}✗ Codespaces bootstrap must serialize downloads and defer cleanup${NC}"
+    BREW_ERRORS=$((BREW_ERRORS + 1))
+fi
+
+# shellcheck disable=SC2016
+if grep -q '^install_linux_brew_packages()' install.sh &&
+   grep -q 'brew bundle list --tap --file=' install.sh &&
+   grep -q 'brew bundle list --formula --file=' install.sh &&
+   grep -Fq 'brew install --formula "$entry"' install.sh &&
+   grep -q '^    if \[ "$OS" = "linux" \]; then$' install.sh; then
+    echo -e "${GREEN}✓ Linux Brewfile entries bypass parallel bundle prefetch${NC}"
+else
+    echo -e "${RED}✗ Linux Brewfile entries must install sequentially without bundle prefetch${NC}"
+    BREW_ERRORS=$((BREW_ERRORS + 1))
+fi
+
+# shellcheck disable=SC2016
+LINUX_FORMULA_INSTALLS=$(grep -F 'brew install --formula "$entry"' install.sh || true)
+if [ -n "$LINUX_FORMULA_INSTALLS" ] &&
+   ! echo "$LINUX_FORMULA_INSTALLS" | grep -vq 'HOMEBREW_DOWNLOAD_CONCURRENCY=1' &&
+   ! echo "$LINUX_FORMULA_INSTALLS" | grep -vq 'HOMEBREW_NO_INSTALL_CLEANUP=1'; then
+    echo -e "${GREEN}✓ Linux formulae install without download or cleanup races${NC}"
+else
+    echo -e "${RED}✗ Linux formula installs must serialize downloads and defer cleanup${NC}"
     BREW_ERRORS=$((BREW_ERRORS + 1))
 fi
 
