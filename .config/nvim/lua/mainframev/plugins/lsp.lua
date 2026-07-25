@@ -5,7 +5,6 @@ return {
     { "mason-org/mason.nvim", config = true },
     "mason-org/mason-lspconfig.nvim",
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    "barreiroleo/ltex-extra.nvim",
     "b0o/schemastore.nvim",
     "saghen/blink.cmp",
     "SmiteshP/nvim-navic",
@@ -40,46 +39,6 @@ return {
     local servers = {
       ts_ls = {},
       ruff = {},
-      ltex = {
-        settings = {
-          ltex = {
-            language = "en-GB",
-            additionalRules = {
-              languageModel = "~/LanguageTool/",
-            },
-            disabledRules = {
-              ["en-GB"] = {
-                "EN_QUOTES",
-                "COMMA_PARENTHESIS_WHITESPACE",
-              },
-            },
-            enabled = {
-              "html",
-              "latex",
-              "markdown",
-              "gitcommit",
-              "text",
-              "mdx",
-            },
-          },
-        },
-        filetypes = {
-          "html",
-          "gitcommit",
-          "text",
-          "latex",
-          "markdown",
-          "mdx",
-        },
-        on_attach = function()
-          require("ltex_extra").setup({
-            load_langs = { "en-GB" },
-            init_check = true,
-            path = vim.fn.stdpath("config") .. "/spell",
-            log_level = "none",
-          })
-        end,
-      },
       bashls = {},
       typos_lsp = {
         filetypes = { "markdown", "toml", "yaml", "json" },
