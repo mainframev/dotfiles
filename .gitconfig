@@ -11,21 +11,13 @@
 	editor = nvim
 	sparseCheckout = true
   fsmonitor = false
-  pager = delta --dark --diff-so-fancy
+  pager = hunk pager
 	multiPackIndex = true
 [rebase]
 	autosquash = true
-[interactive]
-  diffFilter = delta --color-only
 [github]
   user = mainframev
   protocol = https
-[delta]
-  dark = true
-  navigate = true
-  side-by-side = true
-  line-numbers = true
-  features = mantis-shrimp-lite
 [diff]
   colorMoved = default
 [difftool]
@@ -39,11 +31,6 @@
 [difftool "nvim"]
   cmd = nvim -d \"$LOCAL\" \"$REMOTE\"
 [alias]
-  d = diff
-  ds = diff --staged
-  di = diff
-  dc = diff --cached
-  df = diff
   fixup = commit --fixup
   info = !git diff && git remote -v && git status
   jump = "!$(brew --prefix git)/share/git-core/contrib/git-jump/git-jump"

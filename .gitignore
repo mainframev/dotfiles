@@ -15,6 +15,7 @@
 !/.config/
 /.config/*
 
+
 !/.config/aerospace
 !/.config/alacritty
 !/.config/bat
@@ -37,6 +38,7 @@
 !/.config/tmux
 !/.config/yazi
 !/.config/zsh
+!/.confug/hunk
 
 # ignored
 *.log
