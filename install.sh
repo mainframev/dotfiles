@@ -421,35 +421,6 @@ install_uv() {
     fi
 }
 
-# Install Claude CLI and configure
-install_claude_cli() {
-    if ! command_exists claude; then
-        print_header "Installing Claude CLI..."
-        if command_exists brew; then
-            brew install --cask claude-code || {
-                print_warning "Homebrew cask install failed, trying curl installer..."
-                curl -fsSL https://claude.ai/install.sh | bash || print_warning "Claude CLI installation failed"
-            }
-        elif curl -fsSL https://claude.ai/install.sh | bash; then
-            print_success "Claude CLI installed"
-        else
-            print_warning "Claude CLI installation failed (may not be available in this environment)"
-        fi
-    else
-        print_success "Claude CLI already installed"
-    fi
-
-    if [ -d "$DOTFILES/.config/claude" ]; then
-        print_header "Configuring Claude CLI..."
-        mkdir -p "$HOME/.claude"
-        ln -sf "$DOTFILES/.config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-        ln -sf "$DOTFILES/.config/claude/settings.json" "$HOME/.claude/settings.json"
-        rm -rf "$HOME/.claude/skills"
-        ln -sf "$DOTFILES/.config/claude/skills" "$HOME/.claude/skills"
-        print_success "Claude CLI configured"
-    fi
-}
-
 # Install OpenCode
 install_opencode() {
     if command_exists opencode; then
@@ -541,7 +512,7 @@ stow_dotfiles() {
     local needs_backup=false
 
     # Common dotfiles that might exist and aren't symlinks
-    local common_files=(".zshrc" ".zshenv" ".zprofile" ".gitconfig" ".tmux.conf" ".editorconfig", ".claude.json")
+    local common_files=(".zshrc" ".zshenv" ".zprofile" ".gitconfig" ".tmux.conf" ".editorconfig")
 
     for file in "${common_files[@]}"; do
         if [ -e "$HOME/$file" ] && [ ! -L "$HOME/$file" ]; then
@@ -628,7 +599,6 @@ main() {
     install_oh_my_zsh
     install_tpm
     install_uv
-    install_claude_cli
     install_opencode
     stow_dotfiles
     print_summary
