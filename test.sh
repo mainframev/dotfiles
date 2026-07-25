@@ -769,26 +769,26 @@ if command_exists git && git rev-parse --is-inside-work-tree >/dev/null 2>&1; th
     else
         echo -e "${GREEN}✓ AGENTS.md is not ignored by Git${NC}"
     fi
-else
-    echo -e "${YELLOW}⚠ not inside a git work tree (or git not installed), skipping AGENTS.md ignore check${NC}"
-    WARNINGS=$((WARNINGS + 1))
-fi
 
-if grep -Eq 'local common_files=.*"AGENTS\.md"' install.sh; then
-    echo -e "${GREEN}✓ install.sh protects an existing unmanaged AGENTS.md${NC}"
+    if git ls-files --error-unmatch AGENTS.md >/dev/null 2>&1; then
+        echo -e "${GREEN}✓ AGENTS.md is tracked by Git${NC}"
+    else
+        echo -e "${RED}✗ AGENTS.md must be tracked by Git${NC}"
+        AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
+    fi
 else
-    echo -e "${RED}✗ install.sh must include AGENTS.md in stow_dotfiles common_files${NC}"
-    AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
+    echo -e "${YELLOW}⚠ not inside a git work tree (or git not installed), skipping AGENTS.md Git checks${NC}"
+    WARNINGS=$((WARNINGS + 1))
 fi
 
 if command_exists stow; then
     AGENTS_REPOSITORY_DIR="$(pwd -P)"
-    AGENTS_REPOSITORY_PARENT="$(dirname "$AGENTS_REPOSITORY_DIR")"
-    AGENTS_REPOSITORY_NAME="$(basename "$AGENTS_REPOSITORY_DIR")"
-    AGENTS_TEST_ROOT="$(mktemp -d "$AGENTS_REPOSITORY_PARENT/agents-stow-test.XXXXXX")"
+    AGENTS_TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/agents-stow-test.XXXXXX")"
     AGENTS_PACKAGE_DIR="$AGENTS_TEST_ROOT/package"
     AGENTS_TARGET_DIR="$AGENTS_TEST_ROOT/target"
+    AGENTS_HOME_DIR="$AGENTS_TEST_ROOT/home"
     AGENTS_STOW_LOG="$AGENTS_TEST_ROOT/stow.log"
+    AGENTS_BACKUP_LOG="$AGENTS_TEST_ROOT/backup.log"
 
     agents_test10_prev_exit_trap="$(trap -p EXIT)"
     agents_test10_prev_int_trap="$(trap -p INT)"
@@ -798,15 +798,24 @@ if command_exists stow; then
     }
     trap agents_test10_cleanup EXIT INT TERM
 
-    mkdir -p "$AGENTS_PACKAGE_DIR" "$AGENTS_TARGET_DIR"
-    ln -s "../../$AGENTS_REPOSITORY_NAME/AGENTS.md" "$AGENTS_PACKAGE_DIR/AGENTS.md"
+    agents_canonical_path() {
+        if command_exists realpath; then
+            realpath "$1"
+        else
+            readlink -f "$1"
+        fi
+    }
+
+    mkdir -p "$AGENTS_PACKAGE_DIR" "$AGENTS_TARGET_DIR" "$AGENTS_HOME_DIR"
+    ln -s "$AGENTS_REPOSITORY_DIR" "$AGENTS_TEST_ROOT/repository"
+    ln -s "../repository/AGENTS.md" "$AGENTS_PACKAGE_DIR/AGENTS.md"
 
     AGENTS_STOW_RESULT=0
     stow --dir="$AGENTS_PACKAGE_DIR" --target="$AGENTS_TARGET_DIR" --verbose . \
         >"$AGENTS_STOW_LOG" 2>&1 || AGENTS_STOW_RESULT=$?
 
-    REPOSITORY_AGENTS_REAL="$(readlink -f "$AGENTS_REPOSITORY_DIR/AGENTS.md" 2>/dev/null || true)"
-    TARGET_AGENTS_REAL="$(readlink -f "$AGENTS_TARGET_DIR/AGENTS.md" 2>/dev/null || true)"
+    REPOSITORY_AGENTS_REAL="$(agents_canonical_path "$AGENTS_REPOSITORY_DIR/AGENTS.md" 2>/dev/null || true)"
+    TARGET_AGENTS_REAL="$(agents_canonical_path "$AGENTS_TARGET_DIR/AGENTS.md" 2>/dev/null || true)"
 
     if [ "$AGENTS_STOW_RESULT" -eq 0 ] &&
        [ -L "$AGENTS_TARGET_DIR/AGENTS.md" ] &&
@@ -821,18 +830,51 @@ if command_exists stow; then
         AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
     fi
 
+    printf '%s\n' 'pre-existing unmanaged AGENTS' > "$AGENTS_HOME_DIR/AGENTS.md"
+    AGENTS_BACKUP_RESULT=0
+    (
+        export HOME="$AGENTS_HOME_DIR"
+        # Sourcing install.sh exposes stow_dotfiles without running main.
+        # shellcheck source=install.sh
+        # shellcheck disable=SC1091
+        source "$AGENTS_REPOSITORY_DIR/install.sh"
+        stow_dotfiles
+    ) >"$AGENTS_BACKUP_LOG" 2>&1 || AGENTS_BACKUP_RESULT=$?
+
+    AGENTS_BACKUP_FILES="$(find "$AGENTS_HOME_DIR" -type f \
+        -path "$AGENTS_HOME_DIR/.dotfiles-backup-*/AGENTS.md" -print)"
+    AGENTS_BACKUP_COUNT="$(printf '%s\n' "$AGENTS_BACKUP_FILES" | sed '/^$/d' | wc -l | tr -d ' ')"
+    AGENTS_BACKUP_PATH="$(printf '%s\n' "$AGENTS_BACKUP_FILES" | sed -n '1p')"
+    AGENTS_BACKUP_DIR_NAME="$(basename "$(dirname "$AGENTS_BACKUP_PATH")")"
+    HOME_AGENTS_REAL="$(agents_canonical_path "$AGENTS_HOME_DIR/AGENTS.md" 2>/dev/null || true)"
+
+    if [ "$AGENTS_BACKUP_RESULT" -eq 0 ] &&
+       [ "$AGENTS_BACKUP_COUNT" -eq 1 ] &&
+       [ -f "$AGENTS_BACKUP_PATH" ] &&
+       printf '%s\n' "$AGENTS_BACKUP_DIR_NAME" | grep -Eq '^\.dotfiles-backup-[0-9]{8}-[0-9]{6}$' &&
+       grep -qx 'pre-existing unmanaged AGENTS' "$AGENTS_BACKUP_PATH" &&
+       [ -L "$AGENTS_HOME_DIR/AGENTS.md" ] &&
+       [ "$HOME_AGENTS_REAL" = "$REPOSITORY_AGENTS_REAL" ]; then
+        echo -e "${GREEN}✓ stow_dotfiles backs up an unmanaged AGENTS.md and links the repository template${NC}"
+    else
+        echo -e "${RED}✗ stow_dotfiles must back up an unmanaged AGENTS.md before linking the repository template${NC}"
+        cat "$AGENTS_BACKUP_LOG"
+        AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
+    fi
+
     agents_test10_cleanup
     eval "${agents_test10_prev_exit_trap:-trap - EXIT}"
     eval "${agents_test10_prev_int_trap:-trap - INT}"
     eval "${agents_test10_prev_term_trap:-trap - TERM}"
     unset -f agents_test10_cleanup
+    unset -f agents_canonical_path
 else
     echo -e "${YELLOW}⚠ stow not installed, skipping AGENTS.md Stow projection check${NC}"
     WARNINGS=$((WARNINGS + 1))
 fi
 
 if [ $AGENTS_ERRORS -gt 0 ]; then
-    ERRORS=$((ERRORS + 1))
+    ERRORS=$((ERRORS + AGENTS_ERRORS))
 fi
 echo
 
