@@ -539,6 +539,70 @@ stow_dotfiles() {
     fi
 }
 
+# Install trusted Herd (herdr) plugins
+install_herdr_plugins() {
+    if ! command_exists herdr; then
+        print_warning "herdr not installed, skipping plugin installation"
+        return
+    fi
+
+    if ! command_exists jq; then
+        print_error "jq is required to manage herdr plugins but is not installed"
+        return 1
+    fi
+
+    print_header "Installing herdr plugins..."
+
+    local herdr_plugins=(
+        "persiyanov.reviewr:persiyanov/herdr-reviewr"
+        "worktrunk:devashish2203/herdr-worktrunk"
+        "dutifuldev.ghzinga:dutifuldev/ghzinga/plugins/herdr"
+    )
+
+    local installed_json
+    if ! installed_json="$(herdr plugin list --json </dev/null)"; then
+        print_error "Failed to list installed herdr plugins"
+        return 1
+    fi
+
+    if ! printf '%s' "$installed_json" | jq -e '
+            (type == "object")
+            and (.result.plugins | type == "array")
+            and (.result.plugins | all(type == "object" and (.plugin_id | type == "string")))
+        ' >/dev/null 2>&1; then
+        print_error "herdr plugin list --json returned malformed or unexpected JSON"
+        return 1
+    fi
+
+    local errors=0
+    local entry
+    local plugin_id
+    local plugin_source
+
+    for entry in "${herdr_plugins[@]}"; do
+        plugin_id="${entry%%:*}"
+        plugin_source="${entry#*:}"
+
+        if printf '%s' "$installed_json" | jq -e --arg id "$plugin_id" \
+            'any(.result.plugins[]; .plugin_id == $id)' >/dev/null 2>&1; then
+            print_success "herdr plugin already installed: $plugin_id"
+            continue
+        fi
+
+        print_info "Installing herdr plugin: $plugin_id ($plugin_source)"
+        if herdr plugin install "$plugin_source" --yes </dev/null; then
+            print_success "herdr plugin installed: $plugin_id"
+        else
+            print_error "Failed to install herdr plugin: $plugin_id ($plugin_source)"
+            errors=$((errors + 1))
+        fi
+    done
+
+    if [ $errors -gt 0 ]; then
+        return 1
+    fi
+}
+
 # Print installation summary
 print_summary() {
     echo ""
@@ -601,8 +665,11 @@ main() {
     install_uv
     install_opencode
     stow_dotfiles
+    install_herdr_plugins
     print_summary
 }
 
-# Run main function
-main "$@"
+# Run main function (skip when this script is sourced, e.g. by test.sh)
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

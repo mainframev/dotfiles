@@ -25,3 +25,7 @@ _darcs
 ^/test.sh
 ^/\.github
 ^/\.claude
+
+# Generated herdr plugin state (untracked, see .gitignore)
+^/\.config/herdr/plugins\.json$
+^/\.config/herdr/plugins/github$
