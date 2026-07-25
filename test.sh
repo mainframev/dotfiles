@@ -751,6 +751,91 @@ else
 fi
 echo
 
+# Test 10: Global AGENTS template and Stow projection
+echo -e "${BLUE}→ Checking global AGENTS template...${NC}"
+AGENTS_ERRORS=0
+
+if [ -f "AGENTS.md" ]; then
+    echo -e "${GREEN}✓ AGENTS.md template exists${NC}"
+else
+    echo -e "${RED}✗ AGENTS.md template must exist at the repository root${NC}"
+    AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
+fi
+
+if command_exists git && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    if git check-ignore -q --no-index AGENTS.md; then
+        echo -e "${RED}✗ AGENTS.md must not be ignored by Git${NC}"
+        AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
+    else
+        echo -e "${GREEN}✓ AGENTS.md is not ignored by Git${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠ not inside a git work tree (or git not installed), skipping AGENTS.md ignore check${NC}"
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+if grep -Eq 'local common_files=.*"AGENTS\.md"' install.sh; then
+    echo -e "${GREEN}✓ install.sh protects an existing unmanaged AGENTS.md${NC}"
+else
+    echo -e "${RED}✗ install.sh must include AGENTS.md in stow_dotfiles common_files${NC}"
+    AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
+fi
+
+if command_exists stow; then
+    AGENTS_REPOSITORY_DIR="$(pwd -P)"
+    AGENTS_REPOSITORY_PARENT="$(dirname "$AGENTS_REPOSITORY_DIR")"
+    AGENTS_REPOSITORY_NAME="$(basename "$AGENTS_REPOSITORY_DIR")"
+    AGENTS_TEST_ROOT="$(mktemp -d "$AGENTS_REPOSITORY_PARENT/agents-stow-test.XXXXXX")"
+    AGENTS_PACKAGE_DIR="$AGENTS_TEST_ROOT/package"
+    AGENTS_TARGET_DIR="$AGENTS_TEST_ROOT/target"
+    AGENTS_STOW_LOG="$AGENTS_TEST_ROOT/stow.log"
+
+    agents_test10_prev_exit_trap="$(trap -p EXIT)"
+    agents_test10_prev_int_trap="$(trap -p INT)"
+    agents_test10_prev_term_trap="$(trap -p TERM)"
+    agents_test10_cleanup() {
+        rm -rf "$AGENTS_TEST_ROOT"
+    }
+    trap agents_test10_cleanup EXIT INT TERM
+
+    mkdir -p "$AGENTS_PACKAGE_DIR" "$AGENTS_TARGET_DIR"
+    ln -s "../../$AGENTS_REPOSITORY_NAME/AGENTS.md" "$AGENTS_PACKAGE_DIR/AGENTS.md"
+
+    AGENTS_STOW_RESULT=0
+    stow --dir="$AGENTS_PACKAGE_DIR" --target="$AGENTS_TARGET_DIR" --verbose . \
+        >"$AGENTS_STOW_LOG" 2>&1 || AGENTS_STOW_RESULT=$?
+
+    REPOSITORY_AGENTS_REAL="$(readlink -f "$AGENTS_REPOSITORY_DIR/AGENTS.md" 2>/dev/null || true)"
+    TARGET_AGENTS_REAL="$(readlink -f "$AGENTS_TARGET_DIR/AGENTS.md" 2>/dev/null || true)"
+
+    if [ "$AGENTS_STOW_RESULT" -eq 0 ] &&
+       [ -L "$AGENTS_TARGET_DIR/AGENTS.md" ] &&
+       [ -n "$REPOSITORY_AGENTS_REAL" ] &&
+       [ "$TARGET_AGENTS_REAL" = "$REPOSITORY_AGENTS_REAL" ]; then
+        echo -e "${GREEN}✓ temporary Stow fixture links target/AGENTS.md to the repository template${NC}"
+    else
+        echo -e "${RED}✗ temporary Stow fixture must link target/AGENTS.md to the repository template${NC}"
+        if [ "$AGENTS_STOW_RESULT" -ne 0 ]; then
+            cat "$AGENTS_STOW_LOG"
+        fi
+        AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
+    fi
+
+    agents_test10_cleanup
+    eval "${agents_test10_prev_exit_trap:-trap - EXIT}"
+    eval "${agents_test10_prev_int_trap:-trap - INT}"
+    eval "${agents_test10_prev_term_trap:-trap - TERM}"
+    unset -f agents_test10_cleanup
+else
+    echo -e "${YELLOW}⚠ stow not installed, skipping AGENTS.md Stow projection check${NC}"
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+if [ $AGENTS_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + 1))
+fi
+echo
+
 # Summary
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then

@@ -8,6 +8,7 @@
 !.stow-local-ignore
 !/*.zsh
 !/test.sh
+!/AGENTS.md
 
 /.copilot/*
 !/.copilot/settings.json

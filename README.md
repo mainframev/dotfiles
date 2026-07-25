@@ -1,5 +1,13 @@
 My dotfiles managed with [STOW](https://www.gnu.org/software/stow/)
 
+## Global agent defaults
+
+Stow links the repository's `AGENTS.md` to `$HOME/AGENTS.md`. Coding agents
+that discover `AGENTS.md` files in ancestor directories can use it as global
+defaults. The repository file is a template to customize. Tools with different
+discovery behavior may require their own entry point. A repository-local
+`AGENTS.md` should refine or override these global defaults for that project.
+
 What I currently use:
 
 - [Aerospace](https://nikitabobko.github.io/AeroSpace/guide) - Tiling window manager for macOS
