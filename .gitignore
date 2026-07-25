@@ -9,6 +9,7 @@
 !/*.zsh
 !/test.sh
 !/AGENTS.md
+!/GLOBAL_AGENTS.md
 
 /.copilot/*
 !/.copilot/settings.json
@@ -37,6 +38,7 @@
 !/.config/starship.toml
 !/.config/task
 !/.config/tmux
+!/.config/worktrunk
 !/.config/yazi
 !/.config/zsh
 !/.confug/hunk

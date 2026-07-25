@@ -1,12 +1,16 @@
 My dotfiles managed with [STOW](https://www.gnu.org/software/stow/)
 
-## Global agent defaults
+## Agent instructions
 
-Stow links the repository's `AGENTS.md` to `$HOME/AGENTS.md`. Coding agents
-that discover `AGENTS.md` files in ancestor directories can use it as global
-defaults. The repository file is a template to customize. Tools with different
-discovery behavior may require their own entry point. A repository-local
-`AGENTS.md` should refine or override these global defaults for that project.
+- `AGENTS.md` contains instructions for working in this dotfiles repository.
+- `GLOBAL_AGENTS.md` contains cross-project rules. During setup, `install.sh`
+  links it to `$HOME/AGENTS.md`.
+- Repository-local instruction files can refine or override the user-level
+  defaults. Tools with different discovery behavior may require their own
+  supported instruction entry point.
+- Medium-or-larger features use Worktrunk worktrees under
+  `$HOME/worktrees/<repository>/<sanitized-branch>`. The user chooses whether
+  formal SDD uses OpenSpec, Superpowers, both, or neither.
 
 What I currently use:
 

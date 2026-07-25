@@ -1,35 +1,26 @@
-# Agent Instructions
+# Dotfiles Repository Instructions
 
-<!--
-Template for global coding-agent defaults. Replace these guidance comments with
-personal defaults as needed. Keep project-specific instructions in each
-repository's own AGENTS.md so they can refine or override this file.
--->
+## Scope
 
-## Common Rules
+- These instructions apply only to this dotfiles repository.
+- `GLOBAL_AGENTS.md` is the source for the user-level `$HOME/AGENTS.md`; keep cross-project rules there.
 
-<!-- Describe general priorities, constraints, and conventions that apply across projects. -->
+## Repository Conventions
 
-## Workflow
+- Manage home-directory configuration through GNU Stow from the repository root.
+- Keep generated state, secrets, caches, and installed third-party content out of version control and Stow.
+- Preserve compatibility with macOS, Linux, and GitHub Codespaces where existing scripts support them.
+- Reuse the existing shell helpers, output style, and test patterns in `install.sh` and `test.sh`.
 
-<!-- Outline the preferred approach to planning, investigation, implementation, and review. -->
+## Changes and Validation
 
-## Code Changes
+- Make focused changes and do not modify unrelated user configuration.
+- Update `README.md` and `test.sh` when installation behavior changes.
+- Run the narrowest relevant checks, then `./test.sh` for installation or Stow changes.
+- If an existing check fails before the change, distinguish it clearly from new failures.
 
-<!-- Note expectations for scope, compatibility, documentation, and generated files. -->
+## Safety
 
-## Validation
-
-<!-- Describe how agents should choose and report tests, linters, builds, or manual checks. -->
-
-## Git Safety
-
-<!-- Record preferences for branches, commits, history changes, and handling unrelated work. -->
-
-## Communication
-
-<!-- Set expectations for questions, progress updates, assumptions, and final summaries. -->
-
-## Tool-Specific Overrides
-
-<!-- Add named subsections for tools that need discovery rules or behavior different from these defaults. -->
+- Never commit credentials or machine-specific secrets.
+- Never overwrite unmanaged home-directory files without backing them up.
+- Test Stow and installer behavior against temporary targets instead of the real home directory.

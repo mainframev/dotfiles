@@ -751,44 +751,66 @@ else
 fi
 echo
 
-# Test 10: Global AGENTS template and Stow projection
-echo -e "${BLUE}→ Checking global AGENTS template...${NC}"
+# Test 10: Repository and global AGENTS instructions
+echo -e "${BLUE}→ Checking AGENTS instruction files...${NC}"
 AGENTS_ERRORS=0
 
 if [ -f "AGENTS.md" ]; then
-    echo -e "${GREEN}✓ AGENTS.md template exists${NC}"
+    echo -e "${GREEN}✓ repository AGENTS.md exists${NC}"
 else
-    echo -e "${RED}✗ AGENTS.md template must exist at the repository root${NC}"
+    echo -e "${RED}✗ repository AGENTS.md must exist${NC}"
+    AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
+fi
+
+if [ -f "GLOBAL_AGENTS.md" ]; then
+    echo -e "${GREEN}✓ GLOBAL_AGENTS.md source exists${NC}"
+else
+    echo -e "${RED}✗ GLOBAL_AGENTS.md must exist at the repository root${NC}"
     AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
 fi
 
 if command_exists git && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    if git check-ignore -q --no-index AGENTS.md; then
-        echo -e "${RED}✗ AGENTS.md must not be ignored by Git${NC}"
-        AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
-    else
-        echo -e "${GREEN}✓ AGENTS.md is not ignored by Git${NC}"
-    fi
+    for file in AGENTS.md GLOBAL_AGENTS.md; do
+        if git check-ignore -q --no-index "$file"; then
+            echo -e "${RED}✗ $file must not be ignored by Git${NC}"
+            AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
+        else
+            echo -e "${GREEN}✓ $file is not ignored by Git${NC}"
+        fi
 
-    if git ls-files --error-unmatch AGENTS.md >/dev/null 2>&1; then
-        echo -e "${GREEN}✓ AGENTS.md is tracked by Git${NC}"
-    else
-        echo -e "${RED}✗ AGENTS.md must be tracked by Git${NC}"
-        AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
-    fi
+    done
 else
-    echo -e "${YELLOW}⚠ not inside a git work tree (or git not installed), skipping AGENTS.md Git checks${NC}"
+    echo -e "${YELLOW}⚠ not inside a git work tree (or git not installed), skipping AGENTS Git checks${NC}"
     WARNINGS=$((WARNINGS + 1))
+fi
+
+if [ -f ".stow-local-ignore" ] &&
+   grep -Fq '^/AGENTS\.md$' .stow-local-ignore &&
+   grep -Fq '^/GLOBAL_AGENTS\.md$' .stow-local-ignore; then
+    echo -e "${GREEN}✓ Stow excludes both AGENTS source files${NC}"
+else
+    echo -e "${RED}✗ .stow-local-ignore must exclude AGENTS.md and GLOBAL_AGENTS.md${NC}"
+    AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
+fi
+
+GLOBAL_AGENTS_INSTALL_LINE="$(grep -n '^    install_global_agents$' install.sh | cut -d: -f1)"
+if [ -n "$STOW_LINE" ] &&
+   [ -n "$GLOBAL_AGENTS_INSTALL_LINE" ] &&
+   [ "$STOW_LINE" -lt "$GLOBAL_AGENTS_INSTALL_LINE" ]; then
+    echo -e "${GREEN}✓ setup installs global AGENTS instructions after Stow${NC}"
+else
+    echo -e "${RED}✗ install_global_agents must run after stow_dotfiles in main${NC}"
+    AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
 fi
 
 if command_exists stow; then
     AGENTS_REPOSITORY_DIR="$(pwd -P)"
-    AGENTS_TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/agents-stow-test.XXXXXX")"
+    AGENTS_TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/agents-install-test.XXXXXX")"
     AGENTS_PACKAGE_DIR="$AGENTS_TEST_ROOT/package"
     AGENTS_TARGET_DIR="$AGENTS_TEST_ROOT/target"
     AGENTS_HOME_DIR="$AGENTS_TEST_ROOT/home"
     AGENTS_STOW_LOG="$AGENTS_TEST_ROOT/stow.log"
-    AGENTS_BACKUP_LOG="$AGENTS_TEST_ROOT/backup.log"
+    AGENTS_INSTALL_LOG="$AGENTS_TEST_ROOT/install.log"
 
     agents_test10_prev_exit_trap="$(trap -p EXIT)"
     agents_test10_prev_int_trap="$(trap -p INT)"
@@ -798,67 +820,45 @@ if command_exists stow; then
     }
     trap agents_test10_cleanup EXIT INT TERM
 
-    agents_canonical_path() {
-        if command_exists realpath; then
-            realpath "$1"
-        else
-            readlink -f "$1"
-        fi
-    }
-
     mkdir -p "$AGENTS_PACKAGE_DIR" "$AGENTS_TARGET_DIR" "$AGENTS_HOME_DIR"
-    ln -s "$AGENTS_REPOSITORY_DIR" "$AGENTS_TEST_ROOT/repository"
-    ln -s "../repository/AGENTS.md" "$AGENTS_PACKAGE_DIR/AGENTS.md"
+    cp .stow-local-ignore AGENTS.md GLOBAL_AGENTS.md "$AGENTS_PACKAGE_DIR/"
+    printf '%s\n' 'linked marker' > "$AGENTS_PACKAGE_DIR/marker"
 
     AGENTS_STOW_RESULT=0
     stow --dir="$AGENTS_PACKAGE_DIR" --target="$AGENTS_TARGET_DIR" --verbose . \
         >"$AGENTS_STOW_LOG" 2>&1 || AGENTS_STOW_RESULT=$?
 
-    REPOSITORY_AGENTS_REAL="$(agents_canonical_path "$AGENTS_REPOSITORY_DIR/AGENTS.md" 2>/dev/null || true)"
-    TARGET_AGENTS_REAL="$(agents_canonical_path "$AGENTS_TARGET_DIR/AGENTS.md" 2>/dev/null || true)"
-
     if [ "$AGENTS_STOW_RESULT" -eq 0 ] &&
-       [ -L "$AGENTS_TARGET_DIR/AGENTS.md" ] &&
-       [ -n "$REPOSITORY_AGENTS_REAL" ] &&
-       [ "$TARGET_AGENTS_REAL" = "$REPOSITORY_AGENTS_REAL" ]; then
-        echo -e "${GREEN}✓ temporary Stow fixture links target/AGENTS.md to the repository template${NC}"
+       [ -L "$AGENTS_TARGET_DIR/marker" ] &&
+       [ ! -e "$AGENTS_TARGET_DIR/AGENTS.md" ] &&
+       [ ! -e "$AGENTS_TARGET_DIR/GLOBAL_AGENTS.md" ]; then
+        echo -e "${GREEN}✓ Stow leaves both AGENTS source files out of the home target${NC}"
     else
-        echo -e "${RED}✗ temporary Stow fixture must link target/AGENTS.md to the repository template${NC}"
-        if [ "$AGENTS_STOW_RESULT" -ne 0 ]; then
-            cat "$AGENTS_STOW_LOG"
-        fi
+        echo -e "${RED}✗ Stow must not project AGENTS.md or GLOBAL_AGENTS.md directly${NC}"
+        cat "$AGENTS_STOW_LOG"
         AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
     fi
 
     printf '%s\n' 'pre-existing unmanaged AGENTS' > "$AGENTS_HOME_DIR/AGENTS.md"
-    AGENTS_BACKUP_RESULT=0
-    (
-        export HOME="$AGENTS_HOME_DIR"
-        # Sourcing install.sh exposes stow_dotfiles without running main.
-        # shellcheck source=install.sh
-        # shellcheck disable=SC1091
-        source "$AGENTS_REPOSITORY_DIR/install.sh"
-        stow_dotfiles
-    ) >"$AGENTS_BACKUP_LOG" 2>&1 || AGENTS_BACKUP_RESULT=$?
+    AGENTS_INSTALL_RESULT=0
+    HOME="$AGENTS_HOME_DIR" bash -c \
+        'source "$1"; install_global_agents' \
+        _ "$AGENTS_REPOSITORY_DIR/install.sh" \
+        >"$AGENTS_INSTALL_LOG" 2>&1 || AGENTS_INSTALL_RESULT=$?
 
-    AGENTS_BACKUP_FILES="$(find "$AGENTS_HOME_DIR" -type f \
-        -path "$AGENTS_HOME_DIR/.dotfiles-backup-*/AGENTS.md" -print)"
-    AGENTS_BACKUP_COUNT="$(printf '%s\n' "$AGENTS_BACKUP_FILES" | sed '/^$/d' | wc -l | tr -d ' ')"
-    AGENTS_BACKUP_PATH="$(printf '%s\n' "$AGENTS_BACKUP_FILES" | sed -n '1p')"
-    AGENTS_BACKUP_DIR_NAME="$(basename "$(dirname "$AGENTS_BACKUP_PATH")")"
-    HOME_AGENTS_REAL="$(agents_canonical_path "$AGENTS_HOME_DIR/AGENTS.md" 2>/dev/null || true)"
+    AGENTS_BACKUP_PATH="$(find "$AGENTS_HOME_DIR" -type f \
+        -path "$AGENTS_HOME_DIR/.dotfiles-backup-*/AGENTS.md" -print -quit)"
+    HOME_AGENTS_SOURCE="$(readlink "$AGENTS_HOME_DIR/AGENTS.md" 2>/dev/null || true)"
 
-    if [ "$AGENTS_BACKUP_RESULT" -eq 0 ] &&
-       [ "$AGENTS_BACKUP_COUNT" -eq 1 ] &&
+    if [ "$AGENTS_INSTALL_RESULT" -eq 0 ] &&
        [ -f "$AGENTS_BACKUP_PATH" ] &&
-       printf '%s\n' "$AGENTS_BACKUP_DIR_NAME" | grep -Eq '^\.dotfiles-backup-[0-9]{8}-[0-9]{6}$' &&
        grep -qx 'pre-existing unmanaged AGENTS' "$AGENTS_BACKUP_PATH" &&
        [ -L "$AGENTS_HOME_DIR/AGENTS.md" ] &&
-       [ "$HOME_AGENTS_REAL" = "$REPOSITORY_AGENTS_REAL" ]; then
-        echo -e "${GREEN}✓ stow_dotfiles backs up an unmanaged AGENTS.md and links the repository template${NC}"
+       [ "$HOME_AGENTS_SOURCE" = "$AGENTS_REPOSITORY_DIR/GLOBAL_AGENTS.md" ]; then
+        echo -e "${GREEN}✓ install_global_agents backs up and links GLOBAL_AGENTS.md as ~/AGENTS.md${NC}"
     else
-        echo -e "${RED}✗ stow_dotfiles must back up an unmanaged AGENTS.md before linking the repository template${NC}"
-        cat "$AGENTS_BACKUP_LOG"
+        echo -e "${RED}✗ install_global_agents must safely link GLOBAL_AGENTS.md as ~/AGENTS.md${NC}"
+        cat "$AGENTS_INSTALL_LOG"
         AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
     fi
 
@@ -867,14 +867,75 @@ if command_exists stow; then
     eval "${agents_test10_prev_int_trap:-trap - INT}"
     eval "${agents_test10_prev_term_trap:-trap - TERM}"
     unset -f agents_test10_cleanup
-    unset -f agents_canonical_path
 else
-    echo -e "${YELLOW}⚠ stow not installed, skipping AGENTS.md Stow projection check${NC}"
+    echo -e "${YELLOW}⚠ stow not installed, skipping AGENTS installation checks${NC}"
     WARNINGS=$((WARNINGS + 1))
 fi
 
 if [ $AGENTS_ERRORS -gt 0 ]; then
     ERRORS=$((ERRORS + AGENTS_ERRORS))
+fi
+echo
+
+# Test 11: Worktrunk workflow policy and configuration
+echo -e "${BLUE}→ Checking Worktrunk workflow configuration...${NC}"
+WORKTRUNK_ERRORS=0
+WORKTRUNK_CONFIG=".config/worktrunk/config.toml"
+
+if [ -f "$WORKTRUNK_CONFIG" ]; then
+    echo -e "${GREEN}✓ Worktrunk user config exists${NC}"
+else
+    echo -e "${RED}✗ $WORKTRUNK_CONFIG must exist${NC}"
+    WORKTRUNK_ERRORS=$((WORKTRUNK_ERRORS + 1))
+fi
+
+if command_exists git && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    if git check-ignore -q --no-index "$WORKTRUNK_CONFIG"; then
+        echo -e "${RED}✗ Worktrunk user config must not be ignored by Git${NC}"
+        WORKTRUNK_ERRORS=$((WORKTRUNK_ERRORS + 1))
+    else
+        echo -e "${GREEN}✓ Worktrunk user config is not ignored by Git${NC}"
+    fi
+fi
+
+if grep -Fqx 'worktree-path = "~/worktrees/{{ repo }}/{{ branch | sanitize }}"' "$WORKTRUNK_CONFIG"; then
+    echo -e "${GREEN}✓ Worktrunk uses the centralized repository/branch layout${NC}"
+else
+    echo -e "${RED}✗ Worktrunk path must be ~/worktrees/<repository>/<sanitized-branch>${NC}"
+    WORKTRUNK_ERRORS=$((WORKTRUNK_ERRORS + 1))
+fi
+
+if command_exists wt; then
+    if wt --config "$WORKTRUNK_CONFIG" config show >/dev/null 2>&1; then
+        echo -e "${GREEN}✓ Worktrunk accepts the managed user config${NC}"
+    else
+        echo -e "${RED}✗ Worktrunk rejected $WORKTRUNK_CONFIG${NC}"
+        WORKTRUNK_ERRORS=$((WORKTRUNK_ERRORS + 1))
+    fi
+else
+    echo -e "${YELLOW}⚠ wt not installed, skipping Worktrunk config validation${NC}"
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+if grep -Fq 'ask the user to choose OpenSpec, Superpowers, both, or neither' GLOBAL_AGENTS.md &&
+   grep -Fq 'Do not select or initialize an SDD framework before the user chooses' GLOBAL_AGENTS.md; then
+    echo -e "${GREEN}✓ global instructions keep SDD framework selection with the user${NC}"
+else
+    echo -e "${RED}✗ global instructions must ask the user to select the SDD framework${NC}"
+    WORKTRUNK_ERRORS=$((WORKTRUNK_ERRORS + 1))
+fi
+
+if grep -Fq 'Implement every medium-or-larger feature in a dedicated Worktrunk worktree' GLOBAL_AGENTS.md &&
+   grep -Fq 'wt switch --create <branch>' GLOBAL_AGENTS.md &&
+   grep -Fq 'do not silently fall back to raw git worktree commands' GLOBAL_AGENTS.md; then
+    echo -e "${GREEN}✓ global instructions require Worktrunk for medium-or-larger features${NC}"
+else
+    echo -e "${RED}✗ global instructions must require wt-managed medium feature worktrees${NC}"
+    WORKTRUNK_ERRORS=$((WORKTRUNK_ERRORS + 1))
+fi
+
+if [ $WORKTRUNK_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + WORKTRUNK_ERRORS))
 fi
 echo
 

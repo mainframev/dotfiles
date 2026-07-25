@@ -512,7 +512,7 @@ stow_dotfiles() {
     local needs_backup=false
 
     # Common dotfiles that might exist and aren't symlinks
-    local common_files=(".zshrc" ".zshenv" ".zprofile" ".gitconfig" ".tmux.conf" ".editorconfig" "AGENTS.md")
+    local common_files=(".zshrc" ".zshenv" ".zprofile" ".gitconfig" ".tmux.conf" ".editorconfig")
 
     for file in "${common_files[@]}"; do
         if [ -e "$HOME/$file" ] && [ ! -L "$HOME/$file" ]; then
@@ -537,6 +537,33 @@ stow_dotfiles() {
     if [ "$needs_backup" = true ]; then
         print_warning "Your original dotfiles have been backed up to: $backup_dir"
     fi
+}
+
+# Link cross-project agent instructions into the user home directory
+install_global_agents() {
+    local source_file="$DOTFILES/GLOBAL_AGENTS.md"
+    local target_file="$HOME/AGENTS.md"
+    local backup_dir
+
+    if [ ! -f "$source_file" ]; then
+        print_error "Global agent instructions not found: $source_file"
+        return 1
+    fi
+
+    if [ -L "$target_file" ] && [ "$(readlink "$target_file")" = "$source_file" ]; then
+        print_success "Global agent instructions already linked"
+        return
+    fi
+
+    if [ -e "$target_file" ] || [ -L "$target_file" ]; then
+        backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+        mkdir -p "$backup_dir"
+        mv "$target_file" "$backup_dir/AGENTS.md"
+        print_warning "Backed up existing AGENTS.md to $backup_dir"
+    fi
+
+    ln -s "$source_file" "$target_file"
+    print_success "Global agent instructions linked to $target_file"
 }
 
 # Install trusted Herd (herdr) plugins
@@ -665,6 +692,7 @@ main() {
     install_uv
     install_opencode
     stow_dotfiles
+    install_global_agents
     install_herdr_plugins
     print_summary
 }
