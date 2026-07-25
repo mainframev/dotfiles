@@ -65,3 +65,9 @@ export HABITICA_USER_ID="8d0152d8-a4b3-4bf3-8636-519a0a18404d"
 eval "$(fnm env --use-on-cd --shell zsh)"
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
+
+# BEGIN Agency MANAGED BLOCK
+if [[ ":${PATH}:" != *":/Users/mainframev/.config/agency/CurrentVersion:"* ]]; then
+    export PATH="/Users/mainframev/.config/agency/CurrentVersion:${PATH}"
+fi
+# END Agency MANAGED BLOCK

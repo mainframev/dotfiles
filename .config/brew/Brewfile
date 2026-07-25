@@ -77,7 +77,9 @@ cask "zoom"
 if OS.mac?
   tap "nikitabobko/tap", trusted: true
   tap "FelixKratz/formulae", trusted: true
+  tap "modem-dev/tap", trusted: true
 
+  brew "hunk"
   brew "borders"
   brew "nowplaying-cli"
   cask "nikitabobko/tap/aerospace", trusted: true
