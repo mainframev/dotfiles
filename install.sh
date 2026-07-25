@@ -568,6 +568,11 @@ install_global_agents() {
 
 # Install trusted Herd (herdr) plugins
 install_herdr_plugins() {
+    if [ -n "${CI:-}" ]; then
+        print_info "CI environment detected, skipping herdr plugin installation"
+        return
+    fi
+
     if ! command_exists herdr; then
         print_warning "herdr not installed, skipping plugin installation"
         return
