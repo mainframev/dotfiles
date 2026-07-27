@@ -3,6 +3,14 @@ local icons = require("mainframev.plugins.configs.icons")
 ---@type LazySpec
 return {
   "vuki656/package-info.nvim",
+  cmd = {
+    "PackageInfoChangeVersion",
+    "PackageInfoDelete",
+    "PackageInfoHide",
+    "PackageInfoInstall",
+    "PackageInfoShow",
+    "PackageInfoUpdate",
+  },
   dependencies = {
     "MunifTanjim/nui.nvim",
   },

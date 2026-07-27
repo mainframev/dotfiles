@@ -4,9 +4,6 @@ return {
     "rmagatti/auto-session",
     omg = false,
     lazy = false,
-    dependencies = {
-      "nvim-telescope/telescope.nvim", -- Only needed if you want to use sesssion lens
-    },
     keys = {
       { "<leader>ss", "<cmd>SessionSearch<CR>", desc = "Session search" },
       { "<leader>sw", "<cmd>SessionSave<CR>", desc = "Save session" },
@@ -18,8 +15,9 @@ return {
         auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
         bypass_save_filetypes = { "oil" },
         session_lens = {
+          picker = "snacks",
           buftypes_to_ignore = {},
-          load_on_setup = true,
+          load_on_setup = false,
           theme_conf = { border = true },
           previewer = false,
         },

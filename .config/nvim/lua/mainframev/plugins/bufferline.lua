@@ -3,7 +3,7 @@ local icons = require("mainframev.plugins.configs.icons")
 ---@type LazySpec
 return {
   "akinsho/bufferline.nvim",
-  event = "ColorScheme",
+  event = "VeryLazy",
   version = "*",
   dependencies = { "nvim-tree/nvim-web-devicons", "moll/vim-bbye" },
   keys = {

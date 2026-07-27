@@ -1,6 +1,10 @@
+local is_directory_start = vim.fn.argc(-1) == 1 and vim.fn.isdirectory(vim.fn.argv(0)) == 1
+
 ---@type LazySpec
 return {
   "stevearc/oil.nvim",
+  cmd = "Oil",
+  lazy = not is_directory_start,
   dependencies = { "nvim-tree/nvim-web-devicons" },
   config = function()
     require("oil").setup({

@@ -9,6 +9,6 @@ if vim.fn.has("nvim-0.9.0") == 0 then
 end
 
 return {
-  "nvim-lua/plenary.nvim",
-  "christoomey/vim-tmux-navigator",
+  { "nvim-lua/plenary.nvim", lazy = true },
+  { "christoomey/vim-tmux-navigator", lazy = false },
 }

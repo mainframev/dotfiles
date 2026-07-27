@@ -1,10 +1,12 @@
 local config = require("mainframev.plugins.configs.snacks")
+local is_empty_start = vim.fn.argc(-1) == 0
 
 ---@type LazySpec
 return {
   "folke/snacks.nvim",
   priority = 1000,
-  lazy = false,
+  event = "VeryLazy",
+  lazy = not is_empty_start,
   ---@type snacks.Config
   opts = {
     bigfile = { enabled = true },

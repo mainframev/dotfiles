@@ -5,6 +5,7 @@ return {
   {
     "L3MON4D3/LuaSnip", -- Snippet engine
     version = "v2.*",
+    event = "InsertEnter",
     dependencies = {},
     config = function()
       require("luasnip.loaders.from_vscode").lazy_load()
