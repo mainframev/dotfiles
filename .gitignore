@@ -41,7 +41,6 @@
 !/.config/worktrunk
 !/.config/yazi
 !/.config/zsh
-!/.confug/hunk
 
 # ignored
 *.log

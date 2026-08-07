@@ -2,13 +2,15 @@
 
 # own aliases
 alias ai='opencode'
+alias bip='taproom'
 alias cl="clear -x"
-alias cppy='copilot --yolo --mode plan'
 alias cpp='copilot --mode plan'
+alias cppy='copilot --yolo --mode plan'
 alias ggf='gpf'
-alias ghd="gh dash"
-alias ghp="gh pr"
-alias ghs="gh status"
+alias ghd='gh dash'
+alias ghp='gh pr'
+alias ghs='gh status'
+alias grep='rg --color=auto'
 alias l='eza --git-ignore $eza_params'
 alias la='eza -lbhHigUmuSa'
 alias ll='eza --all --header --long $eza_params'
@@ -16,7 +18,8 @@ alias llm='eza --all --header --long --sort=modified $eza_params'
 alias ls='eza $eza_params'
 alias lt='eza --tree $eza_params'
 alias lx='eza -lbhHigUmuSa@'
-alias mail="neomutt"
+alias mail='neomutt'
+alias glow='glow -t -l'
 alias pip='/usr/bin/pip3'
 alias plugpull="find ${ZDOTDIR:-$HOME}/.zsh_plugins -type d -exec test -e '{}/.git' ';' -print0 | xargs -I {} -0 git -C {} pull"
 alias src='source ~/.zshrc && echo "Reloaded .zshrc"'

@@ -57,23 +57,21 @@ else
     DOTFILES="$HOME/dotfiles"
 fi
 
-# Path to your oh-my-zsh installation.
-ZSH="$HOME/.oh-my-zsh"
-TIMING=0
-EDITOR="nvim"
-VISUAL="nvim"
-NVM_DIR="$HOME/.nvm"
-DOTFILES_ZSH="$DOTFILES/.config/zsh"
-STARSHIP_CONFIG="$DOTFILES/.config/starship.toml"
-export TASKRC="$DOTFILES/.config/task/taskrc"
+if command -v bat >/dev/null 2>&1; then
+  export MANPAGER="bat -l man -p"
+elif command -v batcat >/dev/null 2>&1; then
+  export MANPAGER="batcat -l man -p"
+fi
+
+export DISABLE_COMPFIX="true"
+export DISABLE_MAGIC_FUNCTIONS="true"
+export DOTFILES_ZSH="$DOTFILES/.config/zsh"
+export EDITOR="nvim"
+export SNACKS_GHOSTTY=true
+export STARSHIP_CONFIG="$DOTFILES/.config/starship.toml"
 export TASKDATA="$HOME/.local/share/task"
-SNACKS_GHOSTTY=true
-
-# DISABLE_AUTO_UPDATE="true"
-DISABLE_MAGIC_FUNCTIONS="true"
-DISABLE_COMPFIX="true"
-
-ZSH_DISABLE_COMPFIX=true
-GIT_AUTO_FETCH_INTERVAL=4140
-GIT_PROMPT_EXECUTABLE="haskell"
-POWERLEVEL9K_INSTANT_PROMPT=quiet
+export TASKRC="$DOTFILES/.config/task/taskrc"
+export VISUAL="nvim"
+export ZSH="$HOME/.oh-my-zsh"
+export ZSH_DISABLE_COMPFIX=true
+export GIT_PROMPT_EXECUTABLE="haskell"

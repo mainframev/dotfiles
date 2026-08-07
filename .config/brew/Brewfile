@@ -17,6 +17,7 @@ brew "fzf"
 brew "gh"
 brew "git"
 brew "git-delta"
+brew "glow"
 brew "go"
 brew "gum"
 brew "herdr"
@@ -24,6 +25,7 @@ brew "highlight"
 brew "httpie"
 brew "jq"
 brew "jsonlint"
+brew "lazygit"
 brew "lua-language-server"
 brew "luarocks"
 brew "man-db"
@@ -73,12 +75,8 @@ cask "zoom"
 if OS.mac?
   tap "nikitabobko/tap", trusted: true
   tap "FelixKratz/formulae", trusted: true
-  tap "modem-dev/tap", trusted: true
-
-
 
   brew "borders"
-  brew "hunk"
   brew "nowplaying-cli"
   brew "taproom"
   cask "font-sf-pro"

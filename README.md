@@ -17,7 +17,7 @@ What I currently use:
 - [Aerospace](https://nikitabobko.github.io/AeroSpace/guide) - Tiling window manager for macOS
 - [Alacritty](https://alacritty.org/) - GPU-accelerated terminal emulator
 - [Bat](https://github.com/sharkdp/bat) - Cat clone with syntax highlighting
-- [Git](https://git-scm.com/) with [Delta](https://github.com/dandavison/delta) - Version control with enhanced diff viewer
+- [Git](https://git-scm.com/) with [Delta](https://github.com/dandavison/delta) - Version control with Delta configured as the pager
 - [GitHub CLI](https://cli.github.com/) - GitHub command line tool
 - [gh-dash](https://github.com/dlvhdr/gh-dash) - GitHub CLI dashboard
 - [Ghostty](https://ghostty.org/) - Terminal emulator
