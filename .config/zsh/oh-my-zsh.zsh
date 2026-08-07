@@ -23,7 +23,7 @@ github_plugins=(
   zsh-users/zsh-autosuggestions
   zsh-users/zsh-syntax-highlighting
   z-shell/zsh-eza
-  zsh-vi-mode
+  jeffreytse/zsh-vi-mode
 )
 
 for plugin in $github_plugins; do
