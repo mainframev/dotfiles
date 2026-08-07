@@ -2,6 +2,7 @@
 tap "microsoft/git", trusted: true
 
 # CLI Tools
+brew "azure-cli"
 brew "bash"
 brew "bat"
 brew "bat-extras"
