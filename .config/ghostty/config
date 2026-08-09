@@ -24,6 +24,8 @@ cursor-style-blink = false
 mouse-hide-while-typing = true
 
 background-blur-radius = 20
+# Global transparency: use 1 for opaque, below 1 for transparent.
+background-opacity = 0.5
 
 macos-titlebar-proxy-icon = hidden
 macos-option-as-alt = true
