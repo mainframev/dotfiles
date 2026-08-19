@@ -10,7 +10,7 @@ My dotfiles managed with [STOW](https://www.gnu.org/software/stow/)
   supported instruction entry point.
 - Medium-or-larger features use Worktrunk worktrees under
   `$HOME/worktrees/<repository>/<sanitized-branch>`. The user chooses whether
-  formal SDD uses OpenSpec, Superpowers, both, or neither.
+  formal SDD uses OpenSpec or no formal framework.
 
 What I currently use:
 

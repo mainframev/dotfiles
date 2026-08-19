@@ -1,5 +1,4 @@
 {
-  "includeCoAuthoredBy": false,
   "allowedUrls": [
     "https://dev.azure.com",
     "http://localhost",
@@ -7,87 +6,80 @@
     "https://localhost",
     "https://localhost:*"
   ],
+  "companyAnnouncements": [
+    "GPT-5.6 Sol, Terra, and Luna are now available in Copilot CLI. Try them from the model picker.",
+    "Need help with Agency? Run `agency support` or join the support community: https://aka.ms/agency/support"
+  ],
   "enabledPlugins": {
     "azure@awesome-copilot": true,
     "figma@awesome-copilot": true,
     "microsoft-docs@awesome-copilot": true,
     "rust-mcp-development@awesome-copilot": true,
-    "software-engineering-team@awesome-copilot": true,
-    "superpowers@superpowers-copilot": true
+    "software-engineering-team@awesome-copilot": true
   },
-  "extraKnownMarketplaces": {
-    "superpowers-copilot": {
-      "source": {
-        "source": "github",
-        "repo": "DwainTR/superpowers-copilot"
-      }
-    }
-  },
+  "extraKnownMarketplaces": {},
   "hooks": {
     "sessionStart": [
       {
-        "type": "command",
+        "_vsCodeCompat": "SessionStart",
         "bash": "bash '/Users/rejuv/.copilot/hooks/herdr-agent-state.sh'",
         "timeoutSec": 10,
-        "_vsCodeCompat": "SessionStart"
+        "type": "command"
       }
     ]
   },
+  "includeCoAuthoredBy": false,
   "logLevel": "all",
   "model": "gpt-5.6-sol",
   "subagents": {
     "agents": {
-      "rubber-duck": {
-        "model": "claude-opus-4.8",
-        "effortLevel": "medium",
+      "code-review": {
         "contextTier": "default",
-        "autoInvoke": true
-      },
-      "superpowers:code-reviewer": {
-        "model": "gpt-5.6-sol",
         "effortLevel": "medium",
-        "contextTier": "default"
-      },
-      "research": {
-        "model": "gpt-5.6-sol",
-        "effortLevel": "medium",
-        "contextTier": "default"
-      },
-      "task": {
-        "model": "gpt-5.6-sol",
-        "effortLevel": "medium",
-        "contextTier": "default"
+        "model": "gpt-5.6-sol"
       },
       "explore": {
-        "model": "gpt-5.6-sol",
+        "contextTier": "default",
         "effortLevel": "medium",
-        "contextTier": "default"
+        "model": "gpt-5.6-sol"
       },
       "general-purpose": {
-        "model": "gpt-5.6-sol",
+        "contextTier": "default",
         "effortLevel": "medium",
-        "contextTier": "default"
+        "model": "gpt-5.6-sol"
       },
-      "code-review": {
-        "model": "gpt-5.6-sol",
+      "research": {
+        "contextTier": "default",
         "effortLevel": "medium",
-        "contextTier": "default"
+        "model": "gpt-5.6-sol"
+      },
+      "rubber-duck": {
+        "autoInvoke": true,
+        "contextTier": "default",
+        "effortLevel": "medium",
+        "model": "claude-opus-4.8"
       },
       "security-review": {
-        "model": "gpt-5.6-sol",
+        "contextTier": "default",
         "effortLevel": "medium",
-        "contextTier": "default"
+        "model": "gpt-5.6-sol"
       },
       "software-engineering-team:se-system-architecture-reviewer": {
-        "model": "gpt-5.6-sol",
+        "contextTier": "default",
         "effortLevel": "medium",
-        "contextTier": "default"
+        "model": "gpt-5.6-sol"
       },
       "software-engineering-team:se-ux-ui-designer": {
-        "model": "gpt-5.6-sol",
+        "contextTier": "default",
         "effortLevel": "medium",
-        "contextTier": "default"
+        "model": "gpt-5.6-sol"
+      },
+      "task": {
+        "contextTier": "default",
+        "effortLevel": "medium",
+        "model": "gpt-5.6-sol"
       }
     }
-  }
+  },
+  "theme": "default"
 }

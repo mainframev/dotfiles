@@ -7,22 +7,23 @@ alias cl="clear -x"
 alias cpp='copilot --mode plan'
 alias cppy='copilot --yolo --mode plan'
 alias ggf='gpf'
-alias ghd='gh dash'
-alias ghp='gh pr'
-alias ghs='gh status'
-alias grep='rg --color=auto'
 alias ghd="gh dash"
+alias ghd='gh dash'
 alias ghp="gh pr"
+alias ghp='gh pr'
 alias ghs="gh status"
+alias ghs='gh status'
+alias glow='glow -t -l'
+alias grep='rg --color=auto'
 alias l='eza --git-ignore --git --group --group-directories-first --time-style=long-iso --color-scale=all'
 alias la='eza -lbhHigUmuSa'
+alias lg='lazygit'
 alias ll='eza --all --header --long --git --group --group-directories-first --time-style=long-iso --color-scale=all'
 alias llm='eza --all --header --long --sort=modified --git group --group-directories-first --time-style=long-iso --color-scale=all'
 alias ls='eza --no-git --group --group-directories-first --time-style=long-iso --color-scale=all'
 alias lt='eza --tree --git group --group-directories-first --time-style=long-iso --color-scale=all'
 alias lx='eza -lbhHigUmuSa@'
 alias mail='neomutt'
-alias glow='glow -t -l'
 alias pip='/usr/bin/pip3'
 alias plugpull="find ${ZDOTDIR:-$HOME}/.zsh_plugins -type d -exec test -e '{}/.git' ';' -print0 | xargs -I {} -0 git -C {} pull"
 alias src='source ~/.zshrc && echo "Reloaded .zshrc"'

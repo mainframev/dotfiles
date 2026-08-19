@@ -12,7 +12,6 @@
   "autoupdate": true,
   "plugin": [
     "@franlol/opencode-md-table-formatter@latest",
-    "superpowers@git+https://github.com/obra/superpowers.git",
     "@franlol/opencode-md-table-formatter@latest",
     "@mohak34/opencode-notifier@latest",
     "opencode-wakatime"

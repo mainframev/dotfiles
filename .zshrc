@@ -59,6 +59,9 @@ eval "$(fnm env --use-on-cd --shell zsh)"
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 
+# Prefer Microsoft Git and its Scalar client over Homebrew Git.
+path=(/usr/local/bin $path)
+
 # BEGIN Agency MANAGED BLOCK
 if [[ ":${PATH}:" != *":/Users/mainframev/.config/agency/CurrentVersion:"* ]]; then
     export PATH="/Users/mainframev/.config/agency/CurrentVersion:${PATH}"

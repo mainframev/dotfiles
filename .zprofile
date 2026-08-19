@@ -5,6 +5,7 @@ if [ -n "$HOMEBREW_PREFIX" ] && [ -x "$HOMEBREW_PREFIX/bin/brew" ]; then
 fi
 
 path=(
+  /usr/local/bin
   /usr/local/sbin
   /usr/sbin
   /sbin

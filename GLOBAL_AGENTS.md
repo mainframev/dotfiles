@@ -67,8 +67,8 @@ Proceed once the execution path, constraints, and regression surface are clear e
 5. **Plan proportionally**
    - Skip a formal plan for small, local, reversible changes.
    - Use a short implementation plan for multi-file, behavioral, or moderately risky work.
-   - When formal specification-driven development would materially help, explain the options and ask the user to choose OpenSpec, Superpowers, both, or neither.
-   - Describe OpenSpec as durable, reviewable requirements and Superpowers as disciplined execution with planning, worktrees, TDD, staged implementation, and review loops.
+   - When formal specification-driven development would materially help, explain the options and ask the user to choose OpenSpec or no formal framework.
+   - Describe OpenSpec as durable, reviewable requirements.
    - Do not select or initialize an SDD framework before the user chooses.
 
 6. **Implement incrementally**

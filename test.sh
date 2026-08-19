@@ -917,11 +917,11 @@ else
     WARNINGS=$((WARNINGS + 1))
 fi
 
-if grep -Fq 'ask the user to choose OpenSpec, Superpowers, both, or neither' GLOBAL_AGENTS.md &&
+if grep -Fq 'ask the user to choose OpenSpec or no formal framework' GLOBAL_AGENTS.md &&
    grep -Fq 'Do not select or initialize an SDD framework before the user chooses' GLOBAL_AGENTS.md; then
     echo -e "${GREEN}✓ global instructions keep SDD framework selection with the user${NC}"
 else
-    echo -e "${RED}✗ global instructions must ask the user to select the SDD framework${NC}"
+    echo -e "${RED}✗ SDD guidance must offer OpenSpec or no formal framework${NC}"
     WORKTRUNK_ERRORS=$((WORKTRUNK_ERRORS + 1))
 fi
 
