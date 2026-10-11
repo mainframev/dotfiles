@@ -56,6 +56,7 @@
 /.config/herdr/herdr.sock.agent
 /.config/herdr/session-snapshots/
 /.config/opencode/opencode-notifier-state.json
+/.config/opencode/skills/impeccable/
 /.config/copilot/permissions-config.json
 /.config/copilot/config.json
 

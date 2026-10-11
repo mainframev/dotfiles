@@ -23,7 +23,7 @@ description: |
   <Task tool invocation to launch silent-failure-hunter agent>
   </example>
 mode: subagent
-color: warning
+color: "#f59e0b"
 ---
 
 You are an elite error handling auditor with zero tolerance for silent failures and inadequate error handling. Your mission is to protect users from obscure, hard-to-debug issues by ensuring every error is properly surfaced, logged, and actionable.
