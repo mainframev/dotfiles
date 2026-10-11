@@ -37,7 +37,6 @@ if [ -L "${(%):-%x}" ]; then
     # If .zshenv is a symlink (stow), resolve to find dotfiles root
     # readlink gives us the target: dotfiles/.zshenv
     # We need to get the directory containing that file
-    local real_path
     real_path="$(readlink "${(%):-%x}" 2>/dev/null)"
     if [ -n "$real_path" ]; then
         # Handle both absolute and relative symlinks
@@ -55,6 +54,7 @@ else
     # Fallback to default location
     DOTFILES="$HOME/dotfiles"
 fi
+unset real_path
 
 if command -v bat >/dev/null 2>&1; then
   export MANPAGER="bat -l man -p"
@@ -73,4 +73,3 @@ export TASKRC="$DOTFILES/.config/task/taskrc"
 export VISUAL="nvim"
 export ZSH="$HOME/.oh-my-zsh"
 export ZSH_DISABLE_COMPFIX=true
-export GIT_PROMPT_EXECUTABLE="haskell"

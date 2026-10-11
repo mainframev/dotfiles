@@ -11,7 +11,7 @@ function is_git_repo() {
 function _fzf_git_add() {
 	if ! is_git_repo; then {
 		echo "not a git repo"
-		exit
+		return 1
 	}; fi
 
 	unstaged_list="$(git ls-files . --exclude-standard --others -m)"
@@ -42,14 +42,14 @@ function _fzf_git_add() {
 
 	else
 		echo "no files to stage"
-		exit
+		return 1
 	fi
 }
 
 function _fzf_git_prs() {
 	if ! is_remote; then {
 		echo "no gh remote found"
-		exit
+		return 1
 	}; fi
 
 	open_prs="$(gh pr list "$@" -s"open")"
@@ -81,14 +81,14 @@ function _fzf_git_prs() {
 
 	else
 		echo "no open PRs"
-		exit
+		return 1
 	fi
 }
 
 function _fzf_git_branches() {
 	if ! is_git_repo; then {
 		echo "not a git repo"
-		exit
+		return 1
 	}; fi
 
 	lines="$(
@@ -109,8 +109,7 @@ function _fzf_git_branches() {
 	ctrl-d) echo "$branch <-> $(git branch --show-current)" && git diff "$branch" ;;
 	ctrl-s) echo "$branch <-> $(git branch --show-current)" && git diff "$branch"...HEAD ;;
 	ctrl-x)
-		read -rp "Delete branch \"$branch\"? [y|n] "
-		if [[ $REPLY =~ ^[Yy]$ ]]; then git branch -D "$branch"; fi
+		if read -q "REPLY?Delete branch \"$branch\"? [y|n] "; then echo; git branch -D "$branch"; else echo; fi
 		;;
 	esac
 }
@@ -118,7 +117,7 @@ function _fzf_git_branches() {
 function _fzf_git_diff() {
 	if ! is_git_repo; then {
 		echo "not a git repo"
-		exit
+		return 1
 	}; fi
 
 	local cached_flag=""
@@ -177,7 +176,7 @@ function _fzf_git_diff() {
 function _fzf_git_reset() {
 	if ! is_git_repo; then {
 		echo "not a git repo"
-		exit
+		return 1
 	}; fi
 
 	staged_list="$(git diff --name-only --cached)"
@@ -206,7 +205,7 @@ function _fzf_git_reset() {
 
 	else
 		echo "no staged files"
-		exit
+		return 1
 	fi
 }
 

@@ -3,10 +3,9 @@
 # FZF Configuration
 
 
-export FZF_BASE="/opt/homebrew/opt/fzf"
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -n 10'"
+export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --color=always {} | head -n 50'"
 export FZF_COMPLETION_DIR_COMMANDS="cd pushd rmdir tree ls"
 
 
@@ -20,14 +19,15 @@ export FZF_DEFAULT_OPTS="
   --preview-window=border-sharp --padding=1
 "
 
+# Aliases do not apply inside fzf previews, so call eza directly.
 _fzf_comprun() {
-    local command=$1
-    shift
+  local command=$1
+  shift
 
-    case "$command" in
-        cd)           find . -type d | fzf --preview 'tree -C {}' "$@";;
-        *)            fzf "$@" ;;
-    esac
+  case "$command" in
+    cd|tree)      fzf --preview 'eza --tree --level=2 --color=always {} | head -n 200' "$@" ;;
+    *)            fzf "$@" ;;
+  esac
 }
 
 _fzf_compgen_path() {
@@ -38,17 +38,11 @@ _fzf_compgen_dir() {
    fd --type d --hidden --follow --exclude ".git" "$1"
 }
 
-_fzf_comprun() {
-  local command=$1
-  shift
-
-  case "$command" in
-    tree)         find . -type d | fzf --preview 'tree -C {}' "$@";;
-    *)            fzf "$@" ;;
-  esac
-}
-
-# Enable fzf keybindings
-source <(fzf --zsh)
+# Enable fzf keybindings. zsh-vi-mode resets keymaps on init, so bind after it.
+if (( ${+functions[zvm_init]} )); then
+  zvm_after_init_commands+=('source <(fzf --zsh)')
+else
+  source <(fzf --zsh)
+fi
 
 
