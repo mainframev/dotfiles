@@ -6,7 +6,7 @@ return {
     branch = "main",
     build = ":TSUpdate",
     cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
-    lazy = vim.fn.argc(-1) == 0, -- load treesitter early when opening a file from the cmdline
+    lazy = false, -- the main branch does not support lazy-loading
     opts = {
       highlight = { enable = true },
       indent = { enable = true },
