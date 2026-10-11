@@ -681,8 +681,9 @@ print_summary() {
     if [ "$OS" = "macos" ]; then
         echo -e "${CYAN}Next steps:${NC}"
         echo "  • Configure your terminal theme"
-        echo "  • Set up Git credentials: git config --global user.name 'Your Name'"
-        echo "  • Set up Git email: git config --global user.email 'your@email.com'"
+        echo "  • Put credentials and machine-specific Git settings in ~/.gitconfig.local"
+        echo "    (git config --file ~/.gitconfig.local ...); ~/.gitconfig is tracked"
+        echo "  • Put secret exports in ~/.config/zsh/secrets.zsh (gitignored)"
         echo ""
     fi
 }

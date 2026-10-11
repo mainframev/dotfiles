@@ -15,18 +15,6 @@
       "headers": {}
     }
   },
-  "ssh_connections": [
-    {
-      "host": "cs.bookish-journey-r4rgj7rww4vx25gwx.codespace_midgard_fullclone",
-      "args": [],
-      "projects": [
-        {
-          "paths": ["/workspaces/1JS/midgard"]
-        }
-      ],
-      "nickname": "midgard"
-    }
-  ],
   "multi_cursor_modifier": "cmd_or_ctrl",
   "terminal": {
     "cursor_shape": "block",

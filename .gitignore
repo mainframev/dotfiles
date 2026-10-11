@@ -2,7 +2,6 @@
 !/.git[a-z]*
 !/.github/
 !/.agents/
-!/.copilot/
 !/.pi/
 /delta.gitconfig
 !.editorconfig
@@ -15,9 +14,6 @@
 
 /.agents/*
 !/.agents/skills/
-
-/.copilot/*
-!/.copilot/settings.json
 
 /.pi/*
 !/.pi/agent/
@@ -36,7 +32,6 @@
 !/.config/btop
 !/.config/ccstatusline
 !/.config/claude/
-!/.config/copilot
 !/.config/gh
 !/.config/gh-dash
 !/.config/ghostty
@@ -68,8 +63,6 @@
 /.config/herdr/session-snapshots/
 /.config/opencode/opencode-notifier-state.json
 /.config/opencode/skills/impeccable/
-/.config/copilot/permissions-config.json
-/.config/copilot/config.json
 
 !/.zshenv
 !/.zshrc

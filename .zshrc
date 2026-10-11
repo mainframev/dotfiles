@@ -53,7 +53,8 @@ fi
 # End profiling
 # zprof
 
-export HABITICA_USER_ID="8d0152d8-a4b3-4bf3-8636-519a0a18404d"
+# | SECRETS | untracked, machine-local exports (see README)
+[[ -r $DOTFILES_ZSH/secrets.zsh ]] && source $DOTFILES_ZSH/secrets.zsh
 
 eval "$(fnm env --use-on-cd --shell zsh)"
 

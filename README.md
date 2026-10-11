@@ -25,6 +25,18 @@ My dotfiles managed with [STOW](https://www.gnu.org/software/stow/)
 - `paranoid-review` is an adversarial, evidence-first code review that reports
   only verified defects and lists unproven concerns separately.
 
+## Local, untracked files
+
+The repository is public. Keep credentials and machine-specific settings out of it:
+
+- `~/.gitconfig.local`: credential helpers, work tenants and `scalar`/`maintenance`
+  repos. `.gitconfig` includes it last, so it overrides tracked settings. Use
+  `git config --file ~/.gitconfig.local ...` instead of `git config --global`,
+  which writes through the symlink into this repository.
+- `.config/zsh/secrets.zsh`: secret `export`s. Gitignored, sourced from `.zshrc`
+  when present. Create it with mode `600`.
+- `~/.copilot/settings.json`: Copilot CLI settings are not tracked.
+
 What I currently use:
 
 - [Aerospace](https://nikitabobko.github.io/AeroSpace/guide) - Tiling window manager for macOS
