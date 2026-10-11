@@ -25,6 +25,7 @@ return {
           java = false, -- don't check treesitter on java
         },
       })
+      -- brackets on completion accept come from blink.cmp (completion.accept.auto_brackets)
     end,
   },
 }
