@@ -3,11 +3,9 @@ return {
   "neovim/nvim-lspconfig",
   dependencies = {
     { "mason-org/mason.nvim", config = true },
-    "mason-org/mason-lspconfig.nvim",
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     "b0o/schemastore.nvim",
     "saghen/blink.cmp",
-    "SmiteshP/nvim-navic",
   },
   config = function()
     vim.api.nvim_create_autocmd("LspAttach", {
@@ -33,8 +31,8 @@ return {
       end,
     })
 
-    local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities = vim.tbl_deep_extend("force", capabilities, require("blink.cmp").get_lsp_capabilities())
+    -- blink.cmp only registers these itself once it loads (InsertEnter), after servers may have started
+    vim.lsp.config("*", { capabilities = require("blink.cmp").get_lsp_capabilities() })
 
     local servers = {
       ts_ls = {},
@@ -76,7 +74,12 @@ return {
         init_options = require("mainframev.plugins.configs.lsp.tailwindcss").init_options,
         on_attach = require("mainframev.plugins.configs.lsp.tailwindcss").on_attach,
         settings = require("mainframev.plugins.configs.lsp.tailwindcss").settings,
-        root_dir = require("lspconfig.util").root_pattern("tailwind.config.js", "tailwind.config.ts"),
+        root_dir = function(bufnr, on_dir)
+          local root = vim.fs.root(bufnr, { "tailwind.config.js", "tailwind.config.ts" })
+          if root then
+            on_dir(root)
+          end
+        end,
       },
       dockerls = {},
       sqlls = {},
@@ -136,23 +139,10 @@ return {
 
     require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
-    local lspconfig = require("lspconfig")
-
-    if is_godot_project then
-      lspconfig.gdscript.setup({})
-    end
-
-    vim.lsp.config("gdscript", {
-      capabilities = capabilities,
-    })
-
-    vim.lsp.enable("gdscript")
-
     for server, cfg in pairs(servers) do
-      cfg.capabilities = vim.tbl_deep_extend("force", {}, capabilities, cfg.capabilities or {})
-
       vim.lsp.config(server, cfg)
-      vim.lsp.enable(server)
     end
+
+    vim.lsp.enable(vim.list_extend({ "gdscript" }, vim.tbl_keys(servers)))
   end,
 }
