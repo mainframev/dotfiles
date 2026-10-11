@@ -191,8 +191,6 @@ M.keys = {
   -- stylua: ignore
     { "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status" },
   -- stylua: ignore
-    { "<leader>gd", function() Snacks.picker.git_diff() end, desc = "Git Diff (Hunks)" },
-  -- stylua: ignore
     { "<leader>gf", function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
 
   -- LSP
