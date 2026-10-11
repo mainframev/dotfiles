@@ -1,28 +1,51 @@
-// Worktrunk activity tracking plugin for OpenCode.
+// Worktrunk activity tracking plugin for OpenCode (OpenCode v2 plugin API).
 //
 // Tracks OpenCode session activity per branch, showing status markers in `wt list`:
 //   🤖 — agent is working
 //   💬 — agent is waiting for input
 //
-// Installed globally via: wt config plugins opencode install
-// Or manually: copy to ~/.config/opencode/plugins/worktrunk.ts
+// Ported from the v1 plugin installed by: wt config plugins opencode install
+// (worktrunk v0.71.0 still ships the v1 shape, which OpenCode v2 refuses to load).
 
-import type { Plugin } from "@opencode-ai/plugin";
+import type { Plugin } from "@opencode/plugin";
+import { execFile } from "node:child_process";
 
-export default (async ({ $ }) => {
-  return {
-    event: async ({ event }) => {
-      switch (event.type) {
-        case "session.status":
-          await $`wt config state marker set ${'🤖'} || true`.quiet();
-          break;
-        case "session.idle":
-          await $`wt config state marker set ${'💬'} || true`.quiet();
-          break;
-        case "session.deleted":
-          await $`wt config state marker clear || true`.quiet();
-          break;
+function marker(...args: string[]): Promise<void> {
+  return new Promise((resolve) => {
+    // Errors are ignored on purpose, matching the v1 `|| true` behaviour.
+    execFile("wt", ["config", "state", "marker", ...args], { timeout: 5_000 }, () => resolve());
+  });
+}
+
+type StatusEvent = { data?: { status?: { type?: string } } };
+
+export default {
+  id: "worktrunk",
+  async setup(ctx) {
+    const controller = new AbortController();
+
+    void (async () => {
+      try {
+        for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
+          switch (event.type) {
+            case "session.status": {
+              const status = (event as StatusEvent).data?.status?.type;
+              await marker("set", status === "idle" ? "💬" : "🤖");
+              break;
+            }
+            case "session.idle":
+              await marker("set", "💬");
+              break;
+            case "session.deleted":
+              await marker("clear");
+              break;
+          }
+        }
+      } catch {
+        // Subscription ends when the controller aborts or the server shuts down.
       }
-    },
-  };
-}) satisfies Plugin;
+    })();
+
+    return () => controller.abort();
+  },
+} satisfies Plugin.Plugin;
