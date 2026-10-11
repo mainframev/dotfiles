@@ -67,3 +67,12 @@ if [[ ":${PATH}:" != *":/Users/mainframev/.config/agency/CurrentVersion:"* ]]; t
     export PATH="/Users/mainframev/.config/agency/CurrentVersion:${PATH}"
 fi
 # END Agency MANAGED BLOCK
+
+# pnpm
+export PNPM_HOME="/Users/mainframev/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
+
