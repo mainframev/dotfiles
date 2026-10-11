@@ -4,7 +4,6 @@ tap "microsoft/git", trusted: true
 
 # CLI Tools
 brew "agent-browser"
-brew "azure-cli"
 brew "bash"
 brew "bat"
 brew "bat-extras"
@@ -86,6 +85,7 @@ if OS.mac?
   brew "borders"
   brew "nowplaying-cli"
   brew "taproom"
+  cask "azure-cli"
   cask "font-sf-pro"
   cask "git-credential-manager"
   cask "homebrew/cask/copilot-cli"
