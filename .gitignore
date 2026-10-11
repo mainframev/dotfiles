@@ -25,7 +25,6 @@
 
 
 !/.config/aerospace
-!/.config/alacritty
 !/.config/bat
 !/.config/brew/
 !/.config/btop
@@ -50,7 +49,6 @@
 *.log
 /.config/tmux/plugins/
 /.config/zsh/secrets.zsh
-/.config/alacritty/themes/
 /.config/herdr/session-history.json
 /.config/herdr/session.json
 /.config/herdr/release-notes.json

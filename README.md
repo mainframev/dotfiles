@@ -54,7 +54,6 @@ The repository is public. Keep credentials and machine-specific settings out of 
 What I currently use:
 
 - [Aerospace](https://nikitabobko.github.io/AeroSpace/guide) - Tiling window manager for macOS
-- [Alacritty](https://alacritty.org/) - GPU-accelerated terminal emulator
 - [Bat](https://github.com/sharkdp/bat) - Cat clone with syntax highlighting
 - [btop](https://github.com/aristocratos/btop) - Resource monitor
 - [ccstatusline](https://github.com/sirmalloc/ccstatusline) - Claude Code status line
