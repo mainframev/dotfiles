@@ -25,6 +25,20 @@ My dotfiles managed with [STOW](https://www.gnu.org/software/stow/)
 - `paranoid-review` is an adversarial, evidence-first code review that reports
   only verified defects and lists unproven concerns separately.
 
+## Install
+
+```sh
+git clone git@github.com:mainframev/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+./install.sh            # everything
+./install.sh --no-gui   # CLI tools only, no casks
+```
+
+`install.sh` installs Homebrew and the Brewfile, oh-my-zsh and its custom
+plugins, then stows this repository into `$HOME`. Unmanaged files that would
+block Stow are moved to `~/.dotfiles-backup-<timestamp>/` with their paths kept.
+Re-running is safe. Run `./test.sh` to validate configs and installer behavior.
+
 ## Local, untracked files
 
 The repository is public. Keep credentials and machine-specific settings out of it:
@@ -42,16 +56,22 @@ What I currently use:
 - [Aerospace](https://nikitabobko.github.io/AeroSpace/guide) - Tiling window manager for macOS
 - [Alacritty](https://alacritty.org/) - GPU-accelerated terminal emulator
 - [Bat](https://github.com/sharkdp/bat) - Cat clone with syntax highlighting
+- [btop](https://github.com/aristocratos/btop) - Resource monitor
 - [ccstatusline](https://github.com/sirmalloc/ccstatusline) - Claude Code status line
 - [Git](https://git-scm.com/) with [Delta](https://github.com/dandavison/delta) - Version control with Delta configured as the pager
 - [GitHub CLI](https://cli.github.com/) - GitHub command line tool
 - [gh-dash](https://github.com/dlvhdr/gh-dash) - GitHub CLI dashboard
 - [Ghostty](https://ghostty.org/) - Terminal emulator
+- [herdr](https://herdr.dev) - Terminal agent multiplexer
 - [Kitty](https://sw.kovidgoyal.net/kitty/) - Fast, feature-rich terminal emulator
+- [lazygit](https://github.com/jesseduffield/lazygit) - Terminal UI for Git
 - [Neovim](https://neovim.io/) - Hyperextensible Vim-based text editor
 - [OpenCode](https://opencode.ai/) - AI coding assistant
 - [pi](https://github.com/earendil-works/pi) - Coding agent; only `~/.pi/agent/settings.json` is managed, and pi installs missing packages from it on startup
 - [Starship](https://starship.rs/) - Cross-shell prompt
+- [Taskwarrior](https://taskwarrior.org/) - Command line task manager
 - [Tmux](https://github.com/tmux/tmux/wiki) - Terminal multiplexer
+- [Worktrunk](https://worktrunk.dev/) - Git worktree manager (`wt`)
 - [Yazi](https://github.com/sxyazi/yazi) - Blazing fast terminal file manager
+- [Zed](https://zed.dev/) - Code editor
 - [Zsh](https://www.zsh.org/) with [Oh-my-zsh](https://github.com/ohmyzsh/ohmyzsh) - Shell with framework

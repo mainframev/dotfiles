@@ -9,13 +9,22 @@ on:
 
 jobs:
   syntax-validation:
-    name: Syntax Validation
-    runs-on: ubuntu-latest
+    name: Syntax Validation (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - name: Install validation tools
+      - name: Install validation tools (macOS)
+        if: runner.os == 'macOS'
+        run: brew install shellcheck yamllint stow taplo
+
+      - name: Install validation tools (Linux)
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y shellcheck zsh yamllint stow
@@ -34,7 +43,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Run install script
         run: |
@@ -44,21 +53,19 @@ jobs:
           CI: true
           NONINTERACTIVE: 1
 
-      - name: Debug stow results
+      - name: Verify stow links
         run: |
-          echo "=== Checking dotfiles in home directory ==="
-          ls -la ~/ | grep -E "^l.*\." || echo "No symlinks found"
-          echo ""
-          echo "=== Checking specific dotfiles ==="
-          for file in .zshrc .zshenv .gitconfig; do
+          missing=0
+          for file in .zshrc .zshenv .zprofile .gitconfig; do
             if [ -L ~/$file ]; then
-              echo "✓ ~/$file is a symlink -> $(readlink ~/$file)"
-            elif [ -e ~/$file ]; then
-              echo "✗ ~/$file exists but is not a symlink"
+              echo "✓ ~/$file -> $(readlink ~/$file)"
             else
-              echo "✗ ~/$file does not exist"
+              echo "✗ ~/$file is not a symlink"
+              ls -la ~/$file 2>&1 || true
+              missing=1
             fi
           done
+          exit $missing
 
       - name: Verify Homebrew environment
         run: |
@@ -81,7 +88,7 @@ jobs:
 
           # Try to load zsh config
           if [ -f ~/.zshrc ]; then
-            zsh -c "source ~/.zshenv 2>/dev/null; source ~/.zshrc && echo 'zsh config loaded successfully'" || echo "zsh config has errors but continuing"
+            zsh -c "source ~/.zshenv; source ~/.zshrc" && echo "zsh config loaded successfully"
           else
             echo "~/.zshrc not found"
             exit 1
@@ -145,7 +152,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Run install script
         run: |
@@ -155,21 +162,19 @@ jobs:
           CI: true
           NONINTERACTIVE: 1
 
-      - name: Debug stow results
+      - name: Verify stow links
         run: |
-          echo "=== Checking dotfiles in home directory ==="
-          ls -la ~/ | grep -E "^l.*\." || echo "No symlinks found"
-          echo ""
-          echo "=== Checking specific dotfiles ==="
-          for file in .zshrc .zshenv .gitconfig; do
+          missing=0
+          for file in .zshrc .zshenv .zprofile .gitconfig; do
             if [ -L ~/$file ]; then
-              echo "✓ ~/$file is a symlink -> $(readlink ~/$file)"
-            elif [ -e ~/$file ]; then
-              echo "✗ ~/$file exists but is not a symlink"
+              echo "✓ ~/$file -> $(readlink ~/$file)"
             else
-              echo "✗ ~/$file does not exist"
+              echo "✗ ~/$file is not a symlink"
+              ls -la ~/$file 2>&1 || true
+              missing=1
             fi
           done
+          exit $missing
 
       - name: Verify Homebrew environment
         run: |
@@ -184,7 +189,7 @@ jobs:
 
           # Try to load zsh config
           if [ -f ~/.zshrc ]; then
-            zsh -c "source ~/.zshenv 2>/dev/null; source ~/.zshrc && echo 'zsh config loaded successfully'" || echo "zsh config has errors but continuing"
+            zsh -c "source ~/.zshenv; source ~/.zshrc" && echo "zsh config loaded successfully"
           else
             echo "~/.zshrc not found"
             exit 1
@@ -230,7 +235,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Run Codespaces install
         run: bash install.sh --no-gui
@@ -251,7 +256,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Install stow
         run: sudo apt-get update && sudo apt-get install -y stow
@@ -277,40 +282,30 @@ jobs:
             exit 1
           fi
 
-      - name: Test stow dry-run from parent directory
+      - name: Test stow dry-run into $HOME
         run: |
-          cd ..
-          echo "Testing stow operations (dry-run) from parent directory..."
-          stow -n -v dotfiles 2>&1 | tee stow-output.log
-
-          # Check for conflicts
-          if grep -i "conflict" stow-output.log; then
-            echo "⚠️ Stow conflicts detected"
-            cat stow-output.log
+          # Use the repo as the stow dir explicitly; .stowrc is only read from the cwd
+          stow -n -v --dir="$GITHUB_WORKSPACE" --target="$HOME" . 2>&1 | tee stow-output.log
+          if grep -Eqi "conflict|cannot stow|not owned by stow" stow-output.log; then
+            echo "✗ Stow conflicts detected"
             exit 1
-          else
-            echo "✓ No stow conflicts detected"
           fi
+          echo "✓ No stow conflicts detected"
 
       - name: Test actual stow
         run: |
-          cd ..
-          # Actually create symlinks
-          stow -v dotfiles
+          stow -v --dir="$GITHUB_WORKSPACE" --target="$HOME" .
 
-          # Verify symlinks were created
-          echo "=== Verifying symlinks ==="
-          [ -L ~/.zshrc ] && echo "✓ .zshrc symlinked" || echo "✗ .zshrc not symlinked"
-          [ -L ~/.zshenv ] && echo "✓ .zshenv symlinked" || echo "✗ .zshenv not symlinked"
-          [ -L ~/.gitconfig ] && echo "✓ .gitconfig symlinked" || echo "✗ .gitconfig not symlinked"
-
-          # Check .config directory
-          if [ -L ~/.config ] || [ -d ~/.config ]; then
-            echo "✓ .config exists"
-            ls -la ~/.config/ | head -10
-          else
-            echo "✗ .config not found"
-          fi
+          missing=0
+          for path in .zshrc .zshenv .zprofile .gitconfig .config/zsh .config/nvim; do
+            if [ -L ~/$path ] || [ -L "$(dirname ~/$path)" ]; then
+              echo "✓ ~/$path linked"
+            else
+              echo "✗ ~/$path not linked"
+              missing=1
+            fi
+          done
+          exit $missing
 
       - name: Verify stow respects .stow-local-ignore
         run: |

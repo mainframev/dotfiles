@@ -3,7 +3,7 @@
 !/.github/
 !/.agents/
 !/.pi/
-/delta.gitconfig
+!/delta.gitconfig
 !.editorconfig
 !.stowrc
 !.stow-local-ignore
@@ -27,25 +27,23 @@
 !/.config/aerospace
 !/.config/alacritty
 !/.config/bat
-!/.config/bottom
 !/.config/brew/
 !/.config/btop
 !/.config/ccstatusline
-!/.config/claude/
 !/.config/gh
 !/.config/gh-dash
 !/.config/ghostty
 !/.config/herdr
-!/.config/install.sh
 !/.config/kitty
+!/.config/lazygit
 !/.config/nvim
 !/.config/opencode
-!/.config/sketchybar/
 !/.config/starship.toml
 !/.config/task
 !/.config/tmux
 !/.config/worktrunk
 !/.config/yazi
+!/.config/zed
 !/.config/zsh
 
 # ignored
@@ -66,7 +64,6 @@
 
 !/.zshenv
 !/.zshrc
-!/.claude.json
 !/.zprofile
 
 !/install.sh

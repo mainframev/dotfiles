@@ -1163,6 +1163,77 @@ if [ $SKILLS_ERRORS -gt 0 ]; then
 fi
 echo
 
+# Test 14: Full-repository stow with conflict backup and idempotent re-run
+echo -e "${BLUE}→ Checking full stow_dotfiles run into a temp home...${NC}"
+STOW_FULL_ERRORS=0
+if command_exists stow; then
+    STOW_FULL_REPO="$(pwd -P)"
+    STOW_FULL_HOME="$(mktemp -d "${TMPDIR:-/tmp}/stow-full-test.XXXXXX")"
+
+    stow_test13_prev_exit_trap="$(trap -p EXIT)"
+    stow_test13_prev_int_trap="$(trap -p INT)"
+    stow_test13_prev_term_trap="$(trap -p TERM)"
+    stow_test13_cleanup() {
+        rm -rf "$STOW_FULL_HOME"
+    }
+    trap stow_test13_cleanup EXIT INT TERM
+
+    # Unmanaged files at stowed paths, plus an unrelated file that must survive
+    mkdir -p "$STOW_FULL_HOME/.config/zsh" "$STOW_FULL_HOME/.config/nvim"
+    printf '%s\n' 'unmanaged zshrc' > "$STOW_FULL_HOME/.zshrc"
+    printf '%s\n' 'unmanaged aliases' > "$STOW_FULL_HOME/.config/zsh/aliases.zsh"
+    printf '%s\n' 'unrelated' > "$STOW_FULL_HOME/.config/nvim/unrelated.lua"
+
+    stow_full_run() {
+        HOME="$STOW_FULL_HOME" bash -c \
+            'source "$1"; DOTFILES="$2"; stow_dotfiles' \
+            _ "$STOW_FULL_REPO/install.sh" "$STOW_FULL_REPO" \
+            >"$STOW_FULL_HOME/$1.log" 2>&1
+    }
+
+    STOW_FULL_RESULT=0
+    stow_full_run run1 || STOW_FULL_RESULT=$?
+    STOW_FULL_BACKUP="$(find "$STOW_FULL_HOME" -maxdepth 1 -type d -name '.dotfiles-backup-*' -print -quit)"
+
+    if [ "$STOW_FULL_RESULT" -eq 0 ] &&
+       [ -n "$STOW_FULL_BACKUP" ] &&
+       grep -qx 'unmanaged zshrc' "$STOW_FULL_BACKUP/.zshrc" &&
+       grep -qx 'unmanaged aliases' "$STOW_FULL_BACKUP/.config/zsh/aliases.zsh" &&
+       [ -L "$STOW_FULL_HOME/.zshrc" ] &&
+       [ -L "$STOW_FULL_HOME/.config/zsh/aliases.zsh" ] &&
+       grep -qx 'unrelated' "$STOW_FULL_HOME/.config/nvim/unrelated.lua"; then
+        echo -e "${GREEN}✓ stow_dotfiles backs up conflicting files (keeping paths) and links the repo${NC}"
+    else
+        echo -e "${RED}✗ stow_dotfiles must back up every conflicting file and then stow (exit $STOW_FULL_RESULT)${NC}"
+        cat "$STOW_FULL_HOME/run1.log"
+        STOW_FULL_ERRORS=$((STOW_FULL_ERRORS + 1))
+    fi
+
+    STOW_FULL_RESULT=0
+    stow_full_run run2 || STOW_FULL_RESULT=$?
+    if [ "$STOW_FULL_RESULT" -eq 0 ] && ! grep -q 'Backed up' "$STOW_FULL_HOME/run2.log"; then
+        echo -e "${GREEN}✓ a second stow_dotfiles run is a no-op${NC}"
+    else
+        echo -e "${RED}✗ re-running stow_dotfiles must succeed without new backups (exit $STOW_FULL_RESULT)${NC}"
+        cat "$STOW_FULL_HOME/run2.log"
+        STOW_FULL_ERRORS=$((STOW_FULL_ERRORS + 1))
+    fi
+
+    stow_test13_cleanup
+    eval "${stow_test13_prev_exit_trap:-trap - EXIT}"
+    eval "${stow_test13_prev_int_trap:-trap - INT}"
+    eval "${stow_test13_prev_term_trap:-trap - TERM}"
+    unset -f stow_test13_cleanup stow_full_run
+else
+    echo -e "${YELLOW}⚠ stow not installed, skipping full stow check${NC}"
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+if [ $STOW_FULL_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + STOW_FULL_ERRORS))
+fi
+echo
+
 # Summary
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then

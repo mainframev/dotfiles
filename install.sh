@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -eo pipefail
 
 # Colors for output
 RED='\033[0;31m'
@@ -16,6 +16,8 @@ DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BREWFILE="$DOTFILES/.config/brew/Brewfile"
 NO_GUI=false
 IN_CODESPACES=false
+# One backup directory per run, created on first use (see ensure_backup_dir)
+BACKUP_DIR=""
 
 # Detect GitHub Codespaces
 if [ -n "$CODESPACES" ]; then
@@ -83,6 +85,32 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Create this run's backup directory once and reuse it
+ensure_backup_dir() {
+    if [ -z "$BACKUP_DIR" ]; then
+        BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+    fi
+    mkdir -p "$BACKUP_DIR"
+}
+
+# Download an installer script to a temp file, then run it with an interpreter.
+# Unlike `curl | sh` or `sh -c "$(curl ...)"`, a failed download is an error
+# instead of running an empty or truncated script.
+# Usage: run_remote_installer <url> <interpreter> [args...]
+run_remote_installer() {
+    local url="$1" interpreter="$2" script status=0
+    shift 2
+    script="$(mktemp)"
+    if ! curl -fsSL "$url" -o "$script"; then
+        rm -f "$script"
+        print_error "Failed to download $url"
+        return 1
+    fi
+    "$interpreter" "$script" "$@" || status=$?
+    rm -f "$script"
+    return "$status"
+}
+
 # Setup Codespaces-specific environment
 setup_codespaces_environment() {
     if [ "$IN_CODESPACES" != true ]; then
@@ -97,10 +125,6 @@ setup_codespaces_environment() {
         export USER
         print_info "Set USER=$USER"
     fi
-
-    # Enable passwordless sudo
-    export SUDO_ASKPASS=/bin/true
-    print_info "Enabled passwordless sudo"
 
     # Codespaces clones dotfiles to persisted share and symlinks them
     # We need to use the persisted share location for running install scripts
@@ -163,6 +187,17 @@ install_linux_homebrew_dependencies() {
 
 # Install Homebrew
 install_homebrew() {
+    # brew may be installed but not on PATH yet (fresh shell on Apple Silicon or Linux)
+    if ! command_exists brew; then
+        local brew_bin
+        for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+            if [ -x "$brew_bin" ]; then
+                eval "$("$brew_bin" shellenv)"
+                break
+            fi
+        done
+    fi
+
     if command_exists brew; then
         print_success "Homebrew already installed"
         return
@@ -172,7 +207,7 @@ install_homebrew() {
 
     case "$OS" in
         macos)
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            run_remote_installer https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh /bin/bash
 
             # Add Homebrew to PATH for this session
             if [ -d "/opt/homebrew" ]; then
@@ -183,9 +218,9 @@ install_homebrew() {
             ;;
         linux)
             if [ "$IN_CODESPACES" = true ]; then
-                NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                NONINTERACTIVE=1 run_remote_installer https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh /bin/bash
             else
-                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                run_remote_installer https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh /bin/bash
             fi
 
             if [ -d /home/linuxbrew/.linuxbrew ]; then
@@ -224,7 +259,7 @@ bootstrap_codespaces_homebrew() {
     fi
 
     while IFS= read -r formula; do
-        if [ -z "$formula" ] || printf '%s\n' "$formulae" | grep -Fxq "$formula"; then
+        if [ -z "$formula" ] || printf '%s\n' "$formulae" | grep -Fx -- "$formula" >/dev/null; then
             continue
         fi
         formulae+="${formulae:+$'\n'}$formula"
@@ -306,7 +341,9 @@ install_oh_my_zsh() {
     fi
 
     print_header "Installing oh-my-zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    # Keep the existing .zshrc (stow_dotfiles backs it up) and do not switch or start shells
+    KEEP_ZSHRC=yes RUNZSH=no CHSH=no \
+        run_remote_installer https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh sh --unattended
     print_success "oh-my-zsh installed"
 }
 
@@ -358,7 +395,7 @@ set_zsh_default() {
     ZSH_PATH="$(command -v zsh)"
 
     # Add zsh to /etc/shells if not present
-    if ! grep -q "$ZSH_PATH" /etc/shells 2>/dev/null; then
+    if ! grep -Fxq "$ZSH_PATH" /etc/shells 2>/dev/null; then
         echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
     fi
 
@@ -450,7 +487,7 @@ install_uv() {
     fi
 
     print_header "Installing UV..."
-    if curl -LsSf https://astral.sh/uv/install.sh | sh; then
+    if run_remote_installer https://astral.sh/uv/install.sh sh; then
         print_success "UV installed"
     else
         print_warning "UV installation failed (may not be available in this environment)"
@@ -465,7 +502,7 @@ install_opencode() {
     fi
 
     print_header "Installing OpenCode..."
-    if curl -fsSL https://opencode.ai/install | bash; then
+    if run_remote_installer https://opencode.ai/install bash; then
         print_success "OpenCode installed"
     else
         print_warning "OpenCode installation failed (may not be available in this environment)"
@@ -512,7 +549,7 @@ install_gh_extensions() {
         extension=$(echo "$extension" | xargs)
 
         # Check if already installed
-        if gh extension list 2>/dev/null | grep -q "$extension"; then
+        if gh extension list 2>/dev/null | grep -F -- "$extension" >/dev/null; then
             print_success "$extension already installed"
             skipped=$((skipped + 1))
         else
@@ -533,6 +570,16 @@ install_gh_extensions() {
     fi
 }
 
+# Print home-relative paths that would block stowing, one per line.
+# Parses `stow --no` conflict messages (GNU Stow 2.3 and 2.4 formats).
+stow_conflicts() {
+    stow --dir="$DOTFILES" --target="$HOME" --no --restow . 2>&1 | sed -n \
+        -e 's/^  \* cannot stow .* over existing target \(.*\) since .*/\1/p' \
+        -e 's/^  \* existing target is neither a link nor a directory: \(.*\)/\1/p' \
+        -e 's/^  \* existing target is not owned by stow: \(.*\)/\1/p' \
+        -e 's/^  \* existing target is stowed to a different package: \(.*\) => .*/\1/p' || true
+}
+
 # Stow dotfiles
 stow_dotfiles() {
     if ! command_exists stow; then
@@ -542,26 +589,22 @@ stow_dotfiles() {
 
     print_header "Stowing dotfiles..."
 
-    # Backup existing dotfiles that might conflict
-    local backup_dir
-    backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
-    local needs_backup=false
-
-    # Common dotfiles that might exist and aren't symlinks
-    local common_files=(".zshrc" ".zshenv" ".zprofile" ".gitconfig" ".tmux.conf" ".editorconfig" ".pi/agent/settings.json")
-
-    for file in "${common_files[@]}"; do
-        if [ -e "$HOME/$file" ] && [ ! -L "$HOME/$file" ]; then
-            if [ "$needs_backup" = false ]; then
-                mkdir -p "$backup_dir"
-                print_warning "Backing up existing dotfiles to $backup_dir"
-                needs_backup=true
-            fi
-            mkdir -p "$backup_dir/$(dirname "$file")"
-            mv "$HOME/$file" "$backup_dir/$file"
-            echo "  Backed up $file"
+    # Back up every unmanaged file stow would refuse to replace, keeping its path
+    local conflict backed_up=false
+    while IFS= read -r conflict; do
+        [ -n "$conflict" ] || continue
+        if [ ! -e "$HOME/$conflict" ] && [ ! -L "$HOME/$conflict" ]; then
+            continue
         fi
-    done
+        ensure_backup_dir
+        if [ "$backed_up" = false ]; then
+            print_warning "Backing up conflicting files to $BACKUP_DIR"
+            backed_up=true
+        fi
+        mkdir -p "$BACKUP_DIR/$(dirname "$conflict")"
+        mv "$HOME/$conflict" "$BACKUP_DIR/$conflict"
+        echo "  Backed up $conflict"
+    done < <(stow_conflicts)
 
     # Directories holding generated state next to managed files. Creating them
     # first stops Stow from folding them into symlinks into the repository.
@@ -573,16 +616,13 @@ stow_dotfiles() {
         fi
     done
 
-    # Unstow first (in case of previous installation)
-    stow --dir="$DOTFILES" --target="$HOME" -D . 2>/dev/null || true
-
-    # Stow the dotfiles directory with explicit flags
-    stow --dir="$DOTFILES" --target="$HOME" --verbose .
+    # Restow in one stow run: stale links are removed and new ones added together
+    stow --dir="$DOTFILES" --target="$HOME" --restow --verbose .
 
     print_success "Dotfiles stowed"
 
-    if [ "$needs_backup" = true ]; then
-        print_warning "Your original dotfiles have been backed up to: $backup_dir"
+    if [ "$backed_up" = true ]; then
+        print_warning "Your original dotfiles have been backed up to: $BACKUP_DIR"
     fi
 }
 
@@ -590,7 +630,6 @@ stow_dotfiles() {
 install_global_agents() {
     local source_file="$DOTFILES/GLOBAL_AGENTS.md"
     local target_file="$HOME/AGENTS.md"
-    local backup_dir
 
     if [ ! -f "$source_file" ]; then
         print_error "Global agent instructions not found: $source_file"
@@ -603,10 +642,9 @@ install_global_agents() {
     fi
 
     if [ -e "$target_file" ] || [ -L "$target_file" ]; then
-        backup_dir="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
-        mkdir -p "$backup_dir"
-        mv "$target_file" "$backup_dir/AGENTS.md"
-        print_warning "Backed up existing AGENTS.md to $backup_dir"
+        ensure_backup_dir
+        mv "$target_file" "$BACKUP_DIR/AGENTS.md"
+        print_warning "Backed up existing AGENTS.md to $BACKUP_DIR"
     fi
 
     ln -s "$source_file" "$target_file"

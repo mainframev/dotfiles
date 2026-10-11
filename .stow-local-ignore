@@ -20,11 +20,10 @@ _darcs
 .stowrc
 \.DS_Store
 ^/\.others
-^/install_deps.sh
 ^/install.sh
 ^/test.sh
 ^/\.github
-^/\.claude
+^/\.claude$
 ^/AGENTS\.md$
 ^/GLOBAL_AGENTS\.md$
 
