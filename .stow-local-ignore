@@ -24,6 +24,8 @@ _darcs
 ^/test.sh
 ^/\.github
 ^/\.claude$
+# Copilot CLI state; ~/.copilot must be a real directory, not a folded link
+^/\.copilot$
 ^/AGENTS\.md$
 ^/GLOBAL_AGENTS\.md$
 

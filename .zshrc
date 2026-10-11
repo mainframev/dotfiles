@@ -47,6 +47,10 @@ if [[ ":${PATH}:" != *":/Users/mainframev/.config/agency/CurrentVersion:"* ]]; t
 fi
 # END Agency MANAGED BLOCK
 
+# Non-login shells (launchd minimal PATH) still need /usr/local/bin for
+# Microsoft Git and Scalar; login shells get it from .zprofile.
+(( ${path[(Ie)/usr/local/bin]} )) || path=(/usr/local/bin $path)
+
 # pnpm
 if [[ -n $IS_MACOS ]]; then
   export PNPM_HOME="$HOME/Library/pnpm"

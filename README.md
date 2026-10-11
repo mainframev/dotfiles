@@ -49,7 +49,8 @@ The repository is public. Keep credentials and machine-specific settings out of 
   which writes through the symlink into this repository.
 - `.config/zsh/secrets.zsh`: secret `export`s. Gitignored, sourced from `.zshrc`
   when present. Create it with mode `600`.
-- `~/.copilot/settings.json`: Copilot CLI settings are not tracked.
+- `~/.copilot/`: Copilot CLI settings and state are not tracked or stowed.
+  `~/.copilot` must be a real directory, not a link into this repository.
 
 What I currently use:
 
