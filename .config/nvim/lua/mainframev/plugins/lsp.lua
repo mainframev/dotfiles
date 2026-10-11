@@ -3,6 +3,8 @@ return {
   "neovim/nvim-lspconfig",
   dependencies = {
     { "mason-org/mason.nvim", config = true },
+    -- maps lspconfig server names (e.g. pylsp) to mason packages for mason-tool-installer
+    "mason-org/mason-lspconfig.nvim",
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     "b0o/schemastore.nvim",
     "saghen/blink.cmp",
