@@ -1,7 +1,9 @@
 # Taps
+tap "anomalyco/tap", trusted: true
 tap "microsoft/git", trusted: true
 
 # CLI Tools
+brew "agent-browser"
 brew "azure-cli"
 brew "bash"
 brew "bat"
@@ -33,6 +35,8 @@ brew "man-db"
 brew "neomutt"
 brew "neovim"
 brew "node"
+brew "anomalyco/tap/opencode-v2"
+brew "pnpm"
 brew "postgresql"
 brew "prettierd"
 brew "pyenv"
@@ -45,8 +49,10 @@ brew "shellcheck"
 brew "sqlite3"
 brew "starship"
 brew "stow"
+brew "task"
 brew "tcl-tk"
 brew "tmux"
+brew "tree-sitter-cli"
 brew "wget"
 brew "worktrunk"
 brew "xz"
@@ -81,6 +87,7 @@ if OS.mac?
   brew "nowplaying-cli"
   brew "taproom"
   cask "font-sf-pro"
+  cask "git-credential-manager"
   cask "homebrew/cask/copilot-cli"
   cask "imageoptim"
   cask "keycastr"
