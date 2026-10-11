@@ -310,6 +310,36 @@ install_oh_my_zsh() {
     print_success "oh-my-zsh installed"
 }
 
+# Clone custom oh-my-zsh plugins. Keep in sync with github_plugins in
+# .config/zsh/oh-my-zsh.zsh (checked by test.sh).
+ZSH_GITHUB_PLUGINS=(
+    zsh-users/zsh-autosuggestions
+    zsh-users/zsh-syntax-highlighting
+    z-shell/zsh-eza
+    jeffreytse/zsh-vi-mode
+)
+
+install_zsh_plugins() {
+    if [ ! -d "$HOME/.oh-my-zsh" ]; then
+        print_warning "oh-my-zsh not installed, skipping zsh plugins"
+        return
+    fi
+
+    local plugins_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins"
+    local plugin name
+    mkdir -p "$plugins_dir"
+
+    for plugin in "${ZSH_GITHUB_PLUGINS[@]}"; do
+        name="${plugin#*/}"
+        if [ -d "$plugins_dir/$name" ]; then
+            print_success "zsh plugin $name already installed"
+            continue
+        fi
+        git clone --depth 1 --recursive "https://github.com/$plugin.git" "$plugins_dir/$name"
+        print_success "zsh plugin $name installed"
+    done
+}
+
 # Set zsh as default shell
 set_zsh_default() {
     if ! command_exists zsh; then
@@ -711,6 +741,7 @@ main() {
     install_gh_extensions
     set_zsh_default
     install_oh_my_zsh
+    install_zsh_plugins
     install_tpm
     install_uv
     install_opencode

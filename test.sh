@@ -107,6 +107,30 @@ else
 fi
 echo
 
+# Test 2b: zsh plugin lists stay in sync between install.sh and oh-my-zsh.zsh
+echo -e "${BLUE}→ Checking zsh plugin lists...${NC}"
+extract_plugin_list() {
+    # Print entries of the array named $2 in file $1, one per line
+    awk -v name="$2" '
+        $0 ~ "^[[:space:]]*" name "=\\(" { inside = 1; next }
+        inside && /^[[:space:]]*\)/ { exit }
+        inside { gsub(/[[:space:]]/, ""); if ($0 != "") print }
+    ' "$1"
+}
+INSTALL_PLUGINS=$(extract_plugin_list install.sh ZSH_GITHUB_PLUGINS)
+OMZ_PLUGINS=$(extract_plugin_list .config/zsh/oh-my-zsh.zsh github_plugins)
+if [ -n "$INSTALL_PLUGINS" ] && [ "$INSTALL_PLUGINS" = "$OMZ_PLUGINS" ]; then
+    echo -e "${GREEN}✓ install.sh and oh-my-zsh.zsh plugin lists match${NC}"
+else
+    echo -e "${RED}✗ zsh plugin lists differ between install.sh and .config/zsh/oh-my-zsh.zsh${NC}"
+    ERRORS=$((ERRORS + 1))
+fi
+if grep -q 'git clone' .config/zsh/oh-my-zsh.zsh; then
+    echo -e "${RED}✗ .config/zsh/oh-my-zsh.zsh must not clone plugins at shell startup${NC}"
+    ERRORS=$((ERRORS + 1))
+fi
+echo
+
 # Test 3: Git configuration
 echo -e "${BLUE}→ Checking git configuration...${NC}"
 if command_exists git; then

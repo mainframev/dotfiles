@@ -21,21 +21,21 @@ fifa() {
 # fzf and zoxide QOL functions
 zz() {
   local dir
-  dir=$(zoxide query -l | fzf) && z "$dir"
+  dir=$(zoxide query -l | fzf) && cd "$dir"
 }
 
 # with tree preview
 zfp() {
   local dir
-  dir=$(zoxide query -l | fzf --preview 'tree -CL 2 {}')
-  [ -n "$dir" ] && z "$dir" && ls -la
+  dir=$(zoxide query -l | fzf --preview 'eza --tree --level=2 --color=always {}')
+  [ -n "$dir" ] && cd "$dir" && ls -la
  }
 
 # recent dirs
 zr() {
   local dir
   dir=$(zoxide query -l | sort -k2 -rn | fzf)
-  [ -n "$dir" ] && z "$dir"
+  [ -n "$dir" ] && cd "$dir"
  }
 
 

@@ -1,24 +1,18 @@
+#!/usr/bin/env zsh
 
-#!/bin/env zsh
-
-# Disable auto-update checks
-zstyle ':omz:plugins:nvm' lazy yes
-
+# nvm/z/themes are not loaded: fnm and zoxide replace them and starship is the prompt.
 plugins=(
   git
   git-auto-fetch
-nvm
   sudo
-  themes
   encode64
   gh
-  z
   zsh-eza
   zsh-interactive-cd
 )
 
-# Auto-install custom plugins from GitHub if not present
-# This runs on shell startup and ensures all plugins are available
+# Custom plugins cloned by install.sh (install_zsh_plugins). Keep both lists in sync;
+# test.sh checks it. Missing plugins are skipped instead of cloned at startup.
 github_plugins=(
   zsh-users/zsh-autosuggestions
   zsh-users/zsh-syntax-highlighting
@@ -26,14 +20,9 @@ github_plugins=(
   jeffreytse/zsh-vi-mode
 )
 
-for plugin in $github_plugins; do
-  plugin_name=${plugin#*/}
-  # clone the plugin from github if it doesn't exist
-  if [[ ! -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name ]]; then
-    mkdir -p ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins
-    git clone --depth 1 --recursive https://github.com/$plugin.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/$plugin_name
-  fi
-done
+# Keep the completion dump out of $HOME.
+ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${HOST%%.*}-$ZSH_VERSION"
+[[ -d ${ZSH_COMPDUMP:h} ]] || mkdir -p ${ZSH_COMPDUMP:h}
 
 # Load oh-my-zsh FIRST (it runs compinit internally)
 source $ZSH/oh-my-zsh.sh
