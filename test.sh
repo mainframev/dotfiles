@@ -939,6 +939,99 @@ if [ $WORKTRUNK_ERRORS -gt 0 ]; then
 fi
 echo
 
+# Test 12: pi settings are linked without folding pi's state directory
+echo -e "${BLUE}→ Checking pi settings stow behavior...${NC}"
+PI_ERRORS=0
+
+if git check-ignore -q --no-index .pi/agent/settings.json; then
+    echo -e "${RED}✗ .pi/agent/settings.json must remain trackable${NC}"
+    PI_ERRORS=$((PI_ERRORS + 1))
+else
+    echo -e "${GREEN}✓ .pi/agent/settings.json is trackable${NC}"
+fi
+
+if git check-ignore -q --no-index .pi/agent/auth.json &&
+   git check-ignore -q --no-index .pi/agent/npm/package.json &&
+   git check-ignore -q --no-index .pi/tasks/task.json; then
+    echo -e "${GREEN}✓ pi credentials, packages, and project state are ignored${NC}"
+else
+    echo -e "${RED}✗ pi auth.json, npm/, and tasks/ must be ignored${NC}"
+    PI_ERRORS=$((PI_ERRORS + 1))
+fi
+
+if command_exists stow; then
+    PI_TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/pi-stow-test.XXXXXX")"
+    pi_test12_prev_exit_trap="$(trap -p EXIT)"
+    pi_test12_prev_int_trap="$(trap -p INT)"
+    pi_test12_prev_term_trap="$(trap -p TERM)"
+    pi_test12_cleanup() {
+        rm -rf "$PI_TEST_ROOT"
+    }
+    trap pi_test12_cleanup EXIT INT TERM
+
+    mkdir -p "$PI_TEST_ROOT/package/.pi/agent" "$PI_TEST_ROOT/package/.pi/tasks"
+    cp .stow-local-ignore "$PI_TEST_ROOT/package/.stow-local-ignore"
+    cp .pi/agent/settings.json "$PI_TEST_ROOT/package/.pi/agent/settings.json"
+    echo '{}' > "$PI_TEST_ROOT/package/.pi/tasks/task.json"
+
+    # Runs the real stow_dotfiles against an isolated HOME and package.
+    run_pi_stow_scenario() {
+        local home_dir="$1"
+        (
+            # shellcheck source=/dev/null
+            source ./install.sh
+            HOME="$home_dir"
+            # shellcheck disable=SC2034 # read by stow_dotfiles from install.sh
+            DOTFILES="$PI_TEST_ROOT/package"
+            stow_dotfiles
+        ) >"$home_dir.log" 2>&1
+    }
+
+    # Fresh machine: no ~/.pi yet.
+    PI_FRESH_HOME="$PI_TEST_ROOT/fresh"
+    mkdir -p "$PI_FRESH_HOME"
+    if run_pi_stow_scenario "$PI_FRESH_HOME" &&
+       [ -d "$PI_FRESH_HOME/.pi/agent" ] && [ ! -L "$PI_FRESH_HOME/.pi/agent" ] && [ ! -L "$PI_FRESH_HOME/.pi" ] &&
+       [ -L "$PI_FRESH_HOME/.pi/agent/settings.json" ] &&
+       [ ! -e "$PI_FRESH_HOME/.pi/tasks" ]; then
+        echo -e "${GREEN}✓ fresh install links pi settings.json and keeps ~/.pi/agent a real directory${NC}"
+    else
+        echo -e "${RED}✗ fresh install must link only .pi/agent/settings.json without folding ~/.pi/agent${NC}"
+        cat "$PI_FRESH_HOME.log"
+        PI_ERRORS=$((PI_ERRORS + 1))
+    fi
+
+    # Existing machine: unmanaged settings.json next to pi state.
+    PI_EXISTING_HOME="$PI_TEST_ROOT/existing"
+    mkdir -p "$PI_EXISTING_HOME/.pi/agent"
+    echo '{"unmanaged":true}' > "$PI_EXISTING_HOME/.pi/agent/settings.json"
+    echo '{"secret":"state"}' > "$PI_EXISTING_HOME/.pi/agent/auth.json"
+    if run_pi_stow_scenario "$PI_EXISTING_HOME" &&
+       [ -L "$PI_EXISTING_HOME/.pi/agent/settings.json" ] &&
+       grep -q '"secret"' "$PI_EXISTING_HOME/.pi/agent/auth.json" &&
+       grep -rqs '"unmanaged"' "$PI_EXISTING_HOME"/.dotfiles-backup-*/.pi/agent/settings.json; then
+        echo -e "${GREEN}✓ existing pi settings.json is backed up before linking, other pi state untouched${NC}"
+    else
+        echo -e "${RED}✗ existing pi settings.json must be backed up and pi state left untouched${NC}"
+        cat "$PI_EXISTING_HOME.log"
+        PI_ERRORS=$((PI_ERRORS + 1))
+    fi
+
+    pi_test12_cleanup
+    eval "${pi_test12_prev_exit_trap:-trap - EXIT}"
+    eval "${pi_test12_prev_int_trap:-trap - INT}"
+    eval "${pi_test12_prev_term_trap:-trap - TERM}"
+    unset -f pi_test12_cleanup run_pi_stow_scenario
+else
+    echo -e "${YELLOW}⚠ stow not installed, skipping pi stow check${NC}"
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+if [ $PI_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + PI_ERRORS))
+fi
+echo
+
 # Summary
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then

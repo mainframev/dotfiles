@@ -34,3 +34,6 @@ _darcs
 
 # Repo-only docs
 ^/\.config/herdr/README\.md$
+
+# Project-local pi state created when pi runs inside this repo
+^/\.pi/tasks$

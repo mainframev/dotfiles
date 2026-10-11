@@ -1,0 +1,30 @@
+{
+  "lastChangelogVersion": "1.1.0",
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-4-8",
+  "packages": [
+    "npm:pi-learning-workflow",
+    "npm:@pi-lab/webfetch",
+    "npm:pi-markdown-preview",
+    "npm:openwiki",
+    "npm:@dietrichgebert/ponytail",
+    "npm:pi-simplify",
+    "npm:@narumitw/pi-plan-mode",
+    "npm:composio-x-pi",
+    "npm:@juicesharp/rpiv-pi",
+    "npm:@tintinweb/pi-subagents",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:@juicesharp/rpiv-advisor",
+    "npm:@juicesharp/rpiv-i18n",
+    "npm:@juicesharp/rpiv-web-tools",
+    "npm:@juicesharp/rpiv-args",
+    "npm:@juicesharp/rpiv-workflow",
+    "npm:pi-lens",
+    "npm:@plannotator/pi-extension",
+    "npm:pi-background-tasks",
+    "npm:pi-powerline-footer",
+    "npm:pi-claude-bridge",
+    "npm:pi-vim"
+  ]
+}

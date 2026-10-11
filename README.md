@@ -25,6 +25,7 @@ What I currently use:
 - [Kitty](https://sw.kovidgoyal.net/kitty/) - Fast, feature-rich terminal emulator
 - [Neovim](https://neovim.io/) - Hyperextensible Vim-based text editor
 - [OpenCode](https://opencode.ai/) - AI coding assistant
+- [pi](https://github.com/earendil-works/pi) - Coding agent; only `~/.pi/agent/settings.json` is managed, and pi installs missing packages from it on startup
 - [Starship](https://starship.rs/) - Cross-shell prompt
 - [Tmux](https://github.com/tmux/tmux/wiki) - Terminal multiplexer
 - [Yazi](https://github.com/sxyazi/yazi) - Blazing fast terminal file manager

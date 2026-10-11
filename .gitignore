@@ -2,6 +2,7 @@
 !/.git[a-z]*
 !/.github/
 !/.copilot/
+!/.pi/
 /delta.gitconfig
 !.editorconfig
 !.stowrc
@@ -13,6 +14,11 @@
 
 /.copilot/*
 !/.copilot/settings.json
+
+/.pi/*
+!/.pi/agent/
+/.pi/agent/*
+!/.pi/agent/settings.json
 
 !/.config/
 /.config/*

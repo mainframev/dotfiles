@@ -512,7 +512,7 @@ stow_dotfiles() {
     local needs_backup=false
 
     # Common dotfiles that might exist and aren't symlinks
-    local common_files=(".zshrc" ".zshenv" ".zprofile" ".gitconfig" ".tmux.conf" ".editorconfig")
+    local common_files=(".zshrc" ".zshenv" ".zprofile" ".gitconfig" ".tmux.conf" ".editorconfig" ".pi/agent/settings.json")
 
     for file in "${common_files[@]}"; do
         if [ -e "$HOME/$file" ] && [ ! -L "$HOME/$file" ]; then
@@ -521,8 +521,19 @@ stow_dotfiles() {
                 print_warning "Backing up existing dotfiles to $backup_dir"
                 needs_backup=true
             fi
-            mv "$HOME/$file" "$backup_dir/"
+            mkdir -p "$backup_dir/$(dirname "$file")"
+            mv "$HOME/$file" "$backup_dir/$file"
             echo "  Backed up $file"
+        fi
+    done
+
+    # Directories holding generated state next to managed files. Creating them
+    # first stops Stow from folding them into symlinks into the repository.
+    local unfolded_dirs=(".pi/agent")
+
+    for dir in "${unfolded_dirs[@]}"; do
+        if [ ! -L "$HOME/$dir" ]; then
+            mkdir -p "$HOME/$dir"
         fi
     done
 
