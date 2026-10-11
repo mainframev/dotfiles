@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "github-copilot/claude-opus-4.8",
+  "model": "github-copilot/gpt-6-astra",
   "instructions": [
     "CONTRIBUTING.md",
     "docs/guidelines.md",
@@ -8,19 +8,23 @@
     "AGENTS.md",
     "*.instructions.md"
   ],
-  "small_model": "github-copilot/claude-opus-4.8-fast",
-  "autoupdate": true,
-  "plugin": [
-    "@franlol/opencode-md-table-formatter@latest",
+  "agents": {
+    "title": {
+      "model": "github-copilot/gpt-5.6-terra"
+    }
+  },
+  "update": "auto",
+  "plugins": [
     "@franlol/opencode-md-table-formatter@latest",
     "@mohak34/opencode-notifier@latest",
     "opencode-wakatime"
   ],
   "mcp": {
-    "fluent": {
-      "type": "remote",
-      "url": "https://chat.fluentui.dev/mcp/server"
+    "servers": {
+      "fluent": {
+        "type": "remote",
+        "url": "https://chat.fluentui.dev/mcp/server"
+      }
     }
-  },
-  "lsp": true
+  }
 }
