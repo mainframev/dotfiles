@@ -99,7 +99,7 @@ return {
                   enable = true,
                   minLines = 0,
                 },
-                closureCaptureHints = { enbale = true },
+                closureCaptureHints = { enable = true },
                 closureReturnTypeHints = { enable = "always" },
                 lifetimeElisionHints = {
                   enable = "skip_trivial",

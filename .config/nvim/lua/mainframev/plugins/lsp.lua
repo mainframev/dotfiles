@@ -135,6 +135,8 @@ return {
       "jq",
       "shellcheck",
       "black",
+      "isort",
+      "shfmt",
       "ruff",
       "hadolint",
     })

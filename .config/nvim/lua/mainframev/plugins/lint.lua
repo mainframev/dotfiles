@@ -23,12 +23,6 @@ return {
     }
 
     local eslint = lint.linters.eslint_d
-    local markdownlint = lint.linters["markdownlint-cli2"]
-
-    markdownlint.args = {
-      args = { "--config", os.getenv("HOME") .. "/mainframev/markdownlint.yaml", "--" },
-    }
-
     eslint.args = {
       -- "--no-warn-ignored",
       "--format",

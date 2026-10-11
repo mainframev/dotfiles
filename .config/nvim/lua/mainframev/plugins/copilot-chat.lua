@@ -8,7 +8,7 @@ return {
   build = "make tiktoken",
   event = "VeryLazy",
   opts = {
-    show_help = "no",
+    show_help = false,
     prompts = {
       Explain = "Explain how it works.",
       Review = "Review the following code and provide concise suggestions.",
@@ -20,27 +20,8 @@ return {
     { "<leader>ccb", "<cmd>CopilotChatOpen<cr>", desc = "CopilotChat - Buffer" },
     { "<leader>cce", "<cmd>CopilotChatExplain<cr>", desc = "CopilotChat - Explain code" },
     { "<leader>cct", "<cmd>CopilotChatTests<cr>", desc = "CopilotChat - Generate tests" },
-    {
-      "<leader>ccT",
-      "<cmd>CopilotChatVsplitToggle<cr>",
-      desc = "CopilotChat - Toggle Vsplit",
-    },
-    {
-      "<leader>ccv",
-      ":CopilotChatVisual",
-      mode = "x",
-      desc = "CopilotChat - Open in vertical split",
-    },
-    {
-      "<leader>ccc",
-      ":CopilotChatInPlace<cr>",
-      mode = { "n", "x" },
-      desc = "CopilotChat - Run in-place code",
-    },
-    {
-      "<leader>ccf",
-      "<cmd>CopilotChatFixDiagnostic<cr>",
-      desc = "CopilotChat - Fix diagnostic",
-    },
+    { "<leader>ccT", "<cmd>CopilotChatToggle<cr>", desc = "CopilotChat - Toggle" },
+    { "<leader>ccv", ":CopilotChat<cr>", mode = "x", desc = "CopilotChat - Chat about selection" },
+    { "<leader>ccf", "<cmd>CopilotChatFix<cr>", mode = { "n", "x" }, desc = "CopilotChat - Fix" },
   },
 }
