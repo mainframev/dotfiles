@@ -52,6 +52,9 @@
 /.config/herdr/release-notes.json
 /.config/herdr/plugins.json
 /.config/herdr/plugins/github/
+/.config/herdr/.plugins.lock
+/.config/herdr/herdr.sock.agent
+/.config/herdr/session-snapshots/
 /.config/opencode/opencode-notifier-state.json
 /.config/copilot/permissions-config.json
 /.config/copilot/config.json
