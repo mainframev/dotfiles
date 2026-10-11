@@ -8,6 +8,9 @@ shell_mode = "login"
 name = "rose-pine"
 auto_switch = false
 
+[theme.custom]
+panel_bg = "reset"
+
 [update]
 channel = "stable"
 version_check = true
@@ -22,9 +25,7 @@ open_notification_target = "prefix+o"
 workspace_picker = "prefix+w"
 goto = "prefix+g"
 new_workspace = "prefix+ctrl+c"
-# new_worktree = "prefix+shift+g"
-open_worktree = "prefix+shift+o"
-# remove_worktree = "prefix+shift+q"
+open_worktree = "prefix+ctrl+g"
 rename_workspace = "prefix+ctrl+r"
 previous_workspace = "prefix+ctrl+["
 next_workspace = "prefix+ctrl+]"
@@ -57,6 +58,14 @@ navigate_pane_down = "j"
 navigate_pane_up = "k"
 navigate_pane_right = "l"
 
+# Keymap conventions (run `herdr config check` after changes):
+#   prefix+<k>       current tab/pane, most frequent actions
+#   prefix+ctrl+<k>  workspace/worktree scope
+#   prefix+shift+<k> bigger/destructive variant of the plain key
+#   plugins: one home letter each, variants on shift/ctrl of that letter
+#   avoid: prefix+ctrl+s (prefix itself), ctrl+i/m/[/h (tab/enter/esc/backspace)
+
+# Worktrunk (g): worktrees
 [[keys.command]]
 key = "prefix+shift+g"
 type = "plugin_action"
@@ -69,11 +78,81 @@ type = "plugin_action"
 command = "worktrunk.remove"
 description = "Worktree: remove"
 
+# herdr-nvim (n)
 [[keys.command]]
-key = "prefix+shift+e"
+key = "prefix+n"
 type = "plugin_action"
-command = "persiyanov.reviewr.toggle"
-description = "Reviewr: toggle"
+command = "chmarax.herdr-nvim.toggle"
+description = "nvim sidebar"
+
+[[keys.command]]
+key = "prefix+shift+n"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.pick-file"
+description = "open file from agent output"
+
+# Annotate (a, m): terminal annotations
+[[keys.command]]
+key = "prefix+a"
+type = "plugin_action"
+command = "annotate.capture"
+description = "annotate text"
+
+[[keys.command]]
+key = "prefix+shift+a"
+type = "plugin_action"
+command = "annotate.copy-context"
+description = "copy annotations as context"
+
+[[keys.command]]
+key = "prefix+ctrl+a"
+type = "plugin_action"
+command = "annotate.copy-archive"
+description = "copy annotations as context and archive them"
+
+[[keys.command]]
+key = "prefix+ctrl+v"
+type = "plugin_action"
+command = "annotate.paste-archive"
+description = "paste annotations into the agent's prompt and archive them"
+
+[[keys.command]]
+key = "prefix+m"
+type = "plugin_action"
+command = "annotate.manage"
+description = "manage annotations"
+
+[[keys.command]]
+key = "prefix+shift+m"
+type = "plugin_action"
+command = "annotate.send-archive"
+description = "send annotations to the agent and archive them"
+
+# Annotate review via plannotator (f)
+[[keys.command]]
+key = "prefix+f"
+type = "plugin_action"
+command = "annotate.open"
+description = "review documents in this folder"
+
+[[keys.command]]
+key = "prefix+shift+f"
+type = "plugin_action"
+command = "annotate.last"
+description = "review the agent's last reply"
+
+[[keys.command]]
+key = "prefix+ctrl+f"
+type = "plugin_action"
+command = "annotate.last-newest"
+description = "review the agent's newest reply"
+
+# Plugin manager (p)
+[[keys.command]]
+key = "prefix+p"
+type = "plugin_action"
+command = "ray.plugin-manager.open"
+description = "open plugin manager"
 
 [ui]
 sidebar_collapsed_mode = "compact"
@@ -84,6 +163,7 @@ pane_gaps = true
 show_agent_labels_on_pane_borders = true
 sidebar_start_collapsed = true
 
+agent_panel_sort = "priority"
 [ui.toast]
 delivery = "terminal"
 
