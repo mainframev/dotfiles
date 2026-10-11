@@ -4,20 +4,59 @@
     "http://localhost",
     "http://localhost:*",
     "https://localhost",
-    "https://localhost:*"
+    "https://localhost:*",
+    "http://localhost:6006",
+    "https://raw.githubusercontent.com",
+    "https://api.github.com",
+    "https://spsprodwus21.vssps.visualstudio.com",
+    "https://apps.1js.microsoft.com",
+    "http://localhost:58952",
+    "https://github.com",
+    "https://playwright.dev",
+    "https://react.dev",
+    "https://opencode.ai"
   ],
   "companyAnnouncements": [
     "GPT-5.6 Sol, Terra, and Luna are now available in Copilot CLI. Try them from the model picker.",
-    "Need help with Agency? Run `agency support` or join the support community: https://aka.ms/agency/support"
+    "Need help with Agency? In a local Agency session, use `/agency:agency-support`; otherwise run `agency support` or join the support community: https://aka.ms/agency/support",
+    "Monthly limits are in place. Burst limit increases and guidance are available at https://aka.ms/copilot/burst"
   ],
   "enabledPlugins": {
     "azure@awesome-copilot": true,
     "figma@awesome-copilot": true,
     "microsoft-docs@awesome-copilot": true,
     "rust-mcp-development@awesome-copilot": true,
-    "software-engineering-team@awesome-copilot": true
+    "software-engineering-team@awesome-copilot": true,
+    "workiq@copilot-plugins": true,
+    "ado-pr-tools@agency-playground": true,
+    "ado-pr-review@agency-playground": true,
+    "workiq-productivity@copilot-plugins": true,
+    "accessibility-kanban@awesome-copilot": true,
+    "git-worktree-explorer@awesome-copilot": true,
+    "agency-gh-app-extensions@agency": true,
+    "azure-devops-copilot-plugin@copilot-plugins": true
   },
-  "extraKnownMarketplaces": {},
+  "extraKnownMarketplaces": {
+    "agency": {
+      "source": {
+        "source": "github",
+        "repo": "agency-microsoft/.github-private"
+      }
+    },
+    "copilot-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "github/copilot-plugins"
+      },
+      "autoUpdate": true
+    },
+    "plannotator": {
+      "source": {
+        "source": "github",
+        "repo": "backnotprop/plannotator"
+      }
+    }
+  },
   "hooks": {
     "sessionStart": [
       {
@@ -30,54 +69,54 @@
   },
   "includeCoAuthoredBy": false,
   "logLevel": "all",
-  "model": "gpt-5.6-sol",
+  "model": "gpt-6-astra",
   "subagents": {
     "agents": {
       "code-review": {
         "contextTier": "default",
         "effortLevel": "medium",
-        "model": "gpt-5.6-sol"
+        "model": "gpt-6-sol"
       },
       "explore": {
         "contextTier": "default",
         "effortLevel": "medium",
-        "model": "gpt-5.6-sol"
+        "model": "gpt-6-sol"
       },
       "general-purpose": {
         "contextTier": "default",
         "effortLevel": "medium",
-        "model": "gpt-5.6-sol"
+        "model": "gpt-6-sol"
       },
       "research": {
         "contextTier": "default",
         "effortLevel": "medium",
-        "model": "gpt-5.6-sol"
+        "model": "gpt-6-sol"
       },
       "rubber-duck": {
         "autoInvoke": true,
         "contextTier": "default",
         "effortLevel": "medium",
-        "model": "claude-opus-4.8"
+        "model": "gpt-6-sol"
       },
       "security-review": {
         "contextTier": "default",
         "effortLevel": "medium",
-        "model": "gpt-5.6-sol"
+        "model": "gpt-6-sol"
       },
       "software-engineering-team:se-system-architecture-reviewer": {
         "contextTier": "default",
         "effortLevel": "medium",
-        "model": "gpt-5.6-sol"
+        "model": "gpt-6-sol"
       },
       "software-engineering-team:se-ux-ui-designer": {
         "contextTier": "default",
         "effortLevel": "medium",
-        "model": "gpt-5.6-sol"
+        "model": "gpt-6-sol"
       },
       "task": {
         "contextTier": "default",
         "effortLevel": "medium",
-        "model": "gpt-5.6-sol"
+        "model": "gpt-6-sol"
       }
     }
   },
