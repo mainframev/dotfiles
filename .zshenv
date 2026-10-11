@@ -28,7 +28,6 @@ esac
 path=(
   $HOME/.local/bin
   $HOME/.cargo/bin
-  $HOME/.opencode/bin
   $path
 )
 
