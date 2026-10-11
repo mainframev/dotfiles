@@ -3,10 +3,18 @@
 [user]
 	name = mainframev
 	email = vgenaev@gmail.com
-  color = auto
   signingKey = ~/.ssh/id_rsa_personal.pub
 [push]
 	default = current
+  autoSetupRemote = true
+[pull]
+  rebase = true
+[fetch]
+  prune = true
+[rerere]
+  enabled = true
+[branch]
+  sort = -committerdate
 [core]
 	editor = nvim
 	sparseCheckout = true
@@ -15,6 +23,8 @@
 	multiPackIndex = true
 [rebase]
 	autosquash = true
+  autoStash = true
+  updateRefs = true
 [interactive]
   diffFilter = delta --color-only
 [github]
@@ -28,6 +38,7 @@
   features = mantis-shrimp-lite
 [diff]
   colorMoved = default
+  algorithm = histogram
 [difftool]
   prompt = true
 [difftool "nvimdiff"]
