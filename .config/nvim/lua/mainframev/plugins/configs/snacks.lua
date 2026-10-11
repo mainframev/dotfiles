@@ -199,7 +199,7 @@ M.keys = {
   -- stylua: ignore
   { "gD", function() Snacks.picker.lsp_declarations() end, desc = "Goto Declaration" },
   -- stylua: ignore
-  { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
+  { "grr", function() Snacks.picker.lsp_references() end, desc = "References" },
   -- stylua: ignore
   { "gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation" },
   -- stylua: ignore
