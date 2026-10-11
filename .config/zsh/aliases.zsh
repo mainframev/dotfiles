@@ -54,7 +54,6 @@ alias wtm='wt merge'
 alias wtr='wt remove'
 alias wts='wt switch'
 alias y='yarn'
-alias gasc='$(brew --prefix)/bin/gc'
 
 memtop() {
   local width=${COLUMNS:-$(tput cols 2>/dev/null || echo 120)}
