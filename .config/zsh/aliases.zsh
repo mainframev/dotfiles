@@ -3,7 +3,8 @@
 # own aliases
 alias ai='opencode'
 alias bip='taproom'
-alias cl="clear -x"
+alias cl='clear -x'
+alias cc='claude'
 alias cpp='copilot --mode plan'
 alias cppy='copilot --yolo --mode plan'
 alias ggf='gpf'
@@ -53,6 +54,7 @@ alias wtm='wt merge'
 alias wtr='wt remove'
 alias wts='wt switch'
 alias y='yarn'
+alias gasc='$(brew --prefix)/bin/gc'
 
 memtop() {
   local width=${COLUMNS:-$(tput cols 2>/dev/null || echo 120)}
