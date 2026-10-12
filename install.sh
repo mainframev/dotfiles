@@ -365,7 +365,13 @@ install_brew_packages() {
         print_success "Linux CLI packages installed"
     elif [ "$NO_GUI" = true ]; then
         print_header "Installing CLI packages only (skipping GUI applications)..."
-        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_BUNDLE_CASK_SKIP=1 brew bundle --jobs=1 --file="$BREWFILE"; then
+        local casks
+        # HOMEBREW_BUNDLE_CASK_SKIP takes space-separated cask names, not a boolean
+        if ! casks="$(brew bundle list --cask --file="$BREWFILE")"; then
+            print_error "Could not read casks from Brewfile: $BREWFILE"
+            return 1
+        fi
+        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_BUNDLE_CASK_SKIP="${casks//$'\n'/ }" brew bundle --jobs=1 --file="$BREWFILE"; then
             print_error "Homebrew failed to install CLI packages from: $BREWFILE"
             return 1
         fi
