@@ -12,6 +12,19 @@ My dotfiles managed with [STOW](https://www.gnu.org/software/stow/)
   `$HOME/worktrees/<repository>/<sanitized-branch>`. The user chooses whether
   formal SDD uses OpenSpec or no formal framework.
 
+## Agent skills
+
+- `.agents/skills/` holds skills shared by every coding agent. Stow links each
+  one into `$HOME/.agents/skills/`, the same directory the
+  [skills CLI](https://github.com/vercel-labs/skills) installs into, so
+  `install.sh` keeps that directory real instead of folding it into the repo.
+- Harness directories point at the shared copy: `.config/opencode/skills/`
+  carries a tracked symlink, and `~/.claude/skills/`, `~/.codex/skills/` and
+  `~/.copilot/skills/` get one via
+  `ln -s ../../.agents/skills/<name> ~/<harness>/skills/<name>`.
+- `paranoid-review` is an adversarial, evidence-first code review that reports
+  only verified defects and lists unproven concerns separately.
+
 What I currently use:
 
 - [Aerospace](https://nikitabobko.github.io/AeroSpace/guide) - Tiling window manager for macOS

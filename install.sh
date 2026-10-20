@@ -535,7 +535,7 @@ stow_dotfiles() {
 
     # Directories holding generated state next to managed files. Creating them
     # first stops Stow from folding them into symlinks into the repository.
-    local unfolded_dirs=(".pi/agent")
+    local unfolded_dirs=(".pi/agent" ".agents/skills")
 
     for dir in "${unfolded_dirs[@]}"; do
         if [ ! -L "$HOME/$dir" ]; then

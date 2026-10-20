@@ -1032,6 +1032,113 @@ if [ $PI_ERRORS -gt 0 ]; then
 fi
 echo
 
+# Test 13: shared agent skills are linked without folding ~/.agents/skills
+echo -e "${BLUE}→ Checking shared agent skills stow behavior...${NC}"
+SKILLS_ERRORS=0
+
+if git check-ignore -q --no-index .agents/skills/paranoid-review/SKILL.md; then
+    echo -e "${RED}✗ .agents/skills/paranoid-review/SKILL.md must remain trackable${NC}"
+    SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+else
+    echo -e "${GREEN}✓ .agents/skills/paranoid-review/SKILL.md is trackable${NC}"
+fi
+
+if git check-ignore -q --no-index .agents/.skill-lock.json; then
+    echo -e "${GREEN}✓ skills CLI lockfile under .agents is ignored${NC}"
+else
+    echo -e "${RED}✗ .agents/.skill-lock.json must be ignored${NC}"
+    SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+fi
+
+if grep -q '^    local unfolded_dirs=(.*"\.agents/skills".*)$' install.sh; then
+    echo -e "${GREEN}✓ install.sh keeps ~/.agents/skills a real directory${NC}"
+else
+    echo -e "${RED}✗ install.sh must list .agents/skills in unfolded_dirs${NC}"
+    SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+fi
+
+if [ -L ".config/opencode/skills/paranoid-review" ] && [ -f ".config/opencode/skills/paranoid-review/SKILL.md" ]; then
+    echo -e "${GREEN}✓ opencode paranoid-review skill links to the shared skill${NC}"
+else
+    echo -e "${RED}✗ .config/opencode/skills/paranoid-review must be a symlink to .agents/skills/paranoid-review${NC}"
+    SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+fi
+
+if command_exists stow; then
+    SKILLS_TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/skills-stow-test.XXXXXX")"
+    skills_test13_prev_exit_trap="$(trap -p EXIT)"
+    skills_test13_prev_int_trap="$(trap -p INT)"
+    skills_test13_prev_term_trap="$(trap -p TERM)"
+    skills_test13_cleanup() {
+        rm -rf "$SKILLS_TEST_ROOT"
+    }
+    trap skills_test13_cleanup EXIT INT TERM
+
+    mkdir -p "$SKILLS_TEST_ROOT/package/.agents/skills/paranoid-review"
+    cp .stow-local-ignore "$SKILLS_TEST_ROOT/package/.stow-local-ignore"
+    cp .agents/skills/paranoid-review/SKILL.md "$SKILLS_TEST_ROOT/package/.agents/skills/paranoid-review/SKILL.md"
+
+    # Runs the real stow_dotfiles against an isolated HOME and package.
+    run_skills_stow_scenario() {
+        local home_dir="$1"
+        (
+            # shellcheck source=/dev/null
+            source ./install.sh
+            HOME="$home_dir"
+            # shellcheck disable=SC2034 # read by stow_dotfiles from install.sh
+            DOTFILES="$SKILLS_TEST_ROOT/package"
+            stow_dotfiles
+        ) >"$home_dir.log" 2>&1
+    }
+
+    # Fresh machine: no ~/.agents yet. The skills CLI must later be able to
+    # install into ~/.agents/skills without writing into the repository.
+    SKILLS_FRESH_HOME="$SKILLS_TEST_ROOT/fresh"
+    mkdir -p "$SKILLS_FRESH_HOME"
+    if run_skills_stow_scenario "$SKILLS_FRESH_HOME" &&
+       [ -d "$SKILLS_FRESH_HOME/.agents/skills" ] && [ ! -L "$SKILLS_FRESH_HOME/.agents/skills" ] && [ ! -L "$SKILLS_FRESH_HOME/.agents" ] &&
+       [ -L "$SKILLS_FRESH_HOME/.agents/skills/paranoid-review" ] &&
+       [ -f "$SKILLS_FRESH_HOME/.agents/skills/paranoid-review/SKILL.md" ]; then
+        echo -e "${GREEN}✓ fresh install links paranoid-review and keeps ~/.agents/skills a real directory${NC}"
+    else
+        echo -e "${RED}✗ fresh install must link .agents/skills/paranoid-review without folding ~/.agents/skills${NC}"
+        cat "$SKILLS_FRESH_HOME.log"
+        SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    fi
+
+    # Existing machine: skills CLI already installed other skills and a lockfile.
+    SKILLS_EXISTING_HOME="$SKILLS_TEST_ROOT/existing"
+    mkdir -p "$SKILLS_EXISTING_HOME/.agents/skills/other-skill"
+    echo '{"version":3}' > "$SKILLS_EXISTING_HOME/.agents/.skill-lock.json"
+    echo 'existing' > "$SKILLS_EXISTING_HOME/.agents/skills/other-skill/SKILL.md"
+    if run_skills_stow_scenario "$SKILLS_EXISTING_HOME" &&
+       [ -L "$SKILLS_EXISTING_HOME/.agents/skills/paranoid-review" ] &&
+       [ -f "$SKILLS_EXISTING_HOME/.agents/skills/paranoid-review/SKILL.md" ] &&
+       [ ! -L "$SKILLS_EXISTING_HOME/.agents/skills/other-skill" ] &&
+       [ "$(cat "$SKILLS_EXISTING_HOME/.agents/skills/other-skill/SKILL.md")" = "existing" ] &&
+       [ "$(cat "$SKILLS_EXISTING_HOME/.agents/.skill-lock.json")" = '{"version":3}' ]; then
+        echo -e "${GREEN}✓ existing install adds paranoid-review and leaves other skills and the lockfile untouched${NC}"
+    else
+        echo -e "${RED}✗ existing install must add only paranoid-review next to skills CLI state${NC}"
+        cat "$SKILLS_EXISTING_HOME.log"
+        SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    fi
+
+    skills_test13_cleanup
+    eval "${skills_test13_prev_exit_trap:-trap - EXIT}"
+    eval "${skills_test13_prev_int_trap:-trap - INT}"
+    eval "${skills_test13_prev_term_trap:-trap - TERM}"
+    unset -f skills_test13_cleanup run_skills_stow_scenario
+else
+    echo -e "${YELLOW}⚠ stow not installed, skipping shared skills stow check${NC}"
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+if [ $SKILLS_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + SKILLS_ERRORS))
+fi
+echo
+
 # Summary
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then

@@ -1,6 +1,7 @@
 /*
 !/.git[a-z]*
 !/.github/
+!/.agents/
 !/.copilot/
 !/.pi/
 /delta.gitconfig
@@ -11,6 +12,9 @@
 !/test.sh
 !/AGENTS.md
 !/GLOBAL_AGENTS.md
+
+/.agents/*
+!/.agents/skills/
 
 /.copilot/*
 !/.copilot/settings.json
