@@ -70,19 +70,6 @@ into `common/` or `macos/`, and drops dangling folded Stow links such as
 before deleting it from the repository, or `dotstate doctor` keeps reporting its
 dangling link.
 
-## Local, untracked files
-
-The repository is public. Keep credentials and machine-specific settings out of it:
-
-- `~/.gitconfig.local`: credential helpers, work tenants and `scalar`/`maintenance`
-  repos. `.gitconfig` includes it last, so it overrides tracked settings. Use
-  `git config --file ~/.gitconfig.local ...` instead of `git config --global`,
-  which writes through the symlink into this repository.
-- `common/.config/zsh/secrets.zsh`: secret `export`s. Gitignored, sourced from `.zshrc`
-  when present. Create it with mode `600`.
-- `~/.copilot/`: Copilot CLI settings and state are not tracked or linked.
-  `~/.copilot` must be a real directory, not a link into this repository.
-
 What I currently use:
 
 - [Aerospace](https://nikitabobko.github.io/AeroSpace/guide) - Tiling window manager for macOS
