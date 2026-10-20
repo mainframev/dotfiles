@@ -773,7 +773,13 @@ manifest_entries() {
         /^\[common\]/ { dir = "common"; next }
         /^\[\[profiles\]\]/ { dir = ""; next }
         dir == "" && /^name = "/ { dir = $3; gsub(/"/, "", dir); next }
-        /^synced_files = \[/ { inside = 1; if ($0 ~ /\]$/) inside = 0; next }
+        /^synced_files = \[.*\]$/ {
+            line = $0; sub(/^[^[]*\[/, "", line); sub(/\][[:space:]]*$/, "", line)
+            n = split(line, items, ",")
+            for (i = 1; i <= n; i++) { gsub(/[[:space:]"]/, "", items[i]); if (items[i] != "") print dir, items[i] }
+            next
+        }
+        /^synced_files = \[/ { inside = 1; next }
         inside && /^\]/ { inside = 0; next }
         inside { gsub(/[[:space:]",]/, ""); if ($0 != "") print dir, $0 }
     ' "$MANIFEST"
@@ -949,6 +955,47 @@ if command_exists dotstate; then
     else
         echo -e "${RED}✗ link_dotfiles must link only common configs for the linux profile (exit $LINK_RESULT)${NC}"
         cat "$LINK_LINUX_HOME.run1.log"
+        LINK_ERRORS=$((LINK_ERRORS + 1))
+    fi
+
+    # Existing machine pulling a new layout: a clone of this checkout, with
+    # untracked state left at a pre-dotstate path and a manifest entry added
+    # after the first link
+    LINK_CLONE="$LINK_TEST_ROOT/repo"
+    LINK_PULL_HOME="$LINK_TEST_ROOT/pull"
+    mkdir -p "$LINK_PULL_HOME"
+    git clone -q "$LINK_REPO" "$LINK_CLONE"
+    git -C "$LINK_CLONE" checkout -q "$(git rev-parse HEAD)"
+    cp install.sh "$LINK_CLONE/install.sh"
+    mkdir -p "$LINK_CLONE/.config/zsh"
+    printf '%s\n' 'export LEGACY=1' > "$LINK_CLONE/.config/zsh/secrets.zsh"
+
+    LINK_RESULT=0
+    LINK_REPO="$LINK_CLONE" link_run "$LINK_PULL_HOME" linux run1 || LINK_RESULT=$?
+    if [ "$LINK_RESULT" -eq 0 ] &&
+       [ ! -e "$LINK_CLONE/.config" ] &&
+       grep -qx 'export LEGACY=1' "$LINK_PULL_HOME/.config/zsh/secrets.zsh"; then
+        echo -e "${GREEN}✓ untracked state at pre-dotstate paths moves into the linked directory${NC}"
+    else
+        echo -e "${RED}✗ link_dotfiles must move .config/zsh/secrets.zsh into common/ (exit $LINK_RESULT)${NC}"
+        cat "$LINK_PULL_HOME.run1.log"
+        LINK_ERRORS=$((LINK_ERRORS + 1))
+    fi
+
+    mkdir -p "$LINK_CLONE/common/.config/newtool"
+    echo 'new' > "$LINK_CLONE/common/.config/newtool/config"
+    awk '{ print } /^    "\.config\/zsh",$/ { print "    \".config/newtool\"," }' \
+        "$LINK_CLONE/.dotstate-profiles.toml" > "$LINK_CLONE/manifest.new"
+    mv "$LINK_CLONE/manifest.new" "$LINK_CLONE/.dotstate-profiles.toml"
+    LINK_RESULT=0
+    LINK_REPO="$LINK_CLONE" link_run "$LINK_PULL_HOME" linux run2 || LINK_RESULT=$?
+    if [ "$LINK_RESULT" -eq 0 ] &&
+       [ "$(readlink "$LINK_PULL_HOME/.config/newtool")" = "$LINK_CLONE/common/.config/newtool" ] &&
+       ! grep -q 'still reports errors' "$LINK_PULL_HOME.run2.log"; then
+        echo -e "${GREEN}✓ re-running link_dotfiles links paths added to the manifest${NC}"
+    else
+        echo -e "${RED}✗ link_dotfiles must link a newly added manifest entry on re-run (exit $LINK_RESULT)${NC}"
+        cat "$LINK_PULL_HOME.run2.log"
         LINK_ERRORS=$((LINK_ERRORS + 1))
     fi
 

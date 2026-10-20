@@ -16,8 +16,11 @@ DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BREWFILE="$DOTFILES/common/.config/brew/Brewfile"
 NO_GUI=false
 IN_CODESPACES=false
-# dotstate release installed on Linux, where its Homebrew tap has no binaries
+# dotstate release installed on Linux, where its Homebrew tap has no binaries.
+# Checksums are pinned here so a replaced release asset is rejected.
 DOTSTATE_VERSION="0.4.1"
+DOTSTATE_SHA256_X86_64="310e06346f365defe69f8fc9207563618a27fc91bf5cfae276003a6c602fa506"
+DOTSTATE_SHA256_AARCH64="85adcb113a1b57e91f5cd9eb25ab54a9ffeebecf9ca5d84025a4471a4030ce39"
 
 # Detect GitHub Codespaces
 if [ -n "$CODESPACES" ]; then
@@ -574,10 +577,10 @@ install_dotstate() {
         return 1
     fi
 
-    local arch
+    local arch expected
     case "$(uname -m)" in
-        x86_64) arch="x86_64" ;;
-        aarch64|arm64) arch="aarch64" ;;
+        x86_64) arch="x86_64"; expected="$DOTSTATE_SHA256_X86_64" ;;
+        aarch64|arm64) arch="aarch64"; expected="$DOTSTATE_SHA256_AARCH64" ;;
         *)
             print_error "No dotstate release for architecture: $(uname -m)"
             return 1
@@ -588,18 +591,17 @@ install_dotstate() {
 
     local asset="dotstate-$arch-unknown-linux-musl.tar.gz"
     local url="https://github.com/serkanyersen/dotstate/releases/download/v$DOTSTATE_VERSION/$asset"
-    local tmp expected actual
+    local tmp actual
     tmp="$(mktemp -d)"
 
-    if ! curl -fsSL "$url" -o "$tmp/$asset" || ! curl -fsSL "$url.sha256" -o "$tmp/$asset.sha256"; then
+    if ! curl -fsSL "$url" -o "$tmp/$asset"; then
         rm -rf "$tmp"
         print_error "Failed to download $url"
         return 1
     fi
 
-    expected="$(awk '{print $1}' "$tmp/$asset.sha256")"
     actual="$(sha256sum "$tmp/$asset" | awk '{print $1}')"
-    if [ -z "$expected" ] || [ "$expected" != "$actual" ]; then
+    if [ "$expected" != "$actual" ]; then
         rm -rf "$tmp"
         print_error "Checksum mismatch for $asset"
         return 1
@@ -618,6 +620,67 @@ install_dotstate() {
     print_success "dotstate installed to ~/.local/bin"
 }
 
+# Move untracked state left at pre-dotstate paths (e.g. .config/zsh/secrets.zsh,
+# herdr sessions, tmux plugins) into the common/ or macos/ directory that is now
+# linked in its place. Apps the manifest does not link (no such directory under
+# common/ or a profile) stay put.
+migrate_legacy_state() {
+    [ -d "$DOTFILES/.config" ] || return 0
+
+    local app dir
+    for app in "$DOTFILES"/.config/*/; do
+        app="$(basename "$app")"
+        for dir in common macos linux; do
+            if [ -d "$DOTFILES/$dir/.config/$app" ]; then
+                merge_legacy_dir "$DOTFILES/.config/$app" "$DOTFILES/$dir/.config/$app" ".config/$app"
+                break
+            fi
+        done
+    done
+
+    find "$DOTFILES/.config" -depth -type d -empty -delete
+}
+
+# Move every entry of $1 into $2 without replacing anything already there.
+# Usage: merge_legacy_dir <src> <dst> <label>
+merge_legacy_dir() {
+    local src="$1" dst="$2" label="$3" entry name
+    for entry in "$src"/* "$src"/.[!.]* "$src"/..?*; do
+        [ -e "$entry" ] || [ -L "$entry" ] || continue
+        name="$(basename "$entry")"
+        if [ -d "$entry" ] && [ ! -L "$entry" ] && [ -d "$dst/$name" ] && [ ! -L "$dst/$name" ]; then
+            merge_legacy_dir "$entry" "$dst/$name" "$label/$name"
+        elif [ -e "$dst/$name" ] || [ -L "$dst/$name" ]; then
+            print_warning "Not moving $label/$name: it already exists in ${dst#"$DOTFILES"/}"
+        else
+            mv "$entry" "$dst/$name"
+            echo "  Moved $label/$name to ${dst#"$DOTFILES"/}/"
+        fi
+    done
+}
+
+# Stow folded whole directories into links to the repository. dotstate creates
+# parent directories itself, so drop such links once they dangle and refuse to
+# write through ones that still resolve into the repository.
+remove_legacy_parent_links() {
+    local dir target
+    for dir in .config .pi .pi/agent .agents .agents/skills; do
+        [ -L "$HOME/$dir" ] || continue
+        target="$(readlink "$HOME/$dir")"
+        case "$target" in
+            *"$(basename "$DOTFILES")"/*) ;;
+            *) continue ;;
+        esac
+        if [ ! -e "$HOME/$dir" ]; then
+            rm "$HOME/$dir"
+            print_info "Removed stale Stow link ~/$dir"
+        else
+            print_error "$HOME/$dir links into the repository ($target); replace it with a real directory first"
+            return 1
+        fi
+    done
+}
+
 # Link dotfiles into $HOME with dotstate. Conflicting files and stale links
 # (e.g. from the old Stow setup) are backed up to ~/.dotstate-backups/.
 link_dotfiles() {
@@ -627,6 +690,9 @@ link_dotfiles() {
     fi
 
     print_header "Linking dotfiles with dotstate..."
+
+    migrate_legacy_state
+    remove_legacy_parent_links
 
     local config="$HOME/.config/dotstate/config.toml"
 
@@ -642,20 +708,21 @@ backup_enabled = true
 EOF
         print_info "Created $config (profile: $OS)"
     elif ! grep -Fqx "repo_path = \"$DOTFILES\"" "$config"; then
-        print_warning "$config points at another repository; keeping it"
+        print_warning "$config uses another repository; not linking $DOTFILES"
+        return
     fi
 
     dotstate activate
 
-    # activate is a no-op once a profile is active; doctor --fix re-activates
-    # to link paths added to the manifest since, and fails on broken links
+    # activate is a no-op once a profile is active, so let doctor --fix
+    # re-activate to link paths added to the manifest since. Its exit code
+    # counts issues found before fixing, so check health with a second run.
     local doctor_log
     doctor_log="$(mktemp)"
-    if ! dotstate doctor --fix --no-colors >"$doctor_log" 2>&1; then
+    dotstate doctor --fix --no-colors >/dev/null 2>&1 || true
+    if ! dotstate doctor --no-colors >"$doctor_log" 2>&1; then
         cat "$doctor_log"
-        rm -f "$doctor_log"
-        print_error "dotstate doctor reported errors"
-        return 1
+        print_warning "dotstate doctor still reports errors (e.g. links for paths removed from the manifest); fix them with dotstate doctor"
     fi
     rm -f "$doctor_log"
 
