@@ -21,13 +21,17 @@ jobs:
 
       - name: Install validation tools (macOS)
         if: runner.os == 'macOS'
-        run: brew install shellcheck yamllint stow taplo
+        run: brew install shellcheck yamllint taplo serkanyersen/dotstate/dotstate
 
       - name: Install validation tools (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck zsh yamllint stow
+          sudo apt-get install -y shellcheck zsh yamllint
+
+          # Install the pinned dotstate release the same way install.sh does
+          bash -c 'source ./install.sh; OS=linux; install_dotstate'
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
           # Install taplo for TOML validation
           curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-linux-x86_64.gz | gunzip -c > /tmp/taplo
@@ -53,19 +57,27 @@ jobs:
           CI: true
           NONINTERACTIVE: 1
 
-      - name: Verify stow links
+      - name: Verify dotstate links
         run: |
           missing=0
-          for file in .zshrc .zshenv .zprofile .gitconfig; do
-            if [ -L ~/$file ]; then
+          for file in .zshrc .zshenv .zprofile .gitconfig AGENTS.md; do
+            if [ "$(readlink ~/$file)" = "$GITHUB_WORKSPACE/common/$file" ]; then
               echo "✓ ~/$file -> $(readlink ~/$file)"
             else
-              echo "✗ ~/$file is not a symlink"
+              echo "✗ ~/$file does not link to common/$file"
               ls -la ~/$file 2>&1 || true
               missing=1
             fi
           done
           exit $missing
+
+      - name: Verify dotstate health
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          if [ -d "/opt/homebrew" ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+          fi
+          dotstate doctor --no-colors
 
       - name: Verify Homebrew environment
         run: |
@@ -138,7 +150,7 @@ jobs:
           fi
 
           echo "=== Installed CLI Tools ==="
-          for cmd in zsh git stow fzf rg fd bat eza starship gh yazi; do
+          for cmd in zsh git dotstate fzf rg fd bat eza starship gh yazi; do
             if command -v $cmd >/dev/null 2>&1; then
               version=$($cmd --version 2>&1 | head -1 || echo "version unknown")
               echo "✓ $cmd: $version"
@@ -162,19 +174,27 @@ jobs:
           CI: true
           NONINTERACTIVE: 1
 
-      - name: Verify stow links
+      - name: Verify dotstate links
         run: |
           missing=0
-          for file in .zshrc .zshenv .zprofile .gitconfig; do
-            if [ -L ~/$file ]; then
+          for file in .zshrc .zshenv .zprofile .gitconfig AGENTS.md; do
+            if [ "$(readlink ~/$file)" = "$GITHUB_WORKSPACE/common/$file" ]; then
               echo "✓ ~/$file -> $(readlink ~/$file)"
             else
-              echo "✗ ~/$file is not a symlink"
+              echo "✗ ~/$file does not link to common/$file"
               ls -la ~/$file 2>&1 || true
               missing=1
             fi
           done
           exit $missing
+
+      - name: Verify dotstate health
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          if [ -d "/opt/homebrew" ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+          fi
+          dotstate doctor --no-colors
 
       - name: Verify Homebrew environment
         run: |
@@ -220,7 +240,7 @@ jobs:
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
           echo "=== Installed CLI Tools ==="
-          for cmd in zsh git stow fzf rg fd bat eza starship gh yazi; do
+          for cmd in zsh git dotstate fzf rg fd bat eza starship gh yazi; do
             if command -v $cmd >/dev/null 2>&1; then
               version=$($cmd --version 2>&1 | head -1 || echo "version unknown")
               echo "✓ $cmd: $version"
@@ -250,76 +270,3 @@ jobs:
           CI: true
           CODESPACES: true
           NONINTERACTIVE: 1
-
-  test-stow-structure:
-    name: Test Stow Structure
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-
-      - name: Install stow
-        run: sudo apt-get update && sudo apt-get install -y stow
-
-      - name: Verify .stowrc exists
-        run: |
-          if [ -f .stowrc ]; then
-            echo "✓ .stowrc found"
-            cat .stowrc
-          else
-            echo "✗ .stowrc not found"
-            exit 1
-          fi
-
-      - name: Verify .stow-local-ignore exists
-        run: |
-          if [ -f .stow-local-ignore ]; then
-            echo "✓ .stow-local-ignore found"
-            echo "Ignored patterns:"
-            head -10 .stow-local-ignore
-          else
-            echo "✗ .stow-local-ignore not found"
-            exit 1
-          fi
-
-      - name: Test stow dry-run into $HOME
-        run: |
-          # Use the repo as the stow dir explicitly; .stowrc is only read from the cwd
-          stow -n -v --dir="$GITHUB_WORKSPACE" --target="$HOME" . 2>&1 | tee stow-output.log
-          if grep -Eqi "conflict|cannot stow|not owned by stow" stow-output.log; then
-            echo "✗ Stow conflicts detected"
-            exit 1
-          fi
-          echo "✓ No stow conflicts detected"
-
-      - name: Test actual stow
-        run: |
-          stow -v --dir="$GITHUB_WORKSPACE" --target="$HOME" .
-
-          missing=0
-          for path in .zshrc .zshenv .zprofile .gitconfig .config/zsh .config/nvim; do
-            if [ -L ~/$path ] || [ -L "$(dirname ~/$path)" ]; then
-              echo "✓ ~/$path linked"
-            else
-              echo "✗ ~/$path not linked"
-              missing=1
-            fi
-          done
-          exit $missing
-
-      - name: Verify stow respects .stow-local-ignore
-        run: |
-          # These should NOT be symlinked
-          if [ -L ~/.git ] || [ -e ~/.git ]; then
-            echo "✗ .git was stowed (should be ignored)"
-            exit 1
-          else
-            echo "✓ .git correctly ignored"
-          fi
-
-          if [ -L ~/README.md ] || [ -e ~/README.md ]; then
-            echo "✗ README.md was stowed (should be ignored)"
-            exit 1
-          else
-            echo "✓ README.md correctly ignored"
-          fi

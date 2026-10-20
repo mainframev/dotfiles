@@ -62,7 +62,7 @@ if command_exists zsh; then
     ZSH_ERRORS=0
 
     # Check main zsh files
-    for file in .zshrc .zshenv .zprofile; do
+    for file in common/.zshrc common/.zshenv common/.zprofile; do
         if [ -f "$file" ]; then
             if zsh -n "$file" 2>&1; then
                 echo -e "${GREEN}✓ $file syntax valid${NC}"
@@ -74,8 +74,8 @@ if command_exists zsh; then
     done
 
     # Check .config/zsh/ files
-    if [ -d ".config/zsh" ]; then
-        ZSH_FILES=$(find .config/zsh -name "*.zsh" -type f)
+    if [ -d "common/.config/zsh" ]; then
+        ZSH_FILES=$(find common/.config/zsh -name "*.zsh" -type f)
         ZSH_COUNT=0
         ZSH_FAILED=0
 
@@ -118,15 +118,15 @@ extract_plugin_list() {
     ' "$1"
 }
 INSTALL_PLUGINS=$(extract_plugin_list install.sh ZSH_GITHUB_PLUGINS)
-OMZ_PLUGINS=$(extract_plugin_list .config/zsh/oh-my-zsh.zsh github_plugins)
+OMZ_PLUGINS=$(extract_plugin_list common/.config/zsh/oh-my-zsh.zsh github_plugins)
 if [ -n "$INSTALL_PLUGINS" ] && [ "$INSTALL_PLUGINS" = "$OMZ_PLUGINS" ]; then
     echo -e "${GREEN}✓ install.sh and oh-my-zsh.zsh plugin lists match${NC}"
 else
-    echo -e "${RED}✗ zsh plugin lists differ between install.sh and .config/zsh/oh-my-zsh.zsh${NC}"
+    echo -e "${RED}✗ zsh plugin lists differ between install.sh and common/.config/zsh/oh-my-zsh.zsh${NC}"
     ERRORS=$((ERRORS + 1))
 fi
-if grep -q 'git clone' .config/zsh/oh-my-zsh.zsh; then
-    echo -e "${RED}✗ .config/zsh/oh-my-zsh.zsh must not clone plugins at shell startup${NC}"
+if grep -q 'git clone' common/.config/zsh/oh-my-zsh.zsh; then
+    echo -e "${RED}✗ common/.config/zsh/oh-my-zsh.zsh must not clone plugins at shell startup${NC}"
     ERRORS=$((ERRORS + 1))
 fi
 echo
@@ -137,19 +137,19 @@ if command_exists git; then
     GIT_ERRORS=0
 
     # Check .gitconfig
-    if [ -f ".gitconfig" ]; then
-        if git config -f .gitconfig --list >/dev/null 2>&1; then
+    if [ -f "common/.gitconfig" ]; then
+        if git config -f common/.gitconfig --list >/dev/null 2>&1; then
             echo -e "${GREEN}✓ .gitconfig syntax valid${NC}"
 
             # Verify key sections exist
-            if git config -f .gitconfig user.name >/dev/null 2>&1; then
+            if git config -f common/.gitconfig user.name >/dev/null 2>&1; then
                 echo -e "${GREEN}  ✓ user.name configured${NC}"
             else
                 echo -e "${YELLOW}  ⚠ user.name not set${NC}"
             fi
 
-            if git config -f .gitconfig --get-regexp "^alias\." >/dev/null 2>&1; then
-                ALIAS_COUNT=$(git config -f .gitconfig --get-regexp "^alias\." | wc -l)
+            if git config -f common/.gitconfig --get-regexp "^alias\." >/dev/null 2>&1; then
+                ALIAS_COUNT=$(git config -f common/.gitconfig --get-regexp "^alias\." | wc -l)
                 echo -e "${GREEN}  ✓ $ALIAS_COUNT git aliases defined${NC}"
             fi
         else
@@ -159,8 +159,8 @@ if command_exists git; then
     fi
 
     # Check delta.gitconfig
-    if [ -f "delta.gitconfig" ]; then
-        if git config -f delta.gitconfig --list >/dev/null 2>&1; then
+    if [ -f "common/delta.gitconfig" ]; then
+        if git config -f common/delta.gitconfig --list >/dev/null 2>&1; then
             echo -e "${GREEN}✓ delta.gitconfig syntax valid${NC}"
         else
             echo -e "${RED}✗ delta.gitconfig has syntax errors${NC}"
@@ -182,8 +182,8 @@ echo -e "${BLUE}→ Checking TOML configurations...${NC}"
 if command_exists taplo; then
     TOML_ERRORS=0
 
-    if [ -f ".config/aerospace/aerospace.toml" ]; then
-        if taplo check .config/aerospace/aerospace.toml 2>&1; then
+    if [ -f "macos/.config/aerospace/aerospace.toml" ]; then
+        if taplo check macos/.config/aerospace/aerospace.toml 2>&1; then
             echo -e "${GREEN}✓ aerospace.toml syntax valid${NC}"
         else
             echo -e "${RED}✗ aerospace.toml has syntax errors${NC}"
@@ -191,8 +191,8 @@ if command_exists taplo; then
         fi
     fi
 
-    if [ -f ".config/starship.toml" ]; then
-        if taplo check .config/starship.toml 2>&1; then
+    if [ -f "common/.config/starship.toml" ]; then
+        if taplo check common/.config/starship.toml 2>&1; then
             echo -e "${GREEN}✓ starship.toml syntax valid${NC}"
         else
             echo -e "${RED}✗ starship.toml has syntax errors${NC}"
@@ -206,8 +206,8 @@ if command_exists taplo; then
 elif command_exists toml-cli; then
     TOML_ERRORS=0
 
-    if [ -f ".config/aerospace/aerospace.toml" ]; then
-        if toml-cli get .config/aerospace/aerospace.toml "" >/dev/null 2>&1; then
+    if [ -f "macos/.config/aerospace/aerospace.toml" ]; then
+        if toml-cli get macos/.config/aerospace/aerospace.toml "" >/dev/null 2>&1; then
             echo -e "${GREEN}✓ aerospace.toml syntax valid${NC}"
         else
             echo -e "${RED}✗ aerospace.toml has syntax errors${NC}"
@@ -215,8 +215,8 @@ elif command_exists toml-cli; then
         fi
     fi
 
-    if [ -f ".config/starship.toml" ]; then
-        if toml-cli get .config/starship.toml "" >/dev/null 2>&1; then
+    if [ -f "common/.config/starship.toml" ]; then
+        if toml-cli get common/.config/starship.toml "" >/dev/null 2>&1; then
             echo -e "${GREEN}✓ starship.toml syntax valid${NC}"
         else
             echo -e "${RED}✗ starship.toml has syntax errors${NC}"
@@ -236,9 +236,9 @@ echo
 # Test 5: Tmux configuration
 echo -e "${BLUE}→ Checking tmux configuration...${NC}"
 if command_exists tmux; then
-    if [ -f ".config/tmux/tmux.conf" ]; then
+    if [ -f "common/.config/tmux/tmux.conf" ]; then
         # Basic syntax check - try to parse it
-        if tmux -f .config/tmux/tmux.conf list-keys >/dev/null 2>&1; then
+        if tmux -f common/.config/tmux/tmux.conf list-keys >/dev/null 2>&1; then
             echo -e "${GREEN}✓ tmux.conf syntax valid${NC}"
         else
             echo -e "${YELLOW}⚠ tmux.conf may have issues (or TPM plugins not installed)${NC}"
@@ -412,14 +412,14 @@ echo -e "${BLUE}→ Checking herdr plugin installation...${NC}"
 HERDR_ERRORS=0
 
 # Structural ordering assertion: herdr plugins must install after dotfiles are
-# stowed. This checks the literal call order in main(), not internal
+# linked. This checks the literal call order in main(), not internal
 # implementation details, so it stays robust across refactors.
-STOW_LINE=$(grep -n '^    stow_dotfiles$' install.sh | cut -d: -f1)
+LINK_LINE=$(grep -n '^    link_dotfiles$' install.sh | cut -d: -f1)
 HERDR_INSTALL_LINE=$(grep -n '^    install_herdr_plugins$' install.sh | cut -d: -f1)
-if [ -n "$STOW_LINE" ] && [ -n "$HERDR_INSTALL_LINE" ] && [ "$STOW_LINE" -lt "$HERDR_INSTALL_LINE" ]; then
-    echo -e "${GREEN}✓ herdr plugins install after dotfiles are stowed${NC}"
+if [ -n "$LINK_LINE" ] && [ -n "$HERDR_INSTALL_LINE" ] && [ "$LINK_LINE" -lt "$HERDR_INSTALL_LINE" ]; then
+    echo -e "${GREEN}✓ herdr plugins install after dotfiles are linked${NC}"
 else
-    echo -e "${RED}✗ install_herdr_plugins must run after stow_dotfiles in main${NC}"
+    echo -e "${RED}✗ install_herdr_plugins must run after link_dotfiles in main${NC}"
     HERDR_ERRORS=$((HERDR_ERRORS + 1))
 fi
 
@@ -615,155 +615,39 @@ echo -e "${BLUE}→ Checking herdr generated-state ignore rules...${NC}"
 if command_exists git && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     GITIGNORE_ERRORS=0
 
-    if git check-ignore -q --no-index .config/herdr/plugins.json; then
-        echo -e "${GREEN}✓ .config/herdr/plugins.json is ignored${NC}"
+    if git check-ignore -q --no-index common/.config/herdr/plugins.json; then
+        echo -e "${GREEN}✓ common/.config/herdr/plugins.json is ignored${NC}"
     else
-        echo -e "${RED}✗ .config/herdr/plugins.json must be ignored${NC}"
+        echo -e "${RED}✗ common/.config/herdr/plugins.json must be ignored${NC}"
         GITIGNORE_ERRORS=$((GITIGNORE_ERRORS + 1))
     fi
 
-    if git check-ignore -q --no-index .config/herdr/plugins/github/some-plugin-dir; then
-        echo -e "${GREEN}✓ .config/herdr/plugins/github/ contents are ignored${NC}"
+    if git check-ignore -q --no-index common/.config/herdr/plugins/github/some-plugin-dir; then
+        echo -e "${GREEN}✓ common/.config/herdr/plugins/github/ contents are ignored${NC}"
     else
-        echo -e "${RED}✗ .config/herdr/plugins/github/ contents must be ignored${NC}"
+        echo -e "${RED}✗ common/.config/herdr/plugins/github/ contents must be ignored${NC}"
         GITIGNORE_ERRORS=$((GITIGNORE_ERRORS + 1))
     fi
 
-    if git check-ignore -q --no-index .config/herdr/plugins/config/persiyanov.reviewr/config.toml; then
+    if git check-ignore -q --no-index common/.config/herdr/plugins/config/persiyanov.reviewr/config.toml; then
         echo -e "${RED}✗ persiyanov.reviewr plugin config must NOT be ignored${NC}"
         GITIGNORE_ERRORS=$((GITIGNORE_ERRORS + 1))
     else
         echo -e "${GREEN}✓ persiyanov.reviewr plugin config remains trackable${NC}"
     fi
 
-    if git ls-files --error-unmatch .config/herdr/plugins/config/persiyanov.reviewr/config.toml >/dev/null 2>&1; then
+    if git ls-files --error-unmatch common/.config/herdr/plugins/config/persiyanov.reviewr/config.toml >/dev/null 2>&1; then
         echo -e "${GREEN}✓ persiyanov.reviewr plugin config is tracked in git${NC}"
     else
         echo -e "${RED}✗ persiyanov.reviewr plugin config must be tracked in git${NC}"
         GITIGNORE_ERRORS=$((GITIGNORE_ERRORS + 1))
     fi
 
-    if git ls-files .config/herdr/plugins.json .config/herdr/plugins/github/ 2>/dev/null | grep -q .; then
+    if git ls-files common/.config/herdr/plugins.json common/.config/herdr/plugins/github/ 2>/dev/null | grep -q .; then
         echo -e "${RED}✗ Generated herdr plugin state must not be tracked in git${NC}"
         GITIGNORE_ERRORS=$((GITIGNORE_ERRORS + 1))
     else
         echo -e "${GREEN}✓ Generated herdr plugin state is not tracked in git${NC}"
-    fi
-
-    if [ -f ".stow-local-ignore" ] &&
-       grep -Fq '^/\.config/herdr/plugins\.json$' .stow-local-ignore &&
-       grep -Fq '^/\.config/herdr/plugins/github$' .stow-local-ignore; then
-        echo -e "${GREEN}✓ .stow-local-ignore declares narrow rules for generated herdr plugin state${NC}"
-    else
-        echo -e "${RED}✗ .stow-local-ignore must declare narrow rules for .config/herdr/plugins.json and .config/herdr/plugins/github${NC}"
-        GITIGNORE_ERRORS=$((GITIGNORE_ERRORS + 1))
-    fi
-
-    if command_exists stow; then
-        # Build a minimal package fixture *outside* the repository (never
-        # under $(pwd)) containing: generated .config/herdr/plugins.json, a
-        # generated .config/herdr/plugins/github/<dir> tree, and the tracked
-        # .config/herdr/plugins/config/persiyanov.reviewr/config.toml. Stow
-        # this fixture (using a copy of the repository's real
-        # .stow-local-ignore, so the actual in-force rules are exercised)
-        # into a separate, also-outside-the-repo temp target. This is a real
-        # (non-dry-run) Stow operation: if the two generated-state ignore
-        # rules were ever removed from .stow-local-ignore, this section would
-        # start failing, because Stow would then try to link/conflict on the
-        # generated paths below.
-        STOW_TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/herdr-stow-test.XXXXXX")"
-        STOW_FIXTURE_DIR="$STOW_TEST_ROOT/package"
-        STOW_TARGET_DIR="$STOW_TEST_ROOT/target"
-        STOW_LOG_FILE="$STOW_TEST_ROOT/stow.log"
-
-        # Interrupt-safe cleanup: remove the scratch tree on normal exit as
-        # well as Ctrl-C/SIGTERM, restoring any previously-registered trap
-        # instead of clearing it, so we never stomp on an unrelated handler.
-        herdr_test9_prev_exit_trap="$(trap -p EXIT)"
-        herdr_test9_prev_int_trap="$(trap -p INT)"
-        herdr_test9_prev_term_trap="$(trap -p TERM)"
-        herdr_test9_cleanup() {
-            rm -rf "$STOW_TEST_ROOT"
-        }
-        trap herdr_test9_cleanup EXIT INT TERM
-
-        mkdir -p "$STOW_FIXTURE_DIR" "$STOW_TARGET_DIR"
-
-        # Copy the repository's real .stow-local-ignore so this test
-        # exercises the actual rules in force, not a hand-crafted stand-in.
-        cp .stow-local-ignore "$STOW_FIXTURE_DIR/.stow-local-ignore"
-
-        # Tracked plugin config: real copies of the files that must remain
-        # linkable.
-        mkdir -p "$STOW_FIXTURE_DIR/.config/herdr/plugins/config/persiyanov.reviewr"
-        cp .config/herdr/config.toml "$STOW_FIXTURE_DIR/.config/herdr/config.toml"
-        cp .config/herdr/plugins/config/persiyanov.reviewr/config.toml \
-            "$STOW_FIXTURE_DIR/.config/herdr/plugins/config/persiyanov.reviewr/config.toml"
-
-        # Generated herdr state: never tracked, must never be linked.
-        mkdir -p "$STOW_FIXTURE_DIR/.config/herdr/plugins/github/some-plugin-abcdef"
-        echo '{"generated":"state"}' > "$STOW_FIXTURE_DIR/.config/herdr/plugins.json"
-        echo 'generated' > "$STOW_FIXTURE_DIR/.config/herdr/plugins/github/some-plugin-abcdef/marker"
-
-        # Pre-populate the target as if a previous herdr run already
-        # generated its own state there (a differently-named plugin dir and
-        # its own plugins.json), so we can also assert Stow never touches or
-        # overwrites pre-existing generated state.
-        mkdir -p "$STOW_TARGET_DIR/.config/herdr/plugins/github/existing-plugin-123456"
-        echo '{"existing":"generated"}' > "$STOW_TARGET_DIR/.config/herdr/plugins.json"
-        echo 'existing marker' > "$STOW_TARGET_DIR/.config/herdr/plugins/github/existing-plugin-123456/marker"
-
-        STOW_RESULT=0
-        stow --dir="$STOW_FIXTURE_DIR" --target="$STOW_TARGET_DIR" --verbose . \
-            >"$STOW_LOG_FILE" 2>&1 || STOW_RESULT=$?
-
-        # Stow may satisfy the tracked config either by symlinking the leaf
-        # file directly or by folding one of its ancestor directories (e.g.
-        # .config/herdr/plugins/config) into a single symlink. Either way,
-        # the canonical path must resolve into the fixture package. Both
-        # sides are canonicalized with the same readlink -f, since on macOS
-        # $TMPDIR itself resolves through a symlink (/var -> /private/var).
-        STOW_FIXTURE_DIR_REAL="$(readlink -f "$STOW_FIXTURE_DIR" 2>/dev/null || echo "$STOW_FIXTURE_DIR")"
-        LINKED_CONFIG_LEAF="$STOW_TARGET_DIR/.config/herdr/plugins/config/persiyanov.reviewr/config.toml"
-        LINKED_CONFIG_REAL="$(readlink -f "$LINKED_CONFIG_LEAF" 2>/dev/null || true)"
-        LINKED_CONFIG_IS_REAL=false
-        case "$LINKED_CONFIG_REAL" in
-            "$STOW_FIXTURE_DIR_REAL"/*) LINKED_CONFIG_IS_REAL=true ;;
-        esac
-
-        if [ "$STOW_RESULT" -eq 0 ]; then
-            if grep -q 'plugins\.json' "$STOW_LOG_FILE" || grep -q 'plugins/github' "$STOW_LOG_FILE"; then
-                echo -e "${RED}✗ stow must not touch generated .config/herdr/plugins.json or plugins/github${NC}"
-                GITIGNORE_ERRORS=$((GITIGNORE_ERRORS + 1))
-            elif [ -f "$STOW_TARGET_DIR/.config/herdr/plugins.json" ] &&
-                 [ ! -L "$STOW_TARGET_DIR/.config/herdr/plugins.json" ] &&
-                 grep -q '"existing"' "$STOW_TARGET_DIR/.config/herdr/plugins.json" &&
-                 [ -f "$STOW_TARGET_DIR/.config/herdr/plugins/github/existing-plugin-123456/marker" ] &&
-                 [ ! -e "$STOW_TARGET_DIR/.config/herdr/plugins/github/some-plugin-abcdef" ] &&
-                 [ "$LINKED_CONFIG_IS_REAL" = true ] &&
-                 [ -L "$STOW_TARGET_DIR/.config/herdr/config.toml" ] &&
-                 diff -q \
-                     "$STOW_TARGET_DIR/.config/herdr/plugins/config/persiyanov.reviewr/config.toml" \
-                     .config/herdr/plugins/config/persiyanov.reviewr/config.toml >/dev/null 2>&1; then
-                echo -e "${GREEN}✓ real stow run into a temp target: generated herdr plugin state is left untouched (not linked, not overwritten) while tracked plugin config is linked${NC}"
-            else
-                echo -e "${RED}✗ stow must leave pre-existing generated herdr plugin state untouched and still link .config/herdr/plugins/config/persiyanov.reviewr/config.toml${NC}"
-                GITIGNORE_ERRORS=$((GITIGNORE_ERRORS + 1))
-            fi
-        else
-            echo -e "${RED}✗ stow reported conflicts against a target with pre-existing generated herdr plugin state (exit $STOW_RESULT)${NC}"
-            cat "$STOW_LOG_FILE"
-            GITIGNORE_ERRORS=$((GITIGNORE_ERRORS + 1))
-        fi
-
-        herdr_test9_cleanup
-        eval "${herdr_test9_prev_exit_trap:-trap - EXIT}"
-        eval "${herdr_test9_prev_int_trap:-trap - INT}"
-        eval "${herdr_test9_prev_term_trap:-trap - TERM}"
-        unset -f herdr_test9_cleanup
-    else
-        echo -e "${YELLOW}⚠ stow not installed, skipping stow conflict check${NC}"
-        WARNINGS=$((WARNINGS + 1))
     fi
 
     if [ $GITIGNORE_ERRORS -gt 0 ]; then
@@ -779,22 +663,17 @@ echo
 echo -e "${BLUE}→ Checking AGENTS instruction files...${NC}"
 AGENTS_ERRORS=0
 
-if [ -f "AGENTS.md" ]; then
-    echo -e "${GREEN}✓ repository AGENTS.md exists${NC}"
-else
-    echo -e "${RED}✗ repository AGENTS.md must exist${NC}"
-    AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
-fi
-
-if [ -f "GLOBAL_AGENTS.md" ]; then
-    echo -e "${GREEN}✓ GLOBAL_AGENTS.md source exists${NC}"
-else
-    echo -e "${RED}✗ GLOBAL_AGENTS.md must exist at the repository root${NC}"
-    AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
-fi
+for file in AGENTS.md common/AGENTS.md; do
+    if [ -f "$file" ]; then
+        echo -e "${GREEN}✓ $file exists${NC}"
+    else
+        echo -e "${RED}✗ $file must exist${NC}"
+        AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
+    fi
+done
 
 if command_exists git && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    for file in AGENTS.md GLOBAL_AGENTS.md; do
+    for file in AGENTS.md common/AGENTS.md; do
         if git check-ignore -q --no-index "$file"; then
             echo -e "${RED}✗ $file must not be ignored by Git${NC}"
             AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
@@ -808,92 +687,11 @@ else
     WARNINGS=$((WARNINGS + 1))
 fi
 
-if [ -f ".stow-local-ignore" ] &&
-   grep -Fq '^/AGENTS\.md$' .stow-local-ignore &&
-   grep -Fq '^/GLOBAL_AGENTS\.md$' .stow-local-ignore; then
-    echo -e "${GREEN}✓ Stow excludes both AGENTS source files${NC}"
+if grep -Fqx '    "AGENTS.md",' .dotstate-profiles.toml; then
+    echo -e "${GREEN}✓ dotstate links common/AGENTS.md as ~/AGENTS.md${NC}"
 else
-    echo -e "${RED}✗ .stow-local-ignore must exclude AGENTS.md and GLOBAL_AGENTS.md${NC}"
+    echo -e "${RED}✗ .dotstate-profiles.toml must list AGENTS.md as a common file${NC}"
     AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
-fi
-
-GLOBAL_AGENTS_INSTALL_LINE="$(grep -n '^    install_global_agents$' install.sh | cut -d: -f1)"
-if [ -n "$STOW_LINE" ] &&
-   [ -n "$GLOBAL_AGENTS_INSTALL_LINE" ] &&
-   [ "$STOW_LINE" -lt "$GLOBAL_AGENTS_INSTALL_LINE" ]; then
-    echo -e "${GREEN}✓ setup installs global AGENTS instructions after Stow${NC}"
-else
-    echo -e "${RED}✗ install_global_agents must run after stow_dotfiles in main${NC}"
-    AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
-fi
-
-if command_exists stow; then
-    AGENTS_REPOSITORY_DIR="$(pwd -P)"
-    AGENTS_TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/agents-install-test.XXXXXX")"
-    AGENTS_PACKAGE_DIR="$AGENTS_TEST_ROOT/package"
-    AGENTS_TARGET_DIR="$AGENTS_TEST_ROOT/target"
-    AGENTS_HOME_DIR="$AGENTS_TEST_ROOT/home"
-    AGENTS_STOW_LOG="$AGENTS_TEST_ROOT/stow.log"
-    AGENTS_INSTALL_LOG="$AGENTS_TEST_ROOT/install.log"
-
-    agents_test10_prev_exit_trap="$(trap -p EXIT)"
-    agents_test10_prev_int_trap="$(trap -p INT)"
-    agents_test10_prev_term_trap="$(trap -p TERM)"
-    agents_test10_cleanup() {
-        rm -rf "$AGENTS_TEST_ROOT"
-    }
-    trap agents_test10_cleanup EXIT INT TERM
-
-    mkdir -p "$AGENTS_PACKAGE_DIR" "$AGENTS_TARGET_DIR" "$AGENTS_HOME_DIR"
-    cp .stow-local-ignore AGENTS.md GLOBAL_AGENTS.md "$AGENTS_PACKAGE_DIR/"
-    printf '%s\n' 'linked marker' > "$AGENTS_PACKAGE_DIR/marker"
-
-    AGENTS_STOW_RESULT=0
-    stow --dir="$AGENTS_PACKAGE_DIR" --target="$AGENTS_TARGET_DIR" --verbose . \
-        >"$AGENTS_STOW_LOG" 2>&1 || AGENTS_STOW_RESULT=$?
-
-    if [ "$AGENTS_STOW_RESULT" -eq 0 ] &&
-       [ -L "$AGENTS_TARGET_DIR/marker" ] &&
-       [ ! -e "$AGENTS_TARGET_DIR/AGENTS.md" ] &&
-       [ ! -e "$AGENTS_TARGET_DIR/GLOBAL_AGENTS.md" ]; then
-        echo -e "${GREEN}✓ Stow leaves both AGENTS source files out of the home target${NC}"
-    else
-        echo -e "${RED}✗ Stow must not project AGENTS.md or GLOBAL_AGENTS.md directly${NC}"
-        cat "$AGENTS_STOW_LOG"
-        AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
-    fi
-
-    printf '%s\n' 'pre-existing unmanaged AGENTS' > "$AGENTS_HOME_DIR/AGENTS.md"
-    AGENTS_INSTALL_RESULT=0
-    HOME="$AGENTS_HOME_DIR" bash -c \
-        'source "$1"; install_global_agents' \
-        _ "$AGENTS_REPOSITORY_DIR/install.sh" \
-        >"$AGENTS_INSTALL_LOG" 2>&1 || AGENTS_INSTALL_RESULT=$?
-
-    AGENTS_BACKUP_PATH="$(find "$AGENTS_HOME_DIR" -type f \
-        -path "$AGENTS_HOME_DIR/.dotfiles-backup-*/AGENTS.md" -print -quit)"
-    HOME_AGENTS_SOURCE="$(readlink "$AGENTS_HOME_DIR/AGENTS.md" 2>/dev/null || true)"
-
-    if [ "$AGENTS_INSTALL_RESULT" -eq 0 ] &&
-       [ -f "$AGENTS_BACKUP_PATH" ] &&
-       grep -qx 'pre-existing unmanaged AGENTS' "$AGENTS_BACKUP_PATH" &&
-       [ -L "$AGENTS_HOME_DIR/AGENTS.md" ] &&
-       [ "$HOME_AGENTS_SOURCE" = "$AGENTS_REPOSITORY_DIR/GLOBAL_AGENTS.md" ]; then
-        echo -e "${GREEN}✓ install_global_agents backs up and links GLOBAL_AGENTS.md as ~/AGENTS.md${NC}"
-    else
-        echo -e "${RED}✗ install_global_agents must safely link GLOBAL_AGENTS.md as ~/AGENTS.md${NC}"
-        cat "$AGENTS_INSTALL_LOG"
-        AGENTS_ERRORS=$((AGENTS_ERRORS + 1))
-    fi
-
-    agents_test10_cleanup
-    eval "${agents_test10_prev_exit_trap:-trap - EXIT}"
-    eval "${agents_test10_prev_int_trap:-trap - INT}"
-    eval "${agents_test10_prev_term_trap:-trap - TERM}"
-    unset -f agents_test10_cleanup
-else
-    echo -e "${YELLOW}⚠ stow not installed, skipping AGENTS installation checks${NC}"
-    WARNINGS=$((WARNINGS + 1))
 fi
 
 if [ $AGENTS_ERRORS -gt 0 ]; then
@@ -904,7 +702,7 @@ echo
 # Test 11: Worktrunk workflow policy and configuration
 echo -e "${BLUE}→ Checking Worktrunk workflow configuration...${NC}"
 WORKTRUNK_ERRORS=0
-WORKTRUNK_CONFIG=".config/worktrunk/config.toml"
+WORKTRUNK_CONFIG="common/.config/worktrunk/config.toml"
 
 if [ -f "$WORKTRUNK_CONFIG" ]; then
     echo -e "${GREEN}✓ Worktrunk user config exists${NC}"
@@ -941,17 +739,17 @@ else
     WARNINGS=$((WARNINGS + 1))
 fi
 
-if grep -Fq 'ask the user to choose OpenSpec or no formal framework' GLOBAL_AGENTS.md &&
-   grep -Fq 'Do not select or initialize an SDD framework before the user chooses' GLOBAL_AGENTS.md; then
+if grep -Fq 'ask the user to choose OpenSpec or no formal framework' common/AGENTS.md &&
+   grep -Fq 'Do not select or initialize an SDD framework before the user chooses' common/AGENTS.md; then
     echo -e "${GREEN}✓ global instructions keep SDD framework selection with the user${NC}"
 else
     echo -e "${RED}✗ SDD guidance must offer OpenSpec or no formal framework${NC}"
     WORKTRUNK_ERRORS=$((WORKTRUNK_ERRORS + 1))
 fi
 
-if grep -Fq 'Implement every medium-or-larger feature in a dedicated Worktrunk worktree' GLOBAL_AGENTS.md &&
-   grep -Fq 'wt switch --create <branch>' GLOBAL_AGENTS.md &&
-   grep -Fq 'do not silently fall back to raw git worktree commands' GLOBAL_AGENTS.md; then
+if grep -Fq 'Implement every medium-or-larger feature in a dedicated Worktrunk worktree' common/AGENTS.md &&
+   grep -Fq 'wt switch --create <branch>' common/AGENTS.md &&
+   grep -Fq 'do not silently fall back to raw git worktree commands' common/AGENTS.md; then
     echo -e "${GREEN}✓ global instructions require Worktrunk for medium-or-larger features${NC}"
 else
     echo -e "${RED}✗ global instructions must require wt-managed medium feature worktrees${NC}"
@@ -963,274 +761,209 @@ if [ $WORKTRUNK_ERRORS -gt 0 ]; then
 fi
 echo
 
-# Test 12: pi settings are linked without folding pi's state directory
-echo -e "${BLUE}→ Checking pi settings stow behavior...${NC}"
-PI_ERRORS=0
+# Test 12: dotstate manifest matches the repository layout
+echo -e "${BLUE}→ Checking dotstate manifest...${NC}"
+MANIFEST_ERRORS=0
+MANIFEST=".dotstate-profiles.toml"
 
-if git check-ignore -q --no-index .pi/agent/settings.json; then
-    echo -e "${RED}✗ .pi/agent/settings.json must remain trackable${NC}"
-    PI_ERRORS=$((PI_ERRORS + 1))
-else
-    echo -e "${GREEN}✓ .pi/agent/settings.json is trackable${NC}"
-fi
+# Print "<dir> <path>" for every synced file, where <dir> is common or the
+# profile name, i.e. the repository directory dotstate links it from
+manifest_entries() {
+    awk '
+        /^\[common\]/ { dir = "common"; next }
+        /^\[\[profiles\]\]/ { dir = ""; next }
+        dir == "" && /^name = "/ { dir = $3; gsub(/"/, "", dir); next }
+        /^synced_files = \[/ { inside = 1; if ($0 ~ /\]$/) inside = 0; next }
+        inside && /^\]/ { inside = 0; next }
+        inside { gsub(/[[:space:]",]/, ""); if ($0 != "") print dir, $0 }
+    ' "$MANIFEST"
+}
 
-if git check-ignore -q --no-index .pi/agent/auth.json &&
-   git check-ignore -q --no-index .pi/agent/npm/package.json &&
-   git check-ignore -q --no-index .pi/tasks/task.json; then
-    echo -e "${GREEN}✓ pi credentials, packages, and project state are ignored${NC}"
-else
-    echo -e "${RED}✗ pi auth.json, npm/, and tasks/ must be ignored${NC}"
-    PI_ERRORS=$((PI_ERRORS + 1))
-fi
-
-if command_exists stow; then
-    PI_TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/pi-stow-test.XXXXXX")"
-    pi_test12_prev_exit_trap="$(trap -p EXIT)"
-    pi_test12_prev_int_trap="$(trap -p INT)"
-    pi_test12_prev_term_trap="$(trap -p TERM)"
-    pi_test12_cleanup() {
-        rm -rf "$PI_TEST_ROOT"
-    }
-    trap pi_test12_cleanup EXIT INT TERM
-
-    mkdir -p "$PI_TEST_ROOT/package/.pi/agent" "$PI_TEST_ROOT/package/.pi/tasks"
-    cp .stow-local-ignore "$PI_TEST_ROOT/package/.stow-local-ignore"
-    cp .pi/agent/settings.json "$PI_TEST_ROOT/package/.pi/agent/settings.json"
-    echo '{}' > "$PI_TEST_ROOT/package/.pi/tasks/task.json"
-
-    # Runs the real stow_dotfiles against an isolated HOME and package.
-    run_pi_stow_scenario() {
-        local home_dir="$1"
-        (
-            # shellcheck source=/dev/null
-            source ./install.sh
-            HOME="$home_dir"
-            # shellcheck disable=SC2034 # read by stow_dotfiles from install.sh
-            DOTFILES="$PI_TEST_ROOT/package"
-            stow_dotfiles
-        ) >"$home_dir.log" 2>&1
-    }
-
-    # Fresh machine: no ~/.pi yet.
-    PI_FRESH_HOME="$PI_TEST_ROOT/fresh"
-    mkdir -p "$PI_FRESH_HOME"
-    if run_pi_stow_scenario "$PI_FRESH_HOME" &&
-       [ -d "$PI_FRESH_HOME/.pi/agent" ] && [ ! -L "$PI_FRESH_HOME/.pi/agent" ] && [ ! -L "$PI_FRESH_HOME/.pi" ] &&
-       [ -L "$PI_FRESH_HOME/.pi/agent/settings.json" ] &&
-       [ ! -e "$PI_FRESH_HOME/.pi/tasks" ]; then
-        echo -e "${GREEN}✓ fresh install links pi settings.json and keeps ~/.pi/agent a real directory${NC}"
-    else
-        echo -e "${RED}✗ fresh install must link only .pi/agent/settings.json without folding ~/.pi/agent${NC}"
-        cat "$PI_FRESH_HOME.log"
-        PI_ERRORS=$((PI_ERRORS + 1))
+if [ -f "$MANIFEST" ]; then
+    MANIFEST_MISSING=0
+    while read -r dir path; do
+        if [ ! -e "$dir/$path" ] && [ ! -L "$dir/$path" ]; then
+            echo -e "${RED}✗ $MANIFEST lists $path but $dir/$path does not exist${NC}"
+            MANIFEST_MISSING=$((MANIFEST_MISSING + 1))
+        fi
+    done < <(manifest_entries)
+    if [ "$MANIFEST_MISSING" -eq 0 ]; then
+        echo -e "${GREEN}✓ every manifest entry exists in the repository${NC}"
     fi
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + MANIFEST_MISSING))
 
-    # Existing machine: unmanaged settings.json next to pi state.
-    PI_EXISTING_HOME="$PI_TEST_ROOT/existing"
-    mkdir -p "$PI_EXISTING_HOME/.pi/agent"
-    echo '{"unmanaged":true}' > "$PI_EXISTING_HOME/.pi/agent/settings.json"
-    echo '{"secret":"state"}' > "$PI_EXISTING_HOME/.pi/agent/auth.json"
-    if run_pi_stow_scenario "$PI_EXISTING_HOME" &&
-       [ -L "$PI_EXISTING_HOME/.pi/agent/settings.json" ] &&
-       grep -q '"secret"' "$PI_EXISTING_HOME/.pi/agent/auth.json" &&
-       grep -rqs '"unmanaged"' "$PI_EXISTING_HOME"/.dotfiles-backup-*/.pi/agent/settings.json; then
-        echo -e "${GREEN}✓ existing pi settings.json is backed up before linking, other pi state untouched${NC}"
-    else
-        echo -e "${RED}✗ existing pi settings.json must be backed up and pi state left untouched${NC}"
-        cat "$PI_EXISTING_HOME.log"
-        PI_ERRORS=$((PI_ERRORS + 1))
+    # Every tracked file under a profile directory must be covered by an
+    # entry, or it would never be linked
+    if command_exists git && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        MANIFEST_PATHS="$(manifest_entries | tr ' ' '/')"
+        MANIFEST_UNLINKED=0
+        while IFS= read -r file; do
+            covered=false
+            while IFS= read -r entry; do
+                case "$file" in
+                    "$entry"|"$entry"/*) covered=true; break ;;
+                esac
+            done <<< "$MANIFEST_PATHS"
+            if [ "$covered" = false ]; then
+                echo -e "${RED}✗ $file is tracked but not linked by $MANIFEST${NC}"
+                MANIFEST_UNLINKED=$((MANIFEST_UNLINKED + 1))
+            fi
+        done < <(git ls-files common macos linux)
+        if [ "$MANIFEST_UNLINKED" -eq 0 ]; then
+            echo -e "${GREEN}✓ every tracked config file is linked by the manifest${NC}"
+        fi
+        MANIFEST_ERRORS=$((MANIFEST_ERRORS + MANIFEST_UNLINKED))
     fi
-
-    pi_test12_cleanup
-    eval "${pi_test12_prev_exit_trap:-trap - EXIT}"
-    eval "${pi_test12_prev_int_trap:-trap - INT}"
-    eval "${pi_test12_prev_term_trap:-trap - TERM}"
-    unset -f pi_test12_cleanup run_pi_stow_scenario
 else
-    echo -e "${YELLOW}⚠ stow not installed, skipping pi stow check${NC}"
-    WARNINGS=$((WARNINGS + 1))
+    echo -e "${RED}✗ $MANIFEST must exist${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
 fi
 
-if [ $PI_ERRORS -gt 0 ]; then
-    ERRORS=$((ERRORS + PI_ERRORS))
-fi
-echo
-
-# Test 13: shared agent skills are linked without folding ~/.agents/skills
-echo -e "${BLUE}→ Checking shared agent skills stow behavior...${NC}"
-SKILLS_ERRORS=0
-
-if git check-ignore -q --no-index .agents/skills/paranoid-review/SKILL.md; then
-    echo -e "${RED}✗ .agents/skills/paranoid-review/SKILL.md must remain trackable${NC}"
-    SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+if git check-ignore -q --no-index common/.pi/agent/settings.json; then
+    echo -e "${RED}✗ common/.pi/agent/settings.json must remain trackable${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
 else
-    echo -e "${GREEN}✓ .agents/skills/paranoid-review/SKILL.md is trackable${NC}"
+    echo -e "${GREEN}✓ common/.pi/agent/settings.json is trackable${NC}"
 fi
 
-if git check-ignore -q --no-index .agents/.skill-lock.json; then
-    echo -e "${GREEN}✓ skills CLI lockfile under .agents is ignored${NC}"
+if git check-ignore -q --no-index common/.pi/agent/auth.json &&
+   git check-ignore -q --no-index common/.pi/agent/npm/package.json; then
+    echo -e "${GREEN}✓ pi credentials and packages are ignored${NC}"
 else
-    echo -e "${RED}✗ .agents/.skill-lock.json must be ignored${NC}"
-    SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    echo -e "${RED}✗ common/.pi/agent/auth.json and npm/ must be ignored${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
 fi
 
-if grep -q '^    local unfolded_dirs=(.*"\.agents/skills".*)$' install.sh; then
-    echo -e "${GREEN}✓ install.sh keeps ~/.agents/skills a real directory${NC}"
+if git check-ignore -q --no-index common/.agents/skills/paranoid-review/SKILL.md; then
+    echo -e "${RED}✗ common/.agents/skills/paranoid-review/SKILL.md must remain trackable${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
 else
-    echo -e "${RED}✗ install.sh must list .agents/skills in unfolded_dirs${NC}"
-    SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    echo -e "${GREEN}✓ common/.agents/skills/paranoid-review/SKILL.md is trackable${NC}"
 fi
 
-if [ -L ".config/opencode/skills/paranoid-review" ] && [ -f ".config/opencode/skills/paranoid-review/SKILL.md" ]; then
+if git check-ignore -q --no-index common/.agents/.skill-lock.json; then
+    echo -e "${GREEN}✓ skills CLI lockfile under common/.agents is ignored${NC}"
+else
+    echo -e "${RED}✗ common/.agents/.skill-lock.json must be ignored${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
+fi
+
+if [ -L "common/.config/opencode/skills/paranoid-review" ] && [ -f "common/.config/opencode/skills/paranoid-review/SKILL.md" ]; then
     echo -e "${GREEN}✓ opencode paranoid-review skill links to the shared skill${NC}"
 else
-    echo -e "${RED}✗ .config/opencode/skills/paranoid-review must be a symlink to .agents/skills/paranoid-review${NC}"
-    SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    echo -e "${RED}✗ common/.config/opencode/skills/paranoid-review must be a symlink to common/.agents/skills/paranoid-review${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
 fi
 
-if command_exists stow; then
-    SKILLS_TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/skills-stow-test.XXXXXX")"
-    skills_test13_prev_exit_trap="$(trap -p EXIT)"
-    skills_test13_prev_int_trap="$(trap -p INT)"
-    skills_test13_prev_term_trap="$(trap -p TERM)"
-    skills_test13_cleanup() {
-        rm -rf "$SKILLS_TEST_ROOT"
-    }
-    trap skills_test13_cleanup EXIT INT TERM
-
-    mkdir -p "$SKILLS_TEST_ROOT/package/.agents/skills/paranoid-review"
-    cp .stow-local-ignore "$SKILLS_TEST_ROOT/package/.stow-local-ignore"
-    cp .agents/skills/paranoid-review/SKILL.md "$SKILLS_TEST_ROOT/package/.agents/skills/paranoid-review/SKILL.md"
-
-    # Runs the real stow_dotfiles against an isolated HOME and package.
-    run_skills_stow_scenario() {
-        local home_dir="$1"
-        (
-            # shellcheck source=/dev/null
-            source ./install.sh
-            HOME="$home_dir"
-            # shellcheck disable=SC2034 # read by stow_dotfiles from install.sh
-            DOTFILES="$SKILLS_TEST_ROOT/package"
-            stow_dotfiles
-        ) >"$home_dir.log" 2>&1
-    }
-
-    # Fresh machine: no ~/.agents yet. The skills CLI must later be able to
-    # install into ~/.agents/skills without writing into the repository.
-    SKILLS_FRESH_HOME="$SKILLS_TEST_ROOT/fresh"
-    mkdir -p "$SKILLS_FRESH_HOME"
-    if run_skills_stow_scenario "$SKILLS_FRESH_HOME" &&
-       [ -d "$SKILLS_FRESH_HOME/.agents/skills" ] && [ ! -L "$SKILLS_FRESH_HOME/.agents/skills" ] && [ ! -L "$SKILLS_FRESH_HOME/.agents" ] &&
-       [ -L "$SKILLS_FRESH_HOME/.agents/skills/paranoid-review" ] &&
-       [ -f "$SKILLS_FRESH_HOME/.agents/skills/paranoid-review/SKILL.md" ]; then
-        echo -e "${GREEN}✓ fresh install links paranoid-review and keeps ~/.agents/skills a real directory${NC}"
-    else
-        echo -e "${RED}✗ fresh install must link .agents/skills/paranoid-review without folding ~/.agents/skills${NC}"
-        cat "$SKILLS_FRESH_HOME.log"
-        SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
-    fi
-
-    # Existing machine: skills CLI already installed other skills and a lockfile.
-    SKILLS_EXISTING_HOME="$SKILLS_TEST_ROOT/existing"
-    mkdir -p "$SKILLS_EXISTING_HOME/.agents/skills/other-skill"
-    echo '{"version":3}' > "$SKILLS_EXISTING_HOME/.agents/.skill-lock.json"
-    echo 'existing' > "$SKILLS_EXISTING_HOME/.agents/skills/other-skill/SKILL.md"
-    if run_skills_stow_scenario "$SKILLS_EXISTING_HOME" &&
-       [ -L "$SKILLS_EXISTING_HOME/.agents/skills/paranoid-review" ] &&
-       [ -f "$SKILLS_EXISTING_HOME/.agents/skills/paranoid-review/SKILL.md" ] &&
-       [ ! -L "$SKILLS_EXISTING_HOME/.agents/skills/other-skill" ] &&
-       [ "$(cat "$SKILLS_EXISTING_HOME/.agents/skills/other-skill/SKILL.md")" = "existing" ] &&
-       [ "$(cat "$SKILLS_EXISTING_HOME/.agents/.skill-lock.json")" = '{"version":3}' ]; then
-        echo -e "${GREEN}✓ existing install adds paranoid-review and leaves other skills and the lockfile untouched${NC}"
-    else
-        echo -e "${RED}✗ existing install must add only paranoid-review next to skills CLI state${NC}"
-        cat "$SKILLS_EXISTING_HOME.log"
-        SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
-    fi
-
-    skills_test13_cleanup
-    eval "${skills_test13_prev_exit_trap:-trap - EXIT}"
-    eval "${skills_test13_prev_int_trap:-trap - INT}"
-    eval "${skills_test13_prev_term_trap:-trap - TERM}"
-    unset -f skills_test13_cleanup run_skills_stow_scenario
-else
-    echo -e "${YELLOW}⚠ stow not installed, skipping shared skills stow check${NC}"
-    WARNINGS=$((WARNINGS + 1))
-fi
-
-if [ $SKILLS_ERRORS -gt 0 ]; then
-    ERRORS=$((ERRORS + SKILLS_ERRORS))
+if [ $MANIFEST_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + MANIFEST_ERRORS))
 fi
 echo
 
-# Test 14: Full-repository stow with conflict backup and idempotent re-run
-echo -e "${BLUE}→ Checking full stow_dotfiles run into a temp home...${NC}"
-STOW_FULL_ERRORS=0
-if command_exists stow; then
-    STOW_FULL_REPO="$(pwd -P)"
-    STOW_FULL_HOME="$(mktemp -d "${TMPDIR:-/tmp}/stow-full-test.XXXXXX")"
+# Test 13: link_dotfiles links each profile into a temp home with dotstate
+echo -e "${BLUE}→ Checking link_dotfiles runs into temp homes...${NC}"
+LINK_ERRORS=0
+if command_exists dotstate; then
+    LINK_REPO="$(pwd -P)"
+    LINK_TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/dotstate-link-test.XXXXXX")"
 
-    stow_test13_prev_exit_trap="$(trap -p EXIT)"
-    stow_test13_prev_int_trap="$(trap -p INT)"
-    stow_test13_prev_term_trap="$(trap -p TERM)"
-    stow_test13_cleanup() {
-        rm -rf "$STOW_FULL_HOME"
+    link_test13_prev_exit_trap="$(trap -p EXIT)"
+    link_test13_prev_int_trap="$(trap -p INT)"
+    link_test13_prev_term_trap="$(trap -p TERM)"
+    link_test13_cleanup() {
+        rm -rf "$LINK_TEST_ROOT"
     }
-    trap stow_test13_cleanup EXIT INT TERM
+    trap link_test13_cleanup EXIT INT TERM
 
-    # Unmanaged files at stowed paths, plus an unrelated file that must survive
-    mkdir -p "$STOW_FULL_HOME/.config/zsh" "$STOW_FULL_HOME/.config/nvim"
-    printf '%s\n' 'unmanaged zshrc' > "$STOW_FULL_HOME/.zshrc"
-    printf '%s\n' 'unmanaged aliases' > "$STOW_FULL_HOME/.config/zsh/aliases.zsh"
-    printf '%s\n' 'unrelated' > "$STOW_FULL_HOME/.config/nvim/unrelated.lua"
-
-    stow_full_run() {
-        HOME="$STOW_FULL_HOME" bash -c \
-            'source "$1"; DOTFILES="$2"; stow_dotfiles' \
-            _ "$STOW_FULL_REPO/install.sh" "$STOW_FULL_REPO" \
-            >"$STOW_FULL_HOME/$1.log" 2>&1
+    # Runs the real link_dotfiles against an isolated HOME and this checkout.
+    # $1=home dir, $2=OS (the profile written on first run), $3=log name
+    link_run() {
+        HOME="$1" bash -c \
+            'source "$1"; DOTFILES="$2"; OS="$3"; link_dotfiles' \
+            _ "$LINK_REPO/install.sh" "$LINK_REPO" "$2" \
+            >"$1.$3.log" 2>&1
     }
 
-    STOW_FULL_RESULT=0
-    stow_full_run run1 || STOW_FULL_RESULT=$?
-    STOW_FULL_BACKUP="$(find "$STOW_FULL_HOME" -maxdepth 1 -type d -name '.dotfiles-backup-*' -print -quit)"
+    # Existing machine: unmanaged files at linked paths next to app state
+    LINK_HOME="$LINK_TEST_ROOT/macos"
+    mkdir -p "$LINK_HOME/.pi/agent" "$LINK_HOME/.agents/skills/other-skill"
+    printf '%s\n' 'unmanaged zshrc' > "$LINK_HOME/.zshrc"
+    echo '{"unmanaged":true}' > "$LINK_HOME/.pi/agent/settings.json"
+    echo '{"secret":"state"}' > "$LINK_HOME/.pi/agent/auth.json"
+    echo '{"version":3}' > "$LINK_HOME/.agents/.skill-lock.json"
+    echo 'existing' > "$LINK_HOME/.agents/skills/other-skill/SKILL.md"
 
-    if [ "$STOW_FULL_RESULT" -eq 0 ] &&
-       [ -n "$STOW_FULL_BACKUP" ] &&
-       grep -qx 'unmanaged zshrc' "$STOW_FULL_BACKUP/.zshrc" &&
-       grep -qx 'unmanaged aliases' "$STOW_FULL_BACKUP/.config/zsh/aliases.zsh" &&
-       [ -L "$STOW_FULL_HOME/.zshrc" ] &&
-       [ -L "$STOW_FULL_HOME/.config/zsh/aliases.zsh" ] &&
-       grep -qx 'unrelated' "$STOW_FULL_HOME/.config/nvim/unrelated.lua"; then
-        echo -e "${GREEN}✓ stow_dotfiles backs up conflicting files (keeping paths) and links the repo${NC}"
+    LINK_RESULT=0
+    link_run "$LINK_HOME" macos run1 || LINK_RESULT=$?
+    LINK_BACKUP="$(find "$LINK_HOME/.dotstate-backups" -mindepth 1 -maxdepth 1 -type d -print -quit 2>/dev/null || true)"
+
+    if [ "$LINK_RESULT" -eq 0 ] &&
+       [ "$(readlink "$LINK_HOME/.zshrc")" = "$LINK_REPO/common/.zshrc" ] &&
+       [ "$(readlink "$LINK_HOME/AGENTS.md")" = "$LINK_REPO/common/AGENTS.md" ] &&
+       [ "$(readlink "$LINK_HOME/.config/kitty")" = "$LINK_REPO/macos/.config/kitty" ] &&
+       [ -n "$LINK_BACKUP" ] &&
+       grep -qx 'unmanaged zshrc' "$LINK_BACKUP/.zshrc" &&
+       grep -q '"unmanaged"' "$LINK_BACKUP/.pi/agent/settings.json"; then
+        echo -e "${GREEN}✓ macos profile links common and macOS configs and backs up conflicting files${NC}"
     else
-        echo -e "${RED}✗ stow_dotfiles must back up every conflicting file and then stow (exit $STOW_FULL_RESULT)${NC}"
-        cat "$STOW_FULL_HOME/run1.log"
-        STOW_FULL_ERRORS=$((STOW_FULL_ERRORS + 1))
+        echo -e "${RED}✗ link_dotfiles must link the macos profile and back up conflicting files (exit $LINK_RESULT)${NC}"
+        cat "$LINK_HOME.run1.log"
+        LINK_ERRORS=$((LINK_ERRORS + 1))
     fi
 
-    STOW_FULL_RESULT=0
-    stow_full_run run2 || STOW_FULL_RESULT=$?
-    if [ "$STOW_FULL_RESULT" -eq 0 ] && ! grep -q 'Backed up' "$STOW_FULL_HOME/run2.log"; then
-        echo -e "${GREEN}✓ a second stow_dotfiles run is a no-op${NC}"
+    if [ -d "$LINK_HOME/.pi/agent" ] && [ ! -L "$LINK_HOME/.pi/agent" ] &&
+       [ -L "$LINK_HOME/.pi/agent/settings.json" ] &&
+       grep -q '"secret"' "$LINK_HOME/.pi/agent/auth.json" &&
+       [ -d "$LINK_HOME/.agents/skills" ] && [ ! -L "$LINK_HOME/.agents/skills" ] &&
+       [ -L "$LINK_HOME/.agents/skills/paranoid-review" ] &&
+       [ "$(cat "$LINK_HOME/.agents/skills/other-skill/SKILL.md")" = "existing" ] &&
+       [ "$(cat "$LINK_HOME/.agents/.skill-lock.json")" = '{"version":3}' ]; then
+        echo -e "${GREEN}✓ ~/.pi/agent and ~/.agents/skills stay real directories with their state untouched${NC}"
     else
-        echo -e "${RED}✗ re-running stow_dotfiles must succeed without new backups (exit $STOW_FULL_RESULT)${NC}"
-        cat "$STOW_FULL_HOME/run2.log"
-        STOW_FULL_ERRORS=$((STOW_FULL_ERRORS + 1))
+        echo -e "${RED}✗ only pi settings.json and paranoid-review may be linked inside ~/.pi/agent and ~/.agents/skills${NC}"
+        LINK_ERRORS=$((LINK_ERRORS + 1))
     fi
 
-    stow_test13_cleanup
-    eval "${stow_test13_prev_exit_trap:-trap - EXIT}"
-    eval "${stow_test13_prev_int_trap:-trap - INT}"
-    eval "${stow_test13_prev_term_trap:-trap - TERM}"
-    unset -f stow_test13_cleanup stow_full_run
+    LINK_BACKUPS_BEFORE="$(find "$LINK_HOME/.dotstate-backups" -mindepth 1 -maxdepth 1 | wc -l)"
+    LINK_RESULT=0
+    link_run "$LINK_HOME" macos run2 || LINK_RESULT=$?
+    LINK_BACKUPS_AFTER="$(find "$LINK_HOME/.dotstate-backups" -mindepth 1 -maxdepth 1 | wc -l)"
+    if [ "$LINK_RESULT" -eq 0 ] && [ "$LINK_BACKUPS_BEFORE" -eq "$LINK_BACKUPS_AFTER" ]; then
+        echo -e "${GREEN}✓ a second link_dotfiles run is a no-op${NC}"
+    else
+        echo -e "${RED}✗ re-running link_dotfiles must succeed without new backups (exit $LINK_RESULT)${NC}"
+        cat "$LINK_HOME.run2.log"
+        LINK_ERRORS=$((LINK_ERRORS + 1))
+    fi
+
+    # Fresh Linux machine: common files only
+    LINK_LINUX_HOME="$LINK_TEST_ROOT/linux"
+    mkdir -p "$LINK_LINUX_HOME"
+    LINK_RESULT=0
+    link_run "$LINK_LINUX_HOME" linux run1 || LINK_RESULT=$?
+    if [ "$LINK_RESULT" -eq 0 ] &&
+       [ "$(readlink "$LINK_LINUX_HOME/.zshrc")" = "$LINK_REPO/common/.zshrc" ] &&
+       [ ! -e "$LINK_LINUX_HOME/.config/kitty" ] &&
+       [ ! -e "$LINK_LINUX_HOME/.config/aerospace" ]; then
+        echo -e "${GREEN}✓ linux profile links common configs only${NC}"
+    else
+        echo -e "${RED}✗ link_dotfiles must link only common configs for the linux profile (exit $LINK_RESULT)${NC}"
+        cat "$LINK_LINUX_HOME.run1.log"
+        LINK_ERRORS=$((LINK_ERRORS + 1))
+    fi
+
+    link_test13_cleanup
+    eval "${link_test13_prev_exit_trap:-trap - EXIT}"
+    eval "${link_test13_prev_int_trap:-trap - INT}"
+    eval "${link_test13_prev_term_trap:-trap - TERM}"
+    unset -f link_test13_cleanup link_run
 else
-    echo -e "${YELLOW}⚠ stow not installed, skipping full stow check${NC}"
+    echo -e "${YELLOW}⚠ dotstate not installed, skipping link_dotfiles check${NC}"
     WARNINGS=$((WARNINGS + 1))
 fi
 
-if [ $STOW_FULL_ERRORS -gt 0 ]; then
-    ERRORS=$((ERRORS + STOW_FULL_ERRORS))
+if [ $LINK_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + LINK_ERRORS))
 fi
 echo
 
