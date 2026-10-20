@@ -15,6 +15,7 @@ path=(
   ${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/bin}
   ${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/sbin}
   $path
+  $HOME/.docker/bin
 )
 
 # eza configuration
