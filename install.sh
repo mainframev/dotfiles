@@ -13,11 +13,11 @@ NC='\033[0m' # No Color
 
 # Configuration
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BREWFILE="$DOTFILES/.config/brew/Brewfile"
+BREWFILE="$DOTFILES/common/.config/brew/Brewfile"
 NO_GUI=false
 IN_CODESPACES=false
-# One backup directory per run, created on first use (see ensure_backup_dir)
-BACKUP_DIR=""
+# dotstate release installed on Linux, where its Homebrew tap has no binaries
+DOTSTATE_VERSION="0.4.1"
 
 # Detect GitHub Codespaces
 if [ -n "$CODESPACES" ]; then
@@ -85,14 +85,6 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Create this run's backup directory once and reuse it
-ensure_backup_dir() {
-    if [ -z "$BACKUP_DIR" ]; then
-        BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
-    fi
-    mkdir -p "$BACKUP_DIR"
-}
-
 # Download an installer script to a temp file, then run it with an interpreter.
 # Unlike `curl | sh` or `sh -c "$(curl ...)"`, a failed download is an error
 # instead of running an empty or truncated script.
@@ -132,7 +124,7 @@ setup_codespaces_environment() {
 
     if [ -d "$PERSISTED_DOTFILES" ]; then
         DOTFILES="$PERSISTED_DOTFILES"
-        BREWFILE="$DOTFILES/.config/brew/Brewfile"
+        BREWFILE="$DOTFILES/common/.config/brew/Brewfile"
         print_success "Using dotfiles at: $DOTFILES"
     else
         print_warning "Persisted dotfiles not found at $PERSISTED_DOTFILES"
@@ -341,7 +333,7 @@ install_oh_my_zsh() {
     fi
 
     print_header "Installing oh-my-zsh..."
-    # Keep the existing .zshrc (stow_dotfiles backs it up) and do not switch or start shells
+    # Keep the existing .zshrc (dotstate backs it up when linking) and do not switch or start shells
     KEEP_ZSHRC=yes RUNZSH=no CHSH=no \
         run_remote_installer https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh sh --unattended
     print_success "oh-my-zsh installed"
@@ -528,7 +520,7 @@ install_gh_extensions() {
         return
     fi
 
-    local extensions_file="$DOTFILES/.config/gh/extensions"
+    local extensions_file="$DOTFILES/common/.config/gh/extensions"
 
     if [ ! -f "$extensions_file" ]; then
         print_info "No gh extensions file found at $extensions_file"
@@ -570,85 +562,104 @@ install_gh_extensions() {
     fi
 }
 
-# Print home-relative paths that would block stowing, one per line.
-# Parses `stow --no` conflict messages (GNU Stow 2.3 and 2.4 formats).
-stow_conflicts() {
-    stow --dir="$DOTFILES" --target="$HOME" --no --restow . 2>&1 | sed -n \
-        -e 's/^  \* cannot stow .* over existing target \(.*\) since .*/\1/p' \
-        -e 's/^  \* existing target is neither a link nor a directory: \(.*\)/\1/p' \
-        -e 's/^  \* existing target is not owned by stow: \(.*\)/\1/p' \
-        -e 's/^  \* existing target is stowed to a different package: \(.*\) => .*/\1/p' || true
-}
-
-# Stow dotfiles
-stow_dotfiles() {
-    if ! command_exists stow; then
-        print_error "stow is not installed. Please install it first."
-        return 1
-    fi
-
-    print_header "Stowing dotfiles..."
-
-    # Back up every unmanaged file stow would refuse to replace, keeping its path
-    local conflict backed_up=false
-    while IFS= read -r conflict; do
-        [ -n "$conflict" ] || continue
-        if [ ! -e "$HOME/$conflict" ] && [ ! -L "$HOME/$conflict" ]; then
-            continue
-        fi
-        ensure_backup_dir
-        if [ "$backed_up" = false ]; then
-            print_warning "Backing up conflicting files to $BACKUP_DIR"
-            backed_up=true
-        fi
-        mkdir -p "$BACKUP_DIR/$(dirname "$conflict")"
-        mv "$HOME/$conflict" "$BACKUP_DIR/$conflict"
-        echo "  Backed up $conflict"
-    done < <(stow_conflicts)
-
-    # Directories holding generated state next to managed files. Creating them
-    # first stops Stow from folding them into symlinks into the repository.
-    local unfolded_dirs=(".pi/agent" ".agents/skills")
-
-    for dir in "${unfolded_dirs[@]}"; do
-        if [ ! -L "$HOME/$dir" ]; then
-            mkdir -p "$HOME/$dir"
-        fi
-    done
-
-    # Restow in one stow run: stale links are removed and new ones added together
-    stow --dir="$DOTFILES" --target="$HOME" --restow --verbose .
-
-    print_success "Dotfiles stowed"
-
-    if [ "$backed_up" = true ]; then
-        print_warning "Your original dotfiles have been backed up to: $BACKUP_DIR"
-    fi
-}
-
-# Link cross-project agent instructions into the user home directory
-install_global_agents() {
-    local source_file="$DOTFILES/GLOBAL_AGENTS.md"
-    local target_file="$HOME/AGENTS.md"
-
-    if [ ! -f "$source_file" ]; then
-        print_error "Global agent instructions not found: $source_file"
-        return 1
-    fi
-
-    if [ -L "$target_file" ] && [ "$(readlink "$target_file")" = "$source_file" ]; then
-        print_success "Global agent instructions already linked"
+# Install dotstate on Linux from its pinned release (macOS gets it from the Brewfile)
+install_dotstate() {
+    if command_exists dotstate; then
+        print_success "dotstate already installed"
         return
     fi
 
-    if [ -e "$target_file" ] || [ -L "$target_file" ]; then
-        ensure_backup_dir
-        mv "$target_file" "$BACKUP_DIR/AGENTS.md"
-        print_warning "Backed up existing AGENTS.md to $BACKUP_DIR"
+    if [ "$OS" != "linux" ]; then
+        print_error "dotstate is not installed; it should come from the Brewfile"
+        return 1
     fi
 
-    ln -s "$source_file" "$target_file"
-    print_success "Global agent instructions linked to $target_file"
+    local arch
+    case "$(uname -m)" in
+        x86_64) arch="x86_64" ;;
+        aarch64|arm64) arch="aarch64" ;;
+        *)
+            print_error "No dotstate release for architecture: $(uname -m)"
+            return 1
+            ;;
+    esac
+
+    print_header "Installing dotstate $DOTSTATE_VERSION..."
+
+    local asset="dotstate-$arch-unknown-linux-musl.tar.gz"
+    local url="https://github.com/serkanyersen/dotstate/releases/download/v$DOTSTATE_VERSION/$asset"
+    local tmp expected actual
+    tmp="$(mktemp -d)"
+
+    if ! curl -fsSL "$url" -o "$tmp/$asset" || ! curl -fsSL "$url.sha256" -o "$tmp/$asset.sha256"; then
+        rm -rf "$tmp"
+        print_error "Failed to download $url"
+        return 1
+    fi
+
+    expected="$(awk '{print $1}' "$tmp/$asset.sha256")"
+    actual="$(sha256sum "$tmp/$asset" | awk '{print $1}')"
+    if [ -z "$expected" ] || [ "$expected" != "$actual" ]; then
+        rm -rf "$tmp"
+        print_error "Checksum mismatch for $asset"
+        return 1
+    fi
+
+    mkdir -p "$HOME/.local/bin"
+    tar -xzf "$tmp/$asset" -C "$tmp"
+    install -m 755 "$tmp/dotstate" "$HOME/.local/bin/dotstate"
+    rm -rf "$tmp"
+
+    case ":$PATH:" in
+        *":$HOME/.local/bin:"*) ;;
+        *) export PATH="$HOME/.local/bin:$PATH" ;;
+    esac
+
+    print_success "dotstate installed to ~/.local/bin"
+}
+
+# Link dotfiles into $HOME with dotstate. Conflicting files and stale links
+# (e.g. from the old Stow setup) are backed up to ~/.dotstate-backups/.
+link_dotfiles() {
+    if ! command_exists dotstate; then
+        print_error "dotstate is not installed. Please install it first."
+        return 1
+    fi
+
+    print_header "Linking dotfiles with dotstate..."
+
+    local config="$HOME/.config/dotstate/config.toml"
+
+    # First-time setup is TUI-only in dotstate, so write a Local-mode config
+    # that uses this checkout and its existing git credentials.
+    if [ ! -f "$config" ]; then
+        mkdir -p "$(dirname "$config")"
+        cat > "$config" <<EOF
+repo_mode = "Local"
+repo_path = "$DOTFILES"
+active_profile = "$OS"
+backup_enabled = true
+EOF
+        print_info "Created $config (profile: $OS)"
+    elif ! grep -Fqx "repo_path = \"$DOTFILES\"" "$config"; then
+        print_warning "$config points at another repository; keeping it"
+    fi
+
+    dotstate activate
+
+    # activate is a no-op once a profile is active; doctor --fix re-activates
+    # to link paths added to the manifest since, and fails on broken links
+    local doctor_log
+    doctor_log="$(mktemp)"
+    if ! dotstate doctor --fix --no-colors >"$doctor_log" 2>&1; then
+        cat "$doctor_log"
+        rm -f "$doctor_log"
+        print_error "dotstate doctor reported errors"
+        return 1
+    fi
+    rm -f "$doctor_log"
+
+    print_success "Dotfiles linked"
 }
 
 # Install trusted Herd (herdr) plugins
@@ -783,8 +794,8 @@ main() {
     install_tpm
     install_uv
     install_opencode
-    stow_dotfiles
-    install_global_agents
+    install_dotstate
+    link_dotfiles
     install_herdr_plugins
     print_summary
 }

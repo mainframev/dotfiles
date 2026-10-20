@@ -47,7 +47,6 @@ brew "selene"
 brew "shellcheck"
 brew "sqlite3"
 brew "starship"
-brew "stow"
 brew "task"
 brew "tcl-tk"
 brew "tmux"
@@ -81,8 +80,11 @@ cask "zoom"
 if OS.mac?
   tap "nikitabobko/tap", trusted: true
   tap "FelixKratz/formulae", trusted: true
+  # Tap ships macOS binaries only; install.sh installs the Linux release
+  tap "serkanyersen/dotstate", trusted: true
 
   brew "borders"
+  brew "serkanyersen/dotstate/dotstate"
   brew "nowplaying-cli"
   brew "taproom"
   cask "azure-cli"
