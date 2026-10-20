@@ -79,7 +79,6 @@
 
 [init]
 	defaultBranch = main
-
 # Machine-local settings (credentials, work repos). Not tracked. Keep last so it overrides.
 [include]
   path = ~/.gitconfig.local
