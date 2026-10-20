@@ -1,0 +1,47 @@
+version = 2
+
+[common]
+synced_files = [
+    ".agents/skills/paranoid-review",
+    ".config/bat",
+    ".config/brew",
+    ".config/btop",
+    ".config/ccstatusline",
+    ".config/gh",
+    ".config/gh-dash",
+    ".config/herdr",
+    ".config/nvim",
+    ".config/opencode",
+    ".config/starship.toml",
+    ".config/task",
+    ".config/tmux",
+    ".config/worktrunk",
+    ".config/yazi",
+    ".config/zsh",
+    ".editorconfig",
+    ".gitconfig",
+    ".gitconfig-work",
+    ".pi/agent/settings.json",
+    ".zprofile",
+    ".zshenv",
+    ".zshrc",
+    "AGENTS.md",
+    "delta.gitconfig",
+]
+
+[[profiles]]
+name = "macos"
+description = "macOS desktop"
+synced_files = [
+    ".config/aerospace",
+    ".config/ghostty",
+    ".config/kitty",
+    ".config/zed",
+]
+packages = []
+
+[[profiles]]
+name = "linux"
+description = "Linux and Codespaces"
+synced_files = []
+packages = []
