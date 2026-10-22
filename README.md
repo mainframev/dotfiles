@@ -20,31 +20,6 @@ dotstate doctor                             # check links and the manifest
 dotstate sync -m "Update foo"               # commit, pull --rebase and push
 ```
 
-## Agent instructions
-
-- `AGENTS.md` contains instructions for working in this dotfiles repository.
-- `common/AGENTS.md` contains cross-project rules. dotstate links it to
-  `$HOME/AGENTS.md`.
-- Repository-local instruction files can refine or override the user-level
-  defaults. Tools with different discovery behavior may require their own
-  supported instruction entry point.
-- Medium-or-larger features use Worktrunk worktrees under
-  `$HOME/worktrees/<repository>/<sanitized-branch>`. The user chooses whether
-  formal SDD uses OpenSpec or no formal framework.
-
-## Agent skills
-
-- `common/.agents/skills/` holds skills shared by every coding agent. dotstate
-  links each one into `$HOME/.agents/skills/`, the same directory the
-  [skills CLI](https://github.com/vercel-labs/skills) installs into, so that
-  directory stays real instead of becoming a link into the repo.
-- Harness directories point at the shared copy: `common/.config/opencode/skills/`
-  carries a tracked symlink, and `~/.claude/skills/`, `~/.codex/skills/` and
-  `~/.copilot/skills/` get one via
-  `ln -s ../../.agents/skills/<name> ~/<harness>/skills/<name>`.
-- `paranoid-review` is an adversarial, evidence-first code review that reports
-  only verified defects and lists unproven concerns separately.
-
 ## Install
 
 ```sh
