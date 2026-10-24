@@ -825,18 +825,30 @@ install_agent_skills() {
 
     print_header "Installing agent skills..."
 
+    # An empty inventory yields no sources; anything but an object of
+    # entries with a non-empty sourceUrl is an error
     local sources
-    if ! sources="$(jq -er '.skills | [.[].sourceUrl] | unique[]' "$lock" 2>/dev/null)"; then
+    if ! sources="$(jq -r '
+            .skills
+            | if type == "object" and all(.[]; (.sourceUrl | type) == "string" and .sourceUrl != "")
+              then [.[].sourceUrl] | unique[]
+              else error("invalid skills")
+              end
+        ' "$lock" 2>/dev/null)"; then
         print_error "Failed to read sources from $lock"
         return 1
     fi
 
+    # The skills CLI replaces whatever is at the Claude Code link path, so
+    # never let it delete a real directory there
+    local claude_skills="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"
     local errors=0
     local source
     local name
     local missing
 
     while IFS= read -r source; do
+        [ -n "$source" ] || continue
         missing=()
         while IFS= read -r name; do
             # Skill names become paths under ~/.agents/skills
@@ -848,6 +860,8 @@ install_agent_skills() {
                 *)
                     if [ -d "$HOME/.agents/skills/$name" ]; then
                         print_success "Agent skill already installed: $name"
+                    elif [ -e "$claude_skills/$name" ] && [ ! -L "$claude_skills/$name" ]; then
+                        print_warning "Not installing agent skill $name: $claude_skills/$name exists and is not a link; move it away to install"
                     else
                         missing+=("$name")
                     fi

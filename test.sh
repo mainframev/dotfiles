@@ -1095,17 +1095,21 @@ esac
 STUB
     chmod +x "$SKILLS_TEST_DIR/bin/npx"
 
-    # $1=lockfile JSON, $2=source to fail (or ""), $3=CI value
+    # $1=lockfile JSON, $2=source to fail (or ""), $3=CI value, $4=skill to
+    # leave as a real directory in ~/.claude/skills, $5=skill to leave as a
+    # dangling link there
     run_skills_scenario() {
         local home="$SKILLS_TEST_DIR/home"
         rm -rf "$home"
-        mkdir -p "$home/.agents/skills/installed"
+        mkdir -p "$home/.agents/skills/installed" "$home/.claude/skills"
         printf '%s' "$1" > "$home/.agents/.skill-lock.json"
+        [ -z "${4:-}" ] || { mkdir -p "$home/.claude/skills/$4"; echo 'local' > "$home/.claude/skills/$4/SKILL.md"; }
+        [ -z "${5:-}" ] || ln -s "../../.agents/skills/$5" "$home/.claude/skills/$5"
         : > "$SKILLS_TEST_DIR/log"
         local ci=(-u CI)
         [ -z "${3:-}" ] || ci=("CI=$3")
         # Only the npx stub, jq and the base system tools are reachable
-        env "${ci[@]}" HOME="$home" PATH="$SKILLS_TEST_DIR/bin:$SKILLS_JQ_DIR:/usr/bin:/bin" \
+        env -u CLAUDE_CONFIG_DIR "${ci[@]}" HOME="$home" PATH="$SKILLS_TEST_DIR/bin:$SKILLS_JQ_DIR:/usr/bin:/bin" \
             SKILLS_STUB_LOG="$SKILLS_TEST_DIR/log" SKILLS_STUB_FAIL="$2" \
             bash -c 'source ./install.sh; install_agent_skills' >/dev/null 2>&1
     }
@@ -1143,10 +1147,30 @@ STUB
         SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
     fi
 
-    if ! run_skills_scenario 'not json' "" "" && [ ! -s "$SKILLS_TEST_DIR/log" ]; then
+    if run_skills_scenario "$SKILLS_LOCK" "" "" "alpha" "gamma" &&
+       grep -qx -- '-y skills add https://github.com/a/one.git --global --agent claude-code --yes --skill beta' "$SKILLS_TEST_DIR/log" &&
+       grep -q -- '--skill gamma$' "$SKILLS_TEST_DIR/log" &&
+       [ "$(cat "$SKILLS_TEST_DIR/home/.claude/skills/alpha/SKILL.md")" = "local" ]; then
+        echo -e "${GREEN}✓ real directories in ~/.claude/skills are never handed to the skills CLI${NC}"
+    else
+        echo -e "${RED}✗ install_agent_skills must skip skills whose ~/.claude/skills path is a real directory${NC}"
+        cat "$SKILLS_TEST_DIR/log"
+        SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    fi
+
+    if ! run_skills_scenario 'not json' "" "" && [ ! -s "$SKILLS_TEST_DIR/log" ] &&
+       ! run_skills_scenario '{"version":3,"skills":{"alpha":{"sourceUrl":1}}}' "" "" && [ ! -s "$SKILLS_TEST_DIR/log" ] &&
+       ! run_skills_scenario '{"version":3}' "" "" && [ ! -s "$SKILLS_TEST_DIR/log" ]; then
         echo -e "${GREEN}✓ a malformed lockfile fails without installing anything${NC}"
     else
-        echo -e "${RED}✗ install_agent_skills must fail on a malformed lockfile${NC}"
+        echo -e "${RED}✗ install_agent_skills must fail on malformed JSON, a missing skills object or a non-string sourceUrl${NC}"
+        SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    fi
+
+    if run_skills_scenario '{"version":3,"skills":{}}' "" "" && [ ! -s "$SKILLS_TEST_DIR/log" ]; then
+        echo -e "${GREEN}✓ an empty skill inventory succeeds without installing anything${NC}"
+    else
+        echo -e "${RED}✗ install_agent_skills must accept a lockfile with no skills${NC}"
         SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
     fi
 
