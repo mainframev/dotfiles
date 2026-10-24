@@ -1,0 +1,49 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "ccstatusline",
+    "padding": 0,
+    "refreshInterval": 10
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "mattpocock-skills@claude-plugins-official": true,
+    "code-simplifier@anthropic-plugin-directory": true,
+    "code-review@anthropic-plugin-directory": true,
+    "lua-lsp@anthropic-plugin-directory": true,
+    "commit-commands@anthropic-plugin-directory": true,
+    "remember@claude-plugins-official": true,
+    "excalidraw-plugin@anthropic-plugin-directory": true,
+    "web-dev@awesome-claude-code-plugins": true,
+    "backend-architect@awesome-claude-code-plugins": true,
+    "code-architect@awesome-claude-code-plugins": true
+  },
+  "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "obsidian-skills": {
+      "source": {
+        "source": "github",
+        "repo": "kepano/obsidian-skills"
+      }
+    },
+    "plannotator": {
+      "source": {
+        "source": "github",
+        "repo": "backnotprop/plannotator"
+      }
+    },
+    "awesome-claude-code-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "ccplugins/awesome-claude-code-plugins"
+      }
+    }
+  },
+  "theme": "custom:rose-pine",
+  "skipDangerousModePermissionPrompt": true
+}

@@ -10,9 +10,16 @@
 !/AGENTS.md
 !/README.md
 
-# Shared skills: only tracked skills, not ones the skills CLI installs
+# Shared skills: only tracked skills and the skills CLI lockfile, not the
+# skills it installs
 /common/.agents/*
 !/common/.agents/skills/
+!/common/.agents/.skill-lock.json
+
+# Claude Code: only portable settings and themes, never sessions or caches
+/common/.claude/*
+!/common/.claude/settings.json
+!/common/.claude/themes/
 
 # pi: only the settings file, never auth or session state
 /common/.pi/*

@@ -504,6 +504,28 @@ install_opencode() {
     fi
 }
 
+# Install ccstatusline, the Claude Code status line command set in
+# common/.claude/settings.json. It has no Homebrew formula, so use npm from
+# the Brewfile's node.
+install_ccstatusline() {
+    if command_exists ccstatusline; then
+        print_success "ccstatusline already installed"
+        return
+    fi
+
+    if ! command_exists npm; then
+        print_warning "npm not installed, skipping ccstatusline installation"
+        return
+    fi
+
+    print_header "Installing ccstatusline..."
+    if npm install --global ccstatusline </dev/null; then
+        print_success "ccstatusline installed"
+    else
+        print_warning "ccstatusline installation failed (may not be available in this environment)"
+    fi
+}
+
 # Install GitHub CLI extensions
 install_gh_extensions() {
     if ! command_exists gh; then
@@ -798,6 +820,95 @@ install_herdr_plugins() {
     fi
 }
 
+# Reinstall agent skills recorded in the skills CLI lockfile (linked from
+# common/.agents/.skill-lock.json) that are missing from ~/.agents/skills,
+# with one `skills add` per source repository, linked for Claude Code
+install_agent_skills() {
+    if [ -n "${CI:-}" ]; then
+        print_info "CI environment detected, skipping agent skill installation"
+        return
+    fi
+
+    local lock="$HOME/.agents/.skill-lock.json"
+    if [ ! -f "$lock" ]; then
+        print_warning "No skills lockfile at ~/.agents/.skill-lock.json, skipping agent skills"
+        return
+    fi
+
+    if ! command_exists npx; then
+        print_warning "npx not installed, skipping agent skill installation"
+        return
+    fi
+
+    if ! command_exists jq; then
+        print_error "jq is required to read the skills lockfile but is not installed"
+        return 1
+    fi
+
+    print_header "Installing agent skills..."
+
+    # An empty inventory yields no sources; anything but an object of
+    # entries with a non-empty sourceUrl is an error
+    local sources
+    if ! sources="$(jq -r '
+            .skills
+            | if type == "object" and all(.[]; (.sourceUrl | type) == "string" and .sourceUrl != "")
+              then [.[].sourceUrl] | unique[]
+              else error("invalid skills")
+              end
+        ' "$lock" 2>/dev/null)"; then
+        print_error "Failed to read sources from $lock"
+        return 1
+    fi
+
+    # The skills CLI replaces whatever is at the Claude Code link path, so
+    # never let it delete a real directory there
+    local claude_skills="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"
+    local errors=0
+    local source
+    local name
+    local missing
+
+    while IFS= read -r source; do
+        [ -n "$source" ] || continue
+        missing=()
+        while IFS= read -r name; do
+            # Skill names become paths under ~/.agents/skills
+            case "$name" in
+                ""|.*|*/*)
+                    print_error "Skipping invalid skill name in $lock: $name"
+                    errors=$((errors + 1))
+                    ;;
+                *)
+                    if [ -d "$HOME/.agents/skills/$name" ]; then
+                        print_success "Agent skill already installed: $name"
+                    elif [ -e "$claude_skills/$name" ] && [ ! -L "$claude_skills/$name" ]; then
+                        print_warning "Not installing agent skill $name: $claude_skills/$name exists and is not a link; move it away to install"
+                    else
+                        missing+=("$name")
+                    fi
+                    ;;
+            esac
+        done < <(jq -r --arg src "$source" \
+            '.skills | to_entries[] | select(.value.sourceUrl == $src) | .key' "$lock")
+
+        [ ${#missing[@]} -gt 0 ] || continue
+
+        # --skill takes every following argument, so it goes last
+        print_info "Installing agent skills from $source: ${missing[*]}"
+        if npx -y skills add "$source" --global --agent claude-code --yes --skill "${missing[@]}" </dev/null; then
+            print_success "Agent skills installed from $source"
+        else
+            print_error "Failed to install agent skills from $source"
+            errors=$((errors + 1))
+        fi
+    done <<< "$sources"
+
+    if [ $errors -gt 0 ]; then
+        return 1
+    fi
+}
+
 # Print installation summary
 print_summary() {
     echo ""
@@ -861,9 +972,11 @@ main() {
     install_tpm
     install_uv
     install_opencode
+    install_ccstatusline
     install_dotstate
     link_dotfiles
     install_herdr_plugins
+    install_agent_skills
     print_summary
 }
 
