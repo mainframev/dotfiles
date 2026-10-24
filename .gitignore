@@ -16,6 +16,11 @@
 !/common/.agents/skills/
 !/common/.agents/.skill-lock.json
 
+# Claude Code: only portable settings and themes, never sessions or caches
+/common/.claude/*
+!/common/.claude/settings.json
+!/common/.claude/themes/
+
 # pi: only the settings file, never auth or session state
 /common/.pi/*
 !/common/.pi/agent/

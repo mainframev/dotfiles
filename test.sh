@@ -861,6 +861,35 @@ else
     MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
 fi
 
+if git check-ignore -q --no-index common/.claude/settings.json ||
+   git check-ignore -q --no-index common/.claude/themes/rose-pine.json; then
+    echo -e "${RED}✗ common/.claude/settings.json and themes/ must remain trackable${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
+else
+    echo -e "${GREEN}✓ Claude Code settings and themes are trackable${NC}"
+fi
+
+if git check-ignore -q --no-index common/.claude/projects/x/session.jsonl &&
+   git check-ignore -q --no-index common/.claude/settings.local.json &&
+   git check-ignore -q --no-index common/.claude/.credentials.json; then
+    echo -e "${GREEN}✓ Claude Code sessions, local settings and credentials are ignored${NC}"
+else
+    echo -e "${RED}✗ only settings.json and themes/ may be tracked under common/.claude${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
+fi
+
+if command_exists jq && [ -f common/.claude/settings.json ] &&
+   jq -e 'has("autoMode") or has("permissions") or has("env") or has("apiKeyHelper") | not' \
+       common/.claude/settings.json >/dev/null 2>&1; then
+    echo -e "${GREEN}✓ tracked Claude Code settings hold no project, permission or credential keys${NC}"
+elif ! command_exists jq; then
+    echo -e "${YELLOW}⚠ jq not installed, skipping Claude Code settings key check${NC}"
+    WARNINGS=$((WARNINGS + 1))
+else
+    echo -e "${RED}✗ common/.claude/settings.json must be valid JSON without autoMode, permissions, env or apiKeyHelper${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
+fi
+
 if [ -L "common/.config/opencode/skills/paranoid-review" ] && [ -f "common/.config/opencode/skills/paranoid-review/SKILL.md" ]; then
     echo -e "${GREEN}✓ opencode paranoid-review skill links to the shared skill${NC}"
 else
@@ -899,12 +928,14 @@ if command_exists dotstate; then
 
     # Existing machine: unmanaged files at linked paths next to app state
     LINK_HOME="$LINK_TEST_ROOT/macos"
-    mkdir -p "$LINK_HOME/.pi/agent" "$LINK_HOME/.agents/skills/other-skill"
+    mkdir -p "$LINK_HOME/.pi/agent" "$LINK_HOME/.agents/skills/other-skill" "$LINK_HOME/.claude/projects"
     printf '%s\n' 'unmanaged zshrc' > "$LINK_HOME/.zshrc"
     echo '{"unmanaged":true}' > "$LINK_HOME/.pi/agent/settings.json"
     echo '{"secret":"state"}' > "$LINK_HOME/.pi/agent/auth.json"
     echo '{"version":3}' > "$LINK_HOME/.agents/.skill-lock.json"
     echo 'existing' > "$LINK_HOME/.agents/skills/other-skill/SKILL.md"
+    echo '{"unmanaged":"claude"}' > "$LINK_HOME/.claude/settings.json"
+    echo 'session' > "$LINK_HOME/.claude/projects/session.jsonl"
 
     LINK_RESULT=0
     link_run "$LINK_HOME" macos run1 || LINK_RESULT=$?
@@ -917,7 +948,8 @@ if command_exists dotstate; then
        [ -n "$LINK_BACKUP" ] &&
        grep -qx 'unmanaged zshrc' "$LINK_BACKUP/.zshrc" &&
        grep -q '"unmanaged"' "$LINK_BACKUP/.pi/agent/settings.json" &&
-       grep -q '"version":3' "$LINK_BACKUP/.agents/.skill-lock.json"; then
+       grep -q '"version":3' "$LINK_BACKUP/.agents/.skill-lock.json" &&
+       grep -q '"claude"' "$LINK_BACKUP/.claude/settings.json"; then
         echo -e "${GREEN}✓ macos profile links common and macOS configs and backs up conflicting files${NC}"
     else
         echo -e "${RED}✗ link_dotfiles must link the macos profile and back up conflicting files (exit $LINK_RESULT)${NC}"
@@ -931,10 +963,14 @@ if command_exists dotstate; then
        [ -d "$LINK_HOME/.agents/skills" ] && [ ! -L "$LINK_HOME/.agents/skills" ] &&
        [ -L "$LINK_HOME/.agents/skills/paranoid-review" ] &&
        [ "$(cat "$LINK_HOME/.agents/skills/other-skill/SKILL.md")" = "existing" ] &&
-       [ "$(readlink "$LINK_HOME/.agents/.skill-lock.json")" = "$LINK_REPO/common/.agents/.skill-lock.json" ]; then
-        echo -e "${GREEN}✓ ~/.pi/agent and ~/.agents stay real directories with their state untouched${NC}"
+       [ "$(readlink "$LINK_HOME/.agents/.skill-lock.json")" = "$LINK_REPO/common/.agents/.skill-lock.json" ] &&
+       [ -d "$LINK_HOME/.claude" ] && [ ! -L "$LINK_HOME/.claude" ] &&
+       [ "$(readlink "$LINK_HOME/.claude/settings.json")" = "$LINK_REPO/common/.claude/settings.json" ] &&
+       [ "$(readlink "$LINK_HOME/.claude/themes")" = "$LINK_REPO/common/.claude/themes" ] &&
+       [ "$(cat "$LINK_HOME/.claude/projects/session.jsonl")" = "session" ]; then
+        echo -e "${GREEN}✓ ~/.pi/agent, ~/.agents and ~/.claude stay real directories with their state untouched${NC}"
     else
-        echo -e "${RED}✗ only pi settings.json, the skills lockfile and paranoid-review may be linked inside ~/.pi/agent and ~/.agents${NC}"
+        echo -e "${RED}✗ only tracked settings, themes, the skills lockfile and paranoid-review may be linked inside ~/.pi/agent, ~/.agents and ~/.claude${NC}"
         LINK_ERRORS=$((LINK_ERRORS + 1))
     fi
 

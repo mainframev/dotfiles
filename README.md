@@ -53,6 +53,7 @@ What I currently use:
 - [Bat](https://github.com/sharkdp/bat) - Cat clone with syntax highlighting
 - [btop](https://github.com/aristocratos/btop) - Resource monitor
 - [ccstatusline](https://github.com/sirmalloc/ccstatusline) - Claude Code status line
+- [Claude Code](https://code.claude.com/) - AI coding agent; only `~/.claude/settings.json` (statusline, plugins, marketplaces, theme) and `~/.claude/themes` are managed. Keep project-specific `autoMode` and permissions out of the tracked file, since this repository is public
 - [Git](https://git-scm.com/) with [Delta](https://github.com/dandavison/delta) - Version control with Delta configured as the pager
 - [GitHub CLI](https://cli.github.com/) - GitHub command line tool
 - [gh-dash](https://github.com/dlvhdr/gh-dash) - GitHub CLI dashboard
