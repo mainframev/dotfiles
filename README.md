@@ -53,7 +53,6 @@ What I currently use:
 - [Bat](https://github.com/sharkdp/bat) - Cat clone with syntax highlighting
 - [btop](https://github.com/aristocratos/btop) - Resource monitor
 - [ccstatusline](https://github.com/sirmalloc/ccstatusline) - Claude Code status line
-- [Claude Code](https://code.claude.com/) - AI coding agent; only `~/.claude/settings.json` (statusline, plugins, marketplaces, theme) and `~/.claude/themes` are managed. Keep project-specific `autoMode` and permissions out of the tracked file, since this repository is public
 - [Git](https://git-scm.com/) with [Delta](https://github.com/dandavison/delta) - Version control with Delta configured as the pager
 - [GitHub CLI](https://cli.github.com/) - GitHub command line tool
 - [gh-dash](https://github.com/dlvhdr/gh-dash) - GitHub CLI dashboard
@@ -64,7 +63,6 @@ What I currently use:
 - [Neovim](https://neovim.io/) - Hyperextensible Vim-based text editor
 - [OpenCode](https://opencode.ai/) - AI coding assistant
 - [pi](https://github.com/earendil-works/pi) - Coding agent; only `~/.pi/agent/settings.json` is managed, and pi installs missing packages from it on startup
-- [skills](https://github.com/vercel-labs/skills) - Agent skills CLI; its lockfile `~/.agents/.skill-lock.json` is managed, the installed skills are not
 - [Starship](https://starship.rs/) - Cross-shell prompt
 - [Taskwarrior](https://taskwarrior.org/) - Command line task manager
 - [Tmux](https://github.com/tmux/tmux/wiki) - Terminal multiplexer
