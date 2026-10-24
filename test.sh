@@ -848,9 +848,16 @@ else
 fi
 
 if git check-ignore -q --no-index common/.agents/.skill-lock.json; then
-    echo -e "${GREEN}✓ skills CLI lockfile under common/.agents is ignored${NC}"
+    echo -e "${RED}✗ common/.agents/.skill-lock.json must remain trackable${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
 else
-    echo -e "${RED}✗ common/.agents/.skill-lock.json must be ignored${NC}"
+    echo -e "${GREEN}✓ skills CLI lockfile under common/.agents is trackable${NC}"
+fi
+
+if git check-ignore -q --no-index common/.agents/skills-cli-cache/x; then
+    echo -e "${GREEN}✓ skills CLI installs under common/.agents are ignored${NC}"
+else
+    echo -e "${RED}✗ only skills/ and .skill-lock.json may be tracked under common/.agents${NC}"
     MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
 fi
 
@@ -909,7 +916,8 @@ if command_exists dotstate; then
        [ "$(readlink "$LINK_HOME/.config/kitty")" = "$LINK_REPO/macos/.config/kitty" ] &&
        [ -n "$LINK_BACKUP" ] &&
        grep -qx 'unmanaged zshrc' "$LINK_BACKUP/.zshrc" &&
-       grep -q '"unmanaged"' "$LINK_BACKUP/.pi/agent/settings.json"; then
+       grep -q '"unmanaged"' "$LINK_BACKUP/.pi/agent/settings.json" &&
+       grep -q '"version":3' "$LINK_BACKUP/.agents/.skill-lock.json"; then
         echo -e "${GREEN}✓ macos profile links common and macOS configs and backs up conflicting files${NC}"
     else
         echo -e "${RED}✗ link_dotfiles must link the macos profile and back up conflicting files (exit $LINK_RESULT)${NC}"
@@ -923,10 +931,10 @@ if command_exists dotstate; then
        [ -d "$LINK_HOME/.agents/skills" ] && [ ! -L "$LINK_HOME/.agents/skills" ] &&
        [ -L "$LINK_HOME/.agents/skills/paranoid-review" ] &&
        [ "$(cat "$LINK_HOME/.agents/skills/other-skill/SKILL.md")" = "existing" ] &&
-       [ "$(cat "$LINK_HOME/.agents/.skill-lock.json")" = '{"version":3}' ]; then
-        echo -e "${GREEN}✓ ~/.pi/agent and ~/.agents/skills stay real directories with their state untouched${NC}"
+       [ "$(readlink "$LINK_HOME/.agents/.skill-lock.json")" = "$LINK_REPO/common/.agents/.skill-lock.json" ]; then
+        echo -e "${GREEN}✓ ~/.pi/agent and ~/.agents stay real directories with their state untouched${NC}"
     else
-        echo -e "${RED}✗ only pi settings.json and paranoid-review may be linked inside ~/.pi/agent and ~/.agents/skills${NC}"
+        echo -e "${RED}✗ only pi settings.json, the skills lockfile and paranoid-review may be linked inside ~/.pi/agent and ~/.agents${NC}"
         LINK_ERRORS=$((LINK_ERRORS + 1))
     fi
 
@@ -1011,6 +1019,120 @@ fi
 
 if [ $LINK_ERRORS -gt 0 ]; then
     ERRORS=$((ERRORS + LINK_ERRORS))
+fi
+echo
+
+# Test 14: install_agent_skills restores missing skills from the lockfile
+echo -e "${BLUE}→ Checking agent skill installation...${NC}"
+SKILLS_ERRORS=0
+
+LINK_LINE=$(grep -n '^    link_dotfiles$' install.sh | cut -d: -f1)
+SKILLS_INSTALL_LINE=$(grep -n '^    install_agent_skills$' install.sh | cut -d: -f1)
+if [ -n "$LINK_LINE" ] && [ -n "$SKILLS_INSTALL_LINE" ] && [ "$LINK_LINE" -lt "$SKILLS_INSTALL_LINE" ]; then
+    echo -e "${GREEN}✓ agent skills install after dotfiles are linked${NC}"
+else
+    echo -e "${RED}✗ install_agent_skills must run after link_dotfiles in main${NC}"
+    SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+fi
+
+if command_exists jq; then
+    SKILLS_TEST_DIR="$(mktemp -d "${TMPDIR:-/tmp}/agent-skills-test.XXXXXX")"
+    SKILLS_JQ_DIR="$(dirname "$(command -v jq)")"
+
+    skills_test14_prev_exit_trap="$(trap -p EXIT)"
+    skills_test14_prev_int_trap="$(trap -p INT)"
+    skills_test14_prev_term_trap="$(trap -p TERM)"
+    skills_test14_cleanup() {
+        rm -rf "$SKILLS_TEST_DIR"
+    }
+    trap skills_test14_cleanup EXIT INT TERM
+
+    # Stub npx: logs every invocation ("$*") and fails for one scripted source,
+    # so tests never reach the network or the real skills directory
+    mkdir -p "$SKILLS_TEST_DIR/bin"
+    cat > "$SKILLS_TEST_DIR/bin/npx" <<'STUB'
+#!/usr/bin/env bash
+echo "$*" >> "$SKILLS_STUB_LOG"
+case "$*" in
+    *"${SKILLS_STUB_FAIL:-<none>}"*) exit 1 ;;
+esac
+STUB
+    chmod +x "$SKILLS_TEST_DIR/bin/npx"
+
+    # $1=lockfile JSON, $2=source to fail (or ""), $3=CI value
+    run_skills_scenario() {
+        local home="$SKILLS_TEST_DIR/home"
+        rm -rf "$home"
+        mkdir -p "$home/.agents/skills/installed"
+        printf '%s' "$1" > "$home/.agents/.skill-lock.json"
+        : > "$SKILLS_TEST_DIR/log"
+        local ci=(-u CI)
+        [ -z "${3:-}" ] || ci=("CI=$3")
+        # Only the npx stub, jq and the base system tools are reachable
+        env "${ci[@]}" HOME="$home" PATH="$SKILLS_TEST_DIR/bin:$SKILLS_JQ_DIR:/usr/bin:/bin" \
+            SKILLS_STUB_LOG="$SKILLS_TEST_DIR/log" SKILLS_STUB_FAIL="$2" \
+            bash -c 'source ./install.sh; install_agent_skills' >/dev/null 2>&1
+    }
+
+    SKILLS_LOCK='{"version":3,"skills":{
+        "installed":{"sourceUrl":"https://github.com/a/one.git"},
+        "alpha":{"sourceUrl":"https://github.com/a/one.git"},
+        "beta":{"sourceUrl":"https://github.com/a/one.git"},
+        "gamma":{"sourceUrl":"https://github.com/b/two.git"}}}'
+
+    if run_skills_scenario "$SKILLS_LOCK" "" "" &&
+       [ "$(wc -l < "$SKILLS_TEST_DIR/log")" -eq 2 ] &&
+       grep -qx -- '-y skills add https://github.com/a/one.git --global --agent claude-code --yes --skill alpha beta' "$SKILLS_TEST_DIR/log" &&
+       grep -qx -- '-y skills add https://github.com/b/two.git --global --agent claude-code --yes --skill gamma' "$SKILLS_TEST_DIR/log"; then
+        echo -e "${GREEN}✓ missing skills install once per source and installed ones are skipped${NC}"
+    else
+        echo -e "${RED}✗ install_agent_skills must run one skills add per source for missing skills only${NC}"
+        cat "$SKILLS_TEST_DIR/log"
+        SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    fi
+
+    if ! run_skills_scenario "$SKILLS_LOCK" "b/two" "" &&
+       grep -q 'a/one' "$SKILLS_TEST_DIR/log"; then
+        echo -e "${GREEN}✓ a failed source fails the step without stopping other sources${NC}"
+    else
+        echo -e "${RED}✗ install_agent_skills must try every source and fail when one does${NC}"
+        SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    fi
+
+    if ! run_skills_scenario '{"version":3,"skills":{"../escape":{"sourceUrl":"https://github.com/a/one.git"}}}' "" "" &&
+       [ ! -s "$SKILLS_TEST_DIR/log" ]; then
+        echo -e "${GREEN}✓ skill names that are not plain directory names are rejected${NC}"
+    else
+        echo -e "${RED}✗ install_agent_skills must reject skill names containing / or starting with .${NC}"
+        SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    fi
+
+    if ! run_skills_scenario 'not json' "" "" && [ ! -s "$SKILLS_TEST_DIR/log" ]; then
+        echo -e "${GREEN}✓ a malformed lockfile fails without installing anything${NC}"
+    else
+        echo -e "${RED}✗ install_agent_skills must fail on a malformed lockfile${NC}"
+        SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    fi
+
+    if run_skills_scenario "$SKILLS_LOCK" "" "true" && [ ! -s "$SKILLS_TEST_DIR/log" ]; then
+        echo -e "${GREEN}✓ agent skill installation is skipped in CI${NC}"
+    else
+        echo -e "${RED}✗ install_agent_skills must skip in CI${NC}"
+        SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
+    fi
+
+    skills_test14_cleanup
+    eval "${skills_test14_prev_exit_trap:-trap - EXIT}"
+    eval "${skills_test14_prev_int_trap:-trap - INT}"
+    eval "${skills_test14_prev_term_trap:-trap - TERM}"
+    unset -f skills_test14_cleanup run_skills_scenario
+else
+    echo -e "${YELLOW}⚠ jq not installed, skipping agent skill installation check${NC}"
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+if [ $SKILLS_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + SKILLS_ERRORS))
 fi
 echo
 

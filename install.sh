@@ -798,6 +798,81 @@ install_herdr_plugins() {
     fi
 }
 
+# Reinstall agent skills recorded in the skills CLI lockfile (linked from
+# common/.agents/.skill-lock.json) that are missing from ~/.agents/skills,
+# with one `skills add` per source repository, linked for Claude Code
+install_agent_skills() {
+    if [ -n "${CI:-}" ]; then
+        print_info "CI environment detected, skipping agent skill installation"
+        return
+    fi
+
+    local lock="$HOME/.agents/.skill-lock.json"
+    if [ ! -f "$lock" ]; then
+        print_warning "No skills lockfile at ~/.agents/.skill-lock.json, skipping agent skills"
+        return
+    fi
+
+    if ! command_exists npx; then
+        print_warning "npx not installed, skipping agent skill installation"
+        return
+    fi
+
+    if ! command_exists jq; then
+        print_error "jq is required to read the skills lockfile but is not installed"
+        return 1
+    fi
+
+    print_header "Installing agent skills..."
+
+    local sources
+    if ! sources="$(jq -er '.skills | [.[].sourceUrl] | unique[]' "$lock" 2>/dev/null)"; then
+        print_error "Failed to read sources from $lock"
+        return 1
+    fi
+
+    local errors=0
+    local source
+    local name
+    local missing
+
+    while IFS= read -r source; do
+        missing=()
+        while IFS= read -r name; do
+            # Skill names become paths under ~/.agents/skills
+            case "$name" in
+                ""|.*|*/*)
+                    print_error "Skipping invalid skill name in $lock: $name"
+                    errors=$((errors + 1))
+                    ;;
+                *)
+                    if [ -d "$HOME/.agents/skills/$name" ]; then
+                        print_success "Agent skill already installed: $name"
+                    else
+                        missing+=("$name")
+                    fi
+                    ;;
+            esac
+        done < <(jq -r --arg src "$source" \
+            '.skills | to_entries[] | select(.value.sourceUrl == $src) | .key' "$lock")
+
+        [ ${#missing[@]} -gt 0 ] || continue
+
+        # --skill takes every following argument, so it goes last
+        print_info "Installing agent skills from $source: ${missing[*]}"
+        if npx -y skills add "$source" --global --agent claude-code --yes --skill "${missing[@]}" </dev/null; then
+            print_success "Agent skills installed from $source"
+        else
+            print_error "Failed to install agent skills from $source"
+            errors=$((errors + 1))
+        fi
+    done <<< "$sources"
+
+    if [ $errors -gt 0 ]; then
+        return 1
+    fi
+}
+
 # Print installation summary
 print_summary() {
     echo ""
@@ -864,6 +939,7 @@ main() {
     install_dotstate
     link_dotfiles
     install_herdr_plugins
+    install_agent_skills
     print_summary
 }
 

@@ -33,7 +33,9 @@ cd ~/dotfiles
 plugins, and dotstate (from its Homebrew tap on macOS, the pinned release on
 Linux). On first run it writes `~/.config/dotstate/config.toml` for this
 checkout in Local mode with the `macos` or `linux` profile, then links
-everything with dotstate. Files in the way are moved to
+everything with dotstate and reinstalls any agent skill recorded in
+`~/.agents/.skill-lock.json` that is missing from `~/.agents/skills`, using
+`npx skills add --global --agent claude-code`. Files in the way are moved to
 `~/.dotstate-backups/<timestamp>/` with their paths kept. Re-running is safe and
 links paths added to the manifest since. Run `./test.sh` to validate configs and
 installer behavior.
@@ -61,6 +63,7 @@ What I currently use:
 - [Neovim](https://neovim.io/) - Hyperextensible Vim-based text editor
 - [OpenCode](https://opencode.ai/) - AI coding assistant
 - [pi](https://github.com/earendil-works/pi) - Coding agent; only `~/.pi/agent/settings.json` is managed, and pi installs missing packages from it on startup
+- [skills](https://github.com/vercel-labs/skills) - Agent skills CLI; its lockfile `~/.agents/.skill-lock.json` is managed, the installed skills are not
 - [Starship](https://starship.rs/) - Cross-shell prompt
 - [Taskwarrior](https://taskwarrior.org/) - Command line task manager
 - [Tmux](https://github.com/tmux/tmux/wiki) - Terminal multiplexer

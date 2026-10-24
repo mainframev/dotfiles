@@ -2,6 +2,7 @@ version = 2
 
 [common]
 synced_files = [
+    ".agents/.skill-lock.json",
     ".agents/skills/paranoid-review",
     ".config/bat",
     ".config/brew",
