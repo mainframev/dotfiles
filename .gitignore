@@ -36,7 +36,8 @@
 /common/.config/herdr/session.json
 /common/.config/herdr/release-notes.json
 /common/.config/herdr/plugins.json
-/common/.config/herdr/plugins/github/
+/common/.config/herdr/plugins/*
+!/common/.config/herdr/plugins/config/
 /common/.config/herdr/.plugins.lock
 /common/.config/herdr/herdr.sock.agent
 /common/.config/herdr/session-snapshots/
