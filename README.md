@@ -41,12 +41,8 @@ in the way are moved to `~/.dotstate-backups/<timestamp>/` with their paths
 kept. Re-running is safe and links paths added to the manifest since. Run
 `./test.sh` to validate configs and installer behavior.
 
-Coming from the old Stow layout, `install.sh` moves untracked state left at the
-old paths (for example `.config/zsh/secrets.zsh`, herdr sessions, tmux plugins)
-into `common/` or `macos/`, and drops dangling folded Stow links such as
-`~/.pi/agent`. To stop managing a path, run `dotstate remove <path> --yes`
-before deleting it from the repository, or `dotstate doctor` keeps reporting its
-dangling link.
+To stop managing a path, run `dotstate remove <path> --yes` before deleting it
+from the repository, or `dotstate doctor` keeps reporting its dangling link.
 
 What I currently use:
 
