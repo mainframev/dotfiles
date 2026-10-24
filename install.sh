@@ -504,6 +504,28 @@ install_opencode() {
     fi
 }
 
+# Install ccstatusline, the Claude Code status line command set in
+# common/.claude/settings.json. It has no Homebrew formula, so use npm from
+# the Brewfile's node.
+install_ccstatusline() {
+    if command_exists ccstatusline; then
+        print_success "ccstatusline already installed"
+        return
+    fi
+
+    if ! command_exists npm; then
+        print_warning "npm not installed, skipping ccstatusline installation"
+        return
+    fi
+
+    print_header "Installing ccstatusline..."
+    if npm install --global ccstatusline </dev/null; then
+        print_success "ccstatusline installed"
+    else
+        print_warning "ccstatusline installation failed (may not be available in this environment)"
+    fi
+}
+
 # Install GitHub CLI extensions
 install_gh_extensions() {
     if ! command_exists gh; then
@@ -950,6 +972,7 @@ main() {
     install_tpm
     install_uv
     install_opencode
+    install_ccstatusline
     install_dotstate
     link_dotfiles
     install_herdr_plugins

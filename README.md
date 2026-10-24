@@ -30,16 +30,16 @@ cd ~/dotfiles
 ```
 
 `install.sh` installs Homebrew and the Brewfile, oh-my-zsh and its custom
-plugins, and dotstate (from its Homebrew tap on macOS, the pinned release on
-Linux). On first run it writes `~/.config/dotstate/config.toml` for this
-checkout in Local mode with the `macos` or `linux` profile, then links
-everything with dotstate and reinstalls any agent skill recorded in
-`~/.agents/.skill-lock.json` that is missing from `~/.agents/skills`, using `npx
-skills add --global --agent claude-code`, leaving any skill whose
-`~/.claude/skills/<name>` is a real directory untouched. Files in the way are
-moved to `~/.dotstate-backups/<timestamp>/` with their paths kept. Re-running is
-safe and links paths added to the manifest since. Run `./test.sh` to validate
-configs and installer behavior.
+plugins, ccstatusline (with npm), and dotstate (from its Homebrew tap on macOS,
+the pinned release on Linux). On first run it writes
+`~/.config/dotstate/config.toml` for this checkout in Local mode with the
+`macos` or `linux` profile, then links everything with dotstate and reinstalls
+any agent skill recorded in `~/.agents/.skill-lock.json` that is missing from
+`~/.agents/skills`, using `npx skills add --global --agent claude-code`, leaving
+any skill whose `~/.claude/skills/<name>` is a real directory untouched. Files
+in the way are moved to `~/.dotstate-backups/<timestamp>/` with their paths
+kept. Re-running is safe and links paths added to the manifest since. Run
+`./test.sh` to validate configs and installer behavior.
 
 Coming from the old Stow layout, `install.sh` moves untracked state left at the
 old paths (for example `.config/zsh/secrets.zsh`, herdr sessions, tmux plugins)

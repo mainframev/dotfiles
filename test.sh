@@ -1196,6 +1196,50 @@ if [ $SKILLS_ERRORS -gt 0 ]; then
 fi
 echo
 
+# Test 15: install_ccstatusline installs the status line command once
+echo -e "${BLUE}→ Checking ccstatusline installation...${NC}"
+CCSTATUS_ERRORS=0
+CCSTATUS_TEST_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ccstatusline-test.XXXXXX")"
+mkdir -p "$CCSTATUS_TEST_DIR/bin"
+cat > "$CCSTATUS_TEST_DIR/bin/npm" <<'STUB'
+#!/usr/bin/env bash
+echo "$*" >> "$CCSTATUS_STUB_LOG"
+STUB
+chmod +x "$CCSTATUS_TEST_DIR/bin/npm"
+
+# $1=extra stub to put on PATH (ccstatusline or "")
+run_ccstatus_scenario() {
+    : > "$CCSTATUS_TEST_DIR/log"
+    rm -f "$CCSTATUS_TEST_DIR/bin/ccstatusline"
+    [ -z "$1" ] || { printf '#!/bin/sh\n' > "$CCSTATUS_TEST_DIR/bin/$1"; chmod +x "$CCSTATUS_TEST_DIR/bin/$1"; }
+    env PATH="$CCSTATUS_TEST_DIR/bin:/usr/bin:/bin" CCSTATUS_STUB_LOG="$CCSTATUS_TEST_DIR/log" \
+        bash -c 'source ./install.sh; install_ccstatusline' >/dev/null 2>&1
+}
+
+if run_ccstatus_scenario "" && grep -qx 'install --global ccstatusline' "$CCSTATUS_TEST_DIR/log" &&
+   run_ccstatus_scenario ccstatusline && [ ! -s "$CCSTATUS_TEST_DIR/log" ]; then
+    echo -e "${GREEN}✓ ccstatusline installs with npm only when missing${NC}"
+else
+    echo -e "${RED}✗ install_ccstatusline must run npm install --global ccstatusline only when it is missing${NC}"
+    CCSTATUS_ERRORS=$((CCSTATUS_ERRORS + 1))
+fi
+
+INSTALL_LINE=$(grep -n '^    install_brew_packages$' install.sh | cut -d: -f1)
+CCSTATUS_LINE=$(grep -n '^    install_ccstatusline$' install.sh | cut -d: -f1)
+if [ -n "$INSTALL_LINE" ] && [ -n "$CCSTATUS_LINE" ] && [ "$INSTALL_LINE" -lt "$CCSTATUS_LINE" ]; then
+    echo -e "${GREEN}✓ ccstatusline installs after the Brewfile provides node${NC}"
+else
+    echo -e "${RED}✗ install_ccstatusline must run after install_brew_packages in main${NC}"
+    CCSTATUS_ERRORS=$((CCSTATUS_ERRORS + 1))
+fi
+
+rm -rf "$CCSTATUS_TEST_DIR"
+unset -f run_ccstatus_scenario
+if [ $CCSTATUS_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + CCSTATUS_ERRORS))
+fi
+echo
+
 # Summary
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then
