@@ -61,6 +61,8 @@ show_help() {
     echo "Example:"
     echo "  $0              # Install everything"
     echo "  $0 --no-gui     # Install only CLI tools"
+    echo ""
+    echo "Install single components with: $DOTFILES/dots install <component>"
 }
 
 # Helper functions

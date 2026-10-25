@@ -58,6 +58,16 @@ if command_exists shellcheck; then
         fi
     fi
 
+    # Check the dots CLI
+    if [ -f "dots" ]; then
+        if shellcheck -x dots; then
+            echo -e "${GREEN}✓ dots passed shellcheck${NC}"
+        else
+            echo -e "${RED}✗ dots has shellcheck issues${NC}"
+            SHELL_ERRORS=$((SHELL_ERRORS + 1))
+        fi
+    fi
+
     # Check test.sh itself
     if [ -f "test.sh" ]; then
         if shellcheck test.sh; then
@@ -858,6 +868,13 @@ else
     MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
 fi
 
+if git check-ignore -q --no-index dots common/.local/bin/dots; then
+    echo -e "${RED}✗ dots and common/.local/bin/dots must remain trackable${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
+else
+    echo -e "${GREEN}✓ the dots CLI and its link are trackable${NC}"
+fi
+
 if git check-ignore -q --no-index common/.agents/skills/paranoid-review/SKILL.md; then
     echo -e "${RED}✗ common/.agents/skills/paranoid-review/SKILL.md must remain trackable${NC}"
     MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
@@ -1244,6 +1261,112 @@ rm -rf "$CCSTATUS_TEST_DIR"
 unset -f run_ccstatus_scenario
 if [ $CCSTATUS_ERRORS -gt 0 ]; then
     ERRORS=$((ERRORS + CCSTATUS_ERRORS))
+fi
+echo
+
+# Test 16: the dots CLI installs components selectively
+echo -e "${BLUE}→ Checking the dots CLI...${NC}"
+DOTS_ERRORS=0
+
+# The full install runs exactly these steps in this order
+DOTS_EXPECTED_STEPS="install_linux_homebrew_dependencies
+install_homebrew
+bootstrap_codespaces_homebrew
+install_brew_packages
+install_gh_extensions
+set_zsh_default
+install_oh_my_zsh
+install_zsh_plugins
+install_tpm
+install_uv
+install_opencode
+install_ccstatusline
+install_dotstate
+link_dotfiles
+install_herdr_plugins
+install_agent_skills"
+if [ "$INSTALL_STEP_ORDER" = "$DOTS_EXPECTED_STEPS" ]; then
+    echo -e "${GREEN}✓ a full install runs every step in the expected order${NC}"
+else
+    echo -e "${RED}✗ main must run every install step once, in the expected order:${NC}"
+    echo "$INSTALL_STEP_ORDER"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+DOTS_TEST_DIR="$(mktemp -d "${TMPDIR:-/tmp}/dots-test.XXXXXX")"
+mkdir -p "$DOTS_TEST_DIR/bin" "$DOTS_TEST_DIR/home/.local/bin"
+cat > "$DOTS_TEST_DIR/bin/dotstate" <<'STUB'
+#!/usr/bin/env bash
+echo "dotstate $*" >> "$DOTS_STUB_LOG"
+STUB
+chmod +x "$DOTS_TEST_DIR/bin/dotstate"
+
+# Runs dots_main with stubbed components that log instead of installing, no
+# Homebrew and only the stubs on PATH. Args are passed to dots_main; set
+# DOTS_SKIP_REQUIRES=1 to stub the prerequisite checks too.
+run_dots() {
+    : > "$DOTS_TEST_DIR/log"
+    # shellcheck disable=SC2016
+    env HOME="$DOTS_TEST_DIR/home" PATH="$DOTS_TEST_DIR/bin:/usr/bin:/bin" \
+        DOTS_STUB_LOG="$DOTS_TEST_DIR/log" DOTS_SKIP_REQUIRES="${DOTS_SKIP_REQUIRES:-}" bash -c '
+        source ./dots
+        load_brew_env() { :; }
+        [ -z "$DOTS_SKIP_REQUIRES" ] || component_requires() { :; }
+        for component in "${COMPONENTS[@]}"; do
+            eval "component_$component() { echo $component >> \"\$DOTS_STUB_LOG\"; }"
+        done
+        dots_main "$@"' _ "$@" >"$DOTS_TEST_DIR/out" 2>&1
+}
+
+DOTS_COMPONENTS="$(bash -c 'source ./install.sh; printf "%s\n" "${COMPONENTS[@]}"')"
+ln -s "$(pwd)/common/.local/bin/dots" "$DOTS_TEST_DIR/home/.local/bin/dots"
+if [ "$("$DOTS_TEST_DIR/home/.local/bin/dots" list | awk '{ print $1 }')" = "$DOTS_COMPONENTS" ]; then
+    echo -e "${GREEN}✓ dots list shows every component through the linked command${NC}"
+else
+    echo -e "${RED}✗ dots list, run through ~/.local/bin/dots, must print every component in order${NC}"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+# Neither Homebrew nor npx is on the stub PATH
+if ! run_dots install skills && [ ! -s "$DOTS_TEST_DIR/log" ] &&
+   grep -q 'npx not found; run: dots install brew' "$DOTS_TEST_DIR/out"; then
+    echo -e "${GREEN}✓ dots install fails with a hint when a component's prerequisites are missing${NC}"
+else
+    echo -e "${RED}✗ dots install skills without npx must stop with a 'run: dots install brew' hint before running anything${NC}"
+    cat "$DOTS_TEST_DIR/out"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+if DOTS_SKIP_REQUIRES=1 run_dots install skills tools shell skills &&
+   [ "$(cat "$DOTS_TEST_DIR/log")" = "$(printf '%s\n' shell tools skills)" ]; then
+    echo -e "${GREEN}✓ dots install runs the selected components once each in install order${NC}"
+else
+    echo -e "${RED}✗ dots install skills tools shell skills must run shell, tools, skills once each${NC}"
+    cat "$DOTS_TEST_DIR/out"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+if ! run_dots install brew nope && [ ! -s "$DOTS_TEST_DIR/log" ] &&
+   grep -q 'Unknown component: nope' "$DOTS_TEST_DIR/out" &&
+   ! run_dots install; then
+    echo -e "${GREEN}✓ dots install rejects unknown or missing components without installing anything${NC}"
+else
+    echo -e "${RED}✗ dots install must reject unknown components and an empty selection${NC}"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+if run_dots doctor --fix && [ "$(cat "$DOTS_TEST_DIR/log")" = "dotstate doctor --fix" ] &&
+   run_dots sync -m "Update foo" && [ "$(cat "$DOTS_TEST_DIR/log")" = "dotstate sync -m Update foo" ]; then
+    echo -e "${GREEN}✓ dots passes dotstate commands through with their arguments${NC}"
+else
+    echo -e "${RED}✗ dots doctor/sync must run dotstate with the same arguments${NC}"
+    cat "$DOTS_TEST_DIR/out"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+rm -rf "$DOTS_TEST_DIR"
+unset -f run_dots
+if [ $DOTS_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + DOTS_ERRORS))
 fi
 echo
 
