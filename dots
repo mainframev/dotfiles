@@ -143,6 +143,7 @@ status_tools() {
 
 status_link() {
   command_exists dotstate || fail "dotstate not installed" || return
+  dotstate_uses_this_repo || fail "dotstate links another repository, not $DOTFILES" || return
   dotstate doctor --no-colors >/dev/null 2>&1 || fail "dotstate doctor reports issues; run: dots doctor"
 }
 
@@ -205,7 +206,6 @@ update_tmux() {
   "$HOME/.tmux/plugins/tpm/bin/update_plugins" all
 }
 
-update_herdr() {
 # uv and OpenCode come from their own installers, ccstatusline from npm
 update_tools() {
   if command_exists uv; then
@@ -219,13 +219,36 @@ update_tools() {
   fi
 }
 
+update_herdr() {
   require_cmd herdr brew || return 1
   herdr plugin update --yes </dev/null
 }
 
+# Update installed lockfile skills, skipping any whose Claude Code path is a
+# real directory: skills update would replace it like skills add does
 update_skills() {
-  require_cmd npx brew || return 1
-  npx -y skills update --global --yes </dev/null
+  require_cmd npx brew && require_cmd jq brew || return 1
+  local lock="$HOME/.agents/.skill-lock.json" name names=()
+  [ -f "$lock" ] || {
+    print_error "No skills lockfile at ~/.agents/.skill-lock.json; run: dots install link"
+    return 1
+  }
+  while IFS= read -r name; do
+    case "$name" in
+    "" | .* | */*) continue ;;
+    esac
+    [ -d "$HOME/.agents/skills/$name" ] || continue
+    if claude_skill_unmanaged "$name"; then
+      print_warning "Not updating agent skill $name: its Claude Code skill directory is not a link"
+    else
+      names+=("$name")
+    fi
+  done < <(jq -r '.skills | keys[]' "$lock")
+  if [ ${#names[@]} -eq 0 ]; then
+    print_info "No agent skills to update"
+    return
+  fi
+  npx -y skills update --global --yes "${names[@]}" </dev/null
 }
 
 cmd_install() {

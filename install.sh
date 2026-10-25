@@ -669,6 +669,11 @@ install_dotstate() {
     print_success "dotstate installed to ~/.local/bin"
 }
 
+# Succeed when dotstate's config links this checkout
+dotstate_uses_this_repo() {
+    grep -Fqx "repo_path = \"$DOTFILES\"" "$HOME/.config/dotstate/config.toml" 2>/dev/null
+}
+
 # Link dotfiles into $HOME with dotstate. Conflicting files and stale links
 # are backed up to ~/.dotstate-backups/.
 link_dotfiles() {
@@ -692,7 +697,7 @@ active_profile = "$OS"
 backup_enabled = true
 EOF
         print_info "Created $config (profile: $OS)"
-    elif ! grep -Fqx "repo_path = \"$DOTFILES\"" "$config"; then
+    elif ! dotstate_uses_this_repo; then
         print_warning "$config uses another repository; not linking $DOTFILES"
         return
     fi
@@ -789,6 +794,14 @@ install_herdr_plugins() {
     fi
 }
 
+# The skills CLI replaces whatever is at the Claude Code link path, so never
+# let it delete a real directory there: succeed when ~/.claude/skills/$1 is
+# one
+claude_skill_unmanaged() {
+    local path="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/$1"
+    [ -e "$path" ] && [ ! -L "$path" ]
+}
+
 # Reinstall agent skills recorded in the skills CLI lockfile (linked from
 # common/.agents/.skill-lock.json) that are missing from ~/.agents/skills,
 # with one `skills add` per source repository, linked for Claude Code
@@ -830,8 +843,6 @@ install_agent_skills() {
         return 1
     fi
 
-    # The skills CLI replaces whatever is at the Claude Code link path, so
-    # never let it delete a real directory there
     local claude_skills="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"
     local errors=0
     local source
@@ -851,7 +862,7 @@ install_agent_skills() {
                 *)
                     if [ -d "$HOME/.agents/skills/$name" ]; then
                         print_success "Agent skill already installed: $name"
-                    elif [ -e "$claude_skills/$name" ] && [ ! -L "$claude_skills/$name" ]; then
+                    elif claude_skill_unmanaged "$name"; then
                         print_warning "Not installing agent skill $name: $claude_skills/$name exists and is not a link; move it away to install"
                     else
                         missing+=("$name")

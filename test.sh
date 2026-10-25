@@ -1351,11 +1351,11 @@ fi
 
 if ! run_dots install brew nope && [ ! -s "$DOTS_TEST_DIR/log" ] &&
    grep -q 'Unknown component: nope' "$DOTS_TEST_DIR/out" &&
+   ! run_dots install 'brew gh' && [ ! -s "$DOTS_TEST_DIR/log" ] &&
    ! run_dots install; then
     echo -e "${GREEN}✓ dots install rejects unknown or missing components without installing anything${NC}"
 else
     echo -e "${RED}✗ dots install must reject unknown components and an empty selection${NC}"
-   ! run_dots install 'brew gh' && [ ! -s "$DOTS_TEST_DIR/log" ] &&
     DOTS_ERRORS=$((DOTS_ERRORS + 1))
 fi
 
@@ -1366,6 +1366,42 @@ else
     echo -e "${RED}✗ dots doctor/sync must run dotstate with the same arguments${NC}"
     cat "$DOTS_TEST_DIR/out"
     DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+mkdir -p "$DOTS_TEST_DIR/home/.config/dotstate"
+echo 'repo_path = "/elsewhere"' > "$DOTS_TEST_DIR/home/.config/dotstate/config.toml"
+if ! run_dots status link && grep -q 'links another repository' "$DOTS_TEST_DIR/out" &&
+   [ ! -s "$DOTS_TEST_DIR/log" ]; then
+    echo -e "${GREEN}✓ dots status link fails when dotstate links another repository${NC}"
+else
+    echo -e "${RED}✗ dots status link must not trust dotstate doctor for another repository${NC}"
+    cat "$DOTS_TEST_DIR/out"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+if command_exists jq; then
+    cat > "$DOTS_TEST_DIR/bin/npx" <<'STUB'
+#!/usr/bin/env bash
+echo "npx $*" >> "$DOTS_STUB_LOG"
+STUB
+    chmod +x "$DOTS_TEST_DIR/bin/npx"
+    ln -sf "$(command -v jq)" "$DOTS_TEST_DIR/bin/jq"
+    mkdir -p "$DOTS_TEST_DIR/home/.agents/skills/linked-skill" \
+        "$DOTS_TEST_DIR/home/.agents/skills/own-skill" \
+        "$DOTS_TEST_DIR/home/.claude/skills/own-skill"
+    echo '{"version":3,"skills":{"linked-skill":{},"own-skill":{},"missing-skill":{}}}' \
+        > "$DOTS_TEST_DIR/home/.agents/.skill-lock.json"
+    if run_dots update skills &&
+       [ "$(cat "$DOTS_TEST_DIR/log")" = "npx -y skills update --global --yes linked-skill" ]; then
+        echo -e "${GREEN}✓ dots update skills skips skills whose ~/.claude/skills entry is a real directory${NC}"
+    else
+        echo -e "${RED}✗ dots update skills must update only installed skills not shadowed by a real ~/.claude/skills directory${NC}"
+        cat "$DOTS_TEST_DIR/out" "$DOTS_TEST_DIR/log"
+        DOTS_ERRORS=$((DOTS_ERRORS + 1))
+    fi
+else
+    echo -e "${YELLOW}⚠ jq not installed, skipping dots update skills check${NC}"
+    WARNINGS=$((WARNINGS + 1))
 fi
 
 rm -rf "$DOTS_TEST_DIR"
