@@ -22,6 +22,27 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Print the steps of a full install in run order: main runs every component
+# in COMPONENTS order, and each component_* function runs its steps in order
+install_step_order() {
+    # shellcheck disable=SC2016
+    grep -qxF '    run_components "${COMPONENTS[@]}"' install.sh || return 1
+    bash -c 'source ./install.sh
+        for component in "${COMPONENTS[@]}"; do
+            declare -f "component_$component" | sed -n "s/^    \([a-z_]*\);*$/\1/p"
+        done'
+}
+
+INSTALL_STEP_ORDER="$(install_step_order || true)"
+
+# Succeed when install step $1 runs before step $2 in a full install
+step_runs_before() {
+    local first second
+    first="$(grep -nx "$1" <<< "$INSTALL_STEP_ORDER" | cut -d: -f1)"
+    second="$(grep -nx "$2" <<< "$INSTALL_STEP_ORDER" | cut -d: -f1)"
+    [ -n "$first" ] && [ -n "$second" ] && [ "$first" -lt "$second" ]
+}
+
 # Test 1: Shell script syntax with shellcheck
 echo -e "${BLUE}→ Checking shell scripts...${NC}"
 if command_exists shellcheck; then
@@ -33,6 +54,16 @@ if command_exists shellcheck; then
             echo -e "${GREEN}✓ install.sh passed shellcheck${NC}"
         else
             echo -e "${RED}✗ install.sh has shellcheck issues${NC}"
+            SHELL_ERRORS=$((SHELL_ERRORS + 1))
+        fi
+    fi
+
+    # Check the dots CLI
+    if [ -f "dots" ]; then
+        if shellcheck -x dots; then
+            echo -e "${GREEN}✓ dots passed shellcheck${NC}"
+        else
+            echo -e "${RED}✗ dots has shellcheck issues${NC}"
             SHELL_ERRORS=$((SHELL_ERRORS + 1))
         fi
     fi
@@ -412,14 +443,11 @@ echo -e "${BLUE}→ Checking herdr plugin installation...${NC}"
 HERDR_ERRORS=0
 
 # Structural ordering assertion: herdr plugins must install after dotfiles are
-# linked. This checks the literal call order in main(), not internal
-# implementation details, so it stays robust across refactors.
-LINK_LINE=$(grep -n '^    link_dotfiles$' install.sh | cut -d: -f1)
-HERDR_INSTALL_LINE=$(grep -n '^    install_herdr_plugins$' install.sh | cut -d: -f1)
-if [ -n "$LINK_LINE" ] && [ -n "$HERDR_INSTALL_LINE" ] && [ "$LINK_LINE" -lt "$HERDR_INSTALL_LINE" ]; then
+# linked
+if step_runs_before link_dotfiles install_herdr_plugins; then
     echo -e "${GREEN}✓ herdr plugins install after dotfiles are linked${NC}"
 else
-    echo -e "${RED}✗ install_herdr_plugins must run after link_dotfiles in main${NC}"
+    echo -e "${RED}✗ install_herdr_plugins must run after link_dotfiles in a full install${NC}"
     HERDR_ERRORS=$((HERDR_ERRORS + 1))
 fi
 
@@ -840,6 +868,13 @@ else
     MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
 fi
 
+if git check-ignore -q --no-index dots common/.local/bin/dots; then
+    echo -e "${RED}✗ dots and common/.local/bin/dots must remain trackable${NC}"
+    MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
+else
+    echo -e "${GREEN}✓ the dots CLI and its link are trackable${NC}"
+fi
+
 if git check-ignore -q --no-index common/.agents/skills/paranoid-review/SKILL.md; then
     echo -e "${RED}✗ common/.agents/skills/paranoid-review/SKILL.md must remain trackable${NC}"
     MANIFEST_ERRORS=$((MANIFEST_ERRORS + 1))
@@ -1002,26 +1037,19 @@ if command_exists dotstate; then
         LINK_ERRORS=$((LINK_ERRORS + 1))
     fi
 
-    # Existing machine pulling a new layout: a clone of this checkout, with
-    # untracked state left at a pre-dotstate path and a manifest entry added
-    # after the first link
+    # Existing machine pulling a new layout: a clone of this checkout with a
+    # manifest entry added after the first link
     LINK_CLONE="$LINK_TEST_ROOT/repo"
     LINK_PULL_HOME="$LINK_TEST_ROOT/pull"
     mkdir -p "$LINK_PULL_HOME"
     git clone -q "$LINK_REPO" "$LINK_CLONE"
     git -C "$LINK_CLONE" checkout -q "$(git rev-parse HEAD)"
     cp install.sh "$LINK_CLONE/install.sh"
-    mkdir -p "$LINK_CLONE/.config/zsh"
-    printf '%s\n' 'export LEGACY=1' > "$LINK_CLONE/.config/zsh/secrets.zsh"
 
     LINK_RESULT=0
     LINK_REPO="$LINK_CLONE" link_run "$LINK_PULL_HOME" linux run1 || LINK_RESULT=$?
-    if [ "$LINK_RESULT" -eq 0 ] &&
-       [ ! -e "$LINK_CLONE/.config" ] &&
-       grep -qx 'export LEGACY=1' "$LINK_PULL_HOME/.config/zsh/secrets.zsh"; then
-        echo -e "${GREEN}✓ untracked state at pre-dotstate paths moves into the linked directory${NC}"
-    else
-        echo -e "${RED}✗ link_dotfiles must move .config/zsh/secrets.zsh into common/ (exit $LINK_RESULT)${NC}"
+    if [ "$LINK_RESULT" -ne 0 ]; then
+        echo -e "${RED}✗ link_dotfiles must link a clone of this checkout (exit $LINK_RESULT)${NC}"
         cat "$LINK_PULL_HOME.run1.log"
         LINK_ERRORS=$((LINK_ERRORS + 1))
     fi
@@ -1062,12 +1090,10 @@ echo
 echo -e "${BLUE}→ Checking agent skill installation...${NC}"
 SKILLS_ERRORS=0
 
-LINK_LINE=$(grep -n '^    link_dotfiles$' install.sh | cut -d: -f1)
-SKILLS_INSTALL_LINE=$(grep -n '^    install_agent_skills$' install.sh | cut -d: -f1)
-if [ -n "$LINK_LINE" ] && [ -n "$SKILLS_INSTALL_LINE" ] && [ "$LINK_LINE" -lt "$SKILLS_INSTALL_LINE" ]; then
+if step_runs_before link_dotfiles install_agent_skills; then
     echo -e "${GREEN}✓ agent skills install after dotfiles are linked${NC}"
 else
-    echo -e "${RED}✗ install_agent_skills must run after link_dotfiles in main${NC}"
+    echo -e "${RED}✗ install_agent_skills must run after link_dotfiles in a full install${NC}"
     SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
 fi
 
@@ -1224,12 +1250,10 @@ else
     CCSTATUS_ERRORS=$((CCSTATUS_ERRORS + 1))
 fi
 
-INSTALL_LINE=$(grep -n '^    install_brew_packages$' install.sh | cut -d: -f1)
-CCSTATUS_LINE=$(grep -n '^    install_ccstatusline$' install.sh | cut -d: -f1)
-if [ -n "$INSTALL_LINE" ] && [ -n "$CCSTATUS_LINE" ] && [ "$INSTALL_LINE" -lt "$CCSTATUS_LINE" ]; then
+if step_runs_before install_brew_packages install_ccstatusline; then
     echo -e "${GREEN}✓ ccstatusline installs after the Brewfile provides node${NC}"
 else
-    echo -e "${RED}✗ install_ccstatusline must run after install_brew_packages in main${NC}"
+    echo -e "${RED}✗ install_ccstatusline must run after install_brew_packages in a full install${NC}"
     CCSTATUS_ERRORS=$((CCSTATUS_ERRORS + 1))
 fi
 
@@ -1237,6 +1261,153 @@ rm -rf "$CCSTATUS_TEST_DIR"
 unset -f run_ccstatus_scenario
 if [ $CCSTATUS_ERRORS -gt 0 ]; then
     ERRORS=$((ERRORS + CCSTATUS_ERRORS))
+fi
+echo
+
+# Test 16: the dots CLI installs components selectively
+echo -e "${BLUE}→ Checking the dots CLI...${NC}"
+DOTS_ERRORS=0
+
+# The full install runs exactly these steps in this order
+DOTS_EXPECTED_STEPS="install_linux_homebrew_dependencies
+install_homebrew
+bootstrap_codespaces_homebrew
+install_brew_packages
+install_gh_extensions
+set_zsh_default
+install_oh_my_zsh
+install_zsh_plugins
+install_tpm
+install_uv
+install_opencode
+install_ccstatusline
+install_dotstate
+link_dotfiles
+install_herdr_plugins
+install_agent_skills"
+if [ "$INSTALL_STEP_ORDER" = "$DOTS_EXPECTED_STEPS" ]; then
+    echo -e "${GREEN}✓ a full install runs every step in the expected order${NC}"
+else
+    echo -e "${RED}✗ main must run every install step once, in the expected order:${NC}"
+    echo "$INSTALL_STEP_ORDER"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+DOTS_TEST_DIR="$(mktemp -d "${TMPDIR:-/tmp}/dots-test.XXXXXX")"
+mkdir -p "$DOTS_TEST_DIR/bin" "$DOTS_TEST_DIR/home/.local/bin"
+cat > "$DOTS_TEST_DIR/bin/dotstate" <<'STUB'
+#!/usr/bin/env bash
+echo "dotstate $*" >> "$DOTS_STUB_LOG"
+STUB
+chmod +x "$DOTS_TEST_DIR/bin/dotstate"
+
+# Runs dots_main with stubbed components that log instead of installing, no
+# Homebrew and only the stubs on PATH. Args are passed to dots_main; set
+# DOTS_SKIP_REQUIRES=1 to stub the prerequisite checks too, and DOTS_HIDE_CMD
+# to a command that must look missing even if the host has it.
+run_dots() {
+    : > "$DOTS_TEST_DIR/log"
+    # shellcheck disable=SC2016
+    env HOME="$DOTS_TEST_DIR/home" PATH="$DOTS_TEST_DIR/bin:/usr/bin:/bin" \
+        DOTS_STUB_LOG="$DOTS_TEST_DIR/log" DOTS_SKIP_REQUIRES="${DOTS_SKIP_REQUIRES:-}" \
+        DOTS_HIDE_CMD="${DOTS_HIDE_CMD:-}" bash -c '
+        source ./dots
+        load_brew_env() { :; }
+        [ -z "$DOTS_SKIP_REQUIRES" ] || component_requires() { :; }
+        if [ -n "$DOTS_HIDE_CMD" ]; then
+            command_exists() { [ "$1" != "$DOTS_HIDE_CMD" ] && command -v "$1" >/dev/null 2>&1; }
+        fi
+        for component in "${COMPONENTS[@]}"; do
+            eval "component_$component() { echo $component >> \"\$DOTS_STUB_LOG\"; }"
+        done
+        dots_main "$@"' _ "$@" >"$DOTS_TEST_DIR/out" 2>&1
+}
+
+DOTS_COMPONENTS="$(bash -c 'source ./install.sh; printf "%s\n" "${COMPONENTS[@]}"')"
+ln -s "$(pwd)/common/.local/bin/dots" "$DOTS_TEST_DIR/home/.local/bin/dots"
+if [ "$("$DOTS_TEST_DIR/home/.local/bin/dots" list | awk '{ print $1 }')" = "$DOTS_COMPONENTS" ]; then
+    echo -e "${GREEN}✓ dots list shows every component through the linked command${NC}"
+else
+    echo -e "${RED}✗ dots list, run through ~/.local/bin/dots, must print every component in order${NC}"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+if ! DOTS_HIDE_CMD=npx run_dots install skills && [ ! -s "$DOTS_TEST_DIR/log" ] &&
+   grep -q 'npx not found; run: dots install brew' "$DOTS_TEST_DIR/out"; then
+    echo -e "${GREEN}✓ dots install fails with a hint when a component's prerequisites are missing${NC}"
+else
+    echo -e "${RED}✗ dots install skills without npx must stop with a 'run: dots install brew' hint before running anything${NC}"
+    cat "$DOTS_TEST_DIR/out"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+if DOTS_SKIP_REQUIRES=1 run_dots install skills tools shell skills &&
+   [ "$(cat "$DOTS_TEST_DIR/log")" = "$(printf '%s\n' shell tools skills)" ]; then
+    echo -e "${GREEN}✓ dots install runs the selected components once each in install order${NC}"
+else
+    echo -e "${RED}✗ dots install skills tools shell skills must run shell, tools, skills once each${NC}"
+    cat "$DOTS_TEST_DIR/out"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+if ! run_dots install brew nope && [ ! -s "$DOTS_TEST_DIR/log" ] &&
+   grep -q 'Unknown component: nope' "$DOTS_TEST_DIR/out" &&
+   ! run_dots install 'brew gh' && [ ! -s "$DOTS_TEST_DIR/log" ] &&
+   ! run_dots install; then
+    echo -e "${GREEN}✓ dots install rejects unknown or missing components without installing anything${NC}"
+else
+    echo -e "${RED}✗ dots install must reject unknown components and an empty selection${NC}"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+if run_dots doctor --fix && [ "$(cat "$DOTS_TEST_DIR/log")" = "dotstate doctor --fix" ] &&
+   run_dots sync -m "Update foo" && [ "$(cat "$DOTS_TEST_DIR/log")" = "dotstate sync -m Update foo" ]; then
+    echo -e "${GREEN}✓ dots passes dotstate commands through with their arguments${NC}"
+else
+    echo -e "${RED}✗ dots doctor/sync must run dotstate with the same arguments${NC}"
+    cat "$DOTS_TEST_DIR/out"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+mkdir -p "$DOTS_TEST_DIR/home/.config/dotstate"
+echo 'repo_path = "/elsewhere"' > "$DOTS_TEST_DIR/home/.config/dotstate/config.toml"
+if ! run_dots status link && grep -q 'links another repository' "$DOTS_TEST_DIR/out" &&
+   [ ! -s "$DOTS_TEST_DIR/log" ]; then
+    echo -e "${GREEN}✓ dots status link fails when dotstate links another repository${NC}"
+else
+    echo -e "${RED}✗ dots status link must not trust dotstate doctor for another repository${NC}"
+    cat "$DOTS_TEST_DIR/out"
+    DOTS_ERRORS=$((DOTS_ERRORS + 1))
+fi
+
+if command_exists jq; then
+    cat > "$DOTS_TEST_DIR/bin/npx" <<'STUB'
+#!/usr/bin/env bash
+echo "npx $*" >> "$DOTS_STUB_LOG"
+STUB
+    chmod +x "$DOTS_TEST_DIR/bin/npx"
+    ln -sf "$(command -v jq)" "$DOTS_TEST_DIR/bin/jq"
+    mkdir -p "$DOTS_TEST_DIR/home/.agents/skills/linked-skill" \
+        "$DOTS_TEST_DIR/home/.agents/skills/own-skill" \
+        "$DOTS_TEST_DIR/home/.claude/skills/own-skill"
+    echo '{"version":3,"skills":{"linked-skill":{},"own-skill":{},"missing-skill":{}}}' \
+        > "$DOTS_TEST_DIR/home/.agents/.skill-lock.json"
+    if run_dots update skills &&
+       [ "$(cat "$DOTS_TEST_DIR/log")" = "npx -y skills update --global --yes linked-skill" ]; then
+        echo -e "${GREEN}✓ dots update skills skips skills whose ~/.claude/skills entry is a real directory${NC}"
+    else
+        echo -e "${RED}✗ dots update skills must update only installed skills not shadowed by a real ~/.claude/skills directory${NC}"
+        cat "$DOTS_TEST_DIR/out" "$DOTS_TEST_DIR/log"
+        DOTS_ERRORS=$((DOTS_ERRORS + 1))
+    fi
+else
+    echo -e "${YELLOW}⚠ jq not installed, skipping dots update skills check${NC}"
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+rm -rf "$DOTS_TEST_DIR"
+unset -f run_dots
+if [ $DOTS_ERRORS -gt 0 ]; then
+    ERRORS=$((ERRORS + DOTS_ERRORS))
 fi
 echo
 

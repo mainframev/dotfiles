@@ -1,0 +1,343 @@
+#!/usr/bin/env bash
+
+self="${BASH_SOURCE[0]}"
+while [ -L "$self" ]; do
+  self_dir="$(cd "$(dirname "$self")" && pwd)"
+  self="$(readlink "$self")"
+  case "$self" in
+  /*) ;;
+  *) self="$self_dir/$self" ;;
+  esac
+done
+# shellcheck source=install.sh
+source "$(cd "$(dirname "$self")" && pwd)/install.sh"
+
+show_dots_help() {
+  echo "Usage: dots <command> [args]"
+  echo ""
+  echo "Commands:"
+  echo "  install [--no-gui] <component>...  Install the given components"
+  echo "  install --all [--no-gui]           Install everything (same as ./install.sh)"
+  echo "  list                               List components in install order"
+  echo "  status [--no-gui] [component]...   Show which components are installed"
+  echo "  update [component]...              Update components (default: all)"
+  echo "  link                               Link dotfiles with dotstate"
+  echo "  doctor|sync|add|remove [args]      Run the dotstate command"
+  echo "  help                               Show this help message"
+  echo ""
+  echo "Components: ${COMPONENTS[*]}"
+}
+
+# Split args into DOTS_ARGS (component names) and DOTS_ALL; parse_args reads
+# --no-gui
+split_dots_args() {
+  local arg
+  DOTS_ARGS=()
+  DOTS_ALL=false
+  for arg in "$@"; do
+    case "$arg" in
+    --all) DOTS_ALL=true ;;
+    --no-gui) ;;
+    -*)
+      print_error "Unknown option: $arg"
+      return 1
+      ;;
+    *) DOTS_ARGS+=("$arg") ;;
+    esac
+  done
+}
+
+dots_init() {
+  parse_args "$@"
+  setup_codespaces_environment
+  detect_os
+  load_brew_env
+}
+
+# Fail unless $1 is installed, naming the component that provides it
+require_cmd() {
+  if ! command_exists "$1"; then
+    print_error "$1 not found; run: dots install $2"
+    return 1
+  fi
+}
+
+# Check what a component needs from components before it
+component_requires() {
+  case "$1" in
+  gh) require_cmd gh brew ;;
+  shell) require_cmd zsh brew && require_cmd git brew ;;
+  tmux) require_cmd git brew ;;
+  tools) require_cmd curl brew && require_cmd npm brew ;;
+  link) [ "$OS" != macos ] || require_cmd dotstate brew ;;
+  herdr) require_cmd herdr brew && require_cmd jq brew ;;
+  skills)
+    require_cmd npx brew && require_cmd jq brew || return 1
+    if [ ! -f "$HOME/.agents/.skill-lock.json" ]; then
+      print_error "No skills lockfile at ~/.agents/.skill-lock.json; run: dots install link"
+      return 1
+    fi
+    ;;
+  esac
+}
+
+# Check each component just before it runs, so earlier ones in the same call
+# can provide what it needs
+before_component() {
+  load_brew_env
+  component_requires "$1"
+}
+
+fail() {
+  echo "$*"
+  return 1
+}
+
+# Fail listing the names in "$@", if any
+fail_missing() {
+  [ $# -eq 0 ] || fail "missing: $*"
+}
+
+# Per-component checks: print what is missing and fail, or succeed silently
+status_brew() {
+  command_exists brew || fail "brew not installed" || return
+  local casks=""
+  if [ "$OS" = linux ] || [ "$NO_GUI" = true ]; then
+    casks="$(brewfile_casks 2>/dev/null)" || fail "could not read casks from the Brewfile" || return
+  fi
+  HOMEBREW_BUNDLE_CASK_SKIP="$casks" brew bundle check --file="$BREWFILE" >/dev/null 2>&1 ||
+    fail "Brewfile packages missing"
+}
+
+status_gh() {
+  command_exists gh || fail "gh not installed" || return
+  local extension missing=()
+  while IFS= read -r extension; do
+    gh_extension_installed "$extension" || missing+=("$extension")
+  done < <(gh_extensions_wanted)
+  fail_missing "${missing[@]}"
+}
+
+status_shell() {
+  [ "$(basename "$SHELL")" = zsh ] || fail "default shell is $SHELL" || return
+  [ -d "$HOME/.oh-my-zsh" ] || fail "oh-my-zsh not installed" || return
+  local plugins_dir plugin missing=()
+  plugins_dir="$(zsh_plugins_dir)"
+  for plugin in "${ZSH_GITHUB_PLUGINS[@]}"; do
+    [ -d "$plugins_dir/${plugin#*/}" ] || missing+=("${plugin#*/}")
+  done
+  fail_missing "${missing[@]}"
+}
+
+status_tmux() {
+  [ -d "$HOME/.tmux/plugins/tpm" ] || fail "tpm not installed"
+}
+
+status_tools() {
+  local tool missing=()
+  for tool in uv opencode ccstatusline; do
+    command_exists "$tool" || missing+=("$tool")
+  done
+  fail_missing "${missing[@]}"
+}
+
+status_link() {
+  command_exists dotstate || fail "dotstate not installed" || return
+  dotstate_uses_this_repo || fail "dotstate links another repository, not $DOTFILES" || return
+  dotstate doctor --no-colors >/dev/null 2>&1 || fail "dotstate doctor reports issues; run: dots doctor"
+}
+
+status_herdr() {
+  command_exists herdr || fail "herdr not installed" || return
+  command_exists jq || fail "jq not installed" || return
+  local installed_json entry missing=()
+  installed_json="$(herdr plugin list --json </dev/null 2>/dev/null)" || fail "could not list plugins" || return
+  for entry in "${HERDR_PLUGINS[@]}"; do
+    herdr_plugin_installed "$installed_json" "${entry%%:*}" || missing+=("${entry%%:*}")
+  done
+  fail_missing "${missing[@]}"
+}
+
+status_skills() {
+  local lock="$HOME/.agents/.skill-lock.json" names name missing=()
+  [ -f "$lock" ] || fail "no skills lockfile" || return
+  command_exists jq || fail "jq not installed" || return
+  names="$(jq -r '.skills | keys[]' "$lock" 2>/dev/null)" || fail "unreadable lockfile" || return
+  while IFS= read -r name; do
+    [ -z "$name" ] || [ -d "$HOME/.agents/skills/$name" ] || missing+=("$name")
+  done <<<"$names"
+  fail_missing "${missing[@]}"
+}
+
+# Per-component updates; components without one are skipped
+update_brew() {
+  require_cmd brew brew || return 1
+  # Upgrade only what is installed, so a --no-gui machine gets no casks
+  brew update
+  brew upgrade
+}
+
+update_gh() {
+  require_cmd gh brew || return 1
+  gh extension upgrade --all
+}
+
+update_shell() {
+  [ -d "$HOME/.oh-my-zsh" ] || {
+    print_error "oh-my-zsh not installed; run: dots install shell"
+    return 1
+  }
+  ZSH="$HOME/.oh-my-zsh" zsh -f "$HOME/.oh-my-zsh/tools/upgrade.sh"
+  local plugins_dir plugin
+  plugins_dir="$(zsh_plugins_dir)"
+  for plugin in "${ZSH_GITHUB_PLUGINS[@]}"; do
+    if [ -d "$plugins_dir/${plugin#*/}" ]; then
+      print_info "Updating zsh plugin ${plugin#*/}"
+      git -C "$plugins_dir/${plugin#*/}" pull --ff-only --recurse-submodules
+    fi
+  done
+}
+
+update_tmux() {
+  [ -x "$HOME/.tmux/plugins/tpm/bin/update_plugins" ] || {
+    print_error "tpm not installed; run: dots install tmux"
+    return 1
+  }
+  "$HOME/.tmux/plugins/tpm/bin/update_plugins" all
+}
+
+# uv and OpenCode come from their own installers, ccstatusline from npm
+update_tools() {
+  if command_exists uv; then
+    uv self update || print_warning "uv self update failed; if a package manager installed uv, update it there"
+  fi
+  if command_exists opencode; then
+    opencode upgrade </dev/null
+  fi
+  if command_exists ccstatusline && command_exists npm; then
+    npm install --global ccstatusline@latest </dev/null
+  fi
+}
+
+update_herdr() {
+  require_cmd herdr brew || return 1
+  herdr plugin update --yes </dev/null
+}
+
+# Update installed lockfile skills, skipping any whose Claude Code path is a
+# real directory: skills update would replace it like skills add does
+update_skills() {
+  require_cmd npx brew && require_cmd jq brew || return 1
+  local lock="$HOME/.agents/.skill-lock.json" name names=()
+  [ -f "$lock" ] || {
+    print_error "No skills lockfile at ~/.agents/.skill-lock.json; run: dots install link"
+    return 1
+  }
+  while IFS= read -r name; do
+    case "$name" in
+    "" | .* | */*) continue ;;
+    esac
+    [ -d "$HOME/.agents/skills/$name" ] || continue
+    if claude_skill_unmanaged "$name"; then
+      print_warning "Not updating agent skill $name: its Claude Code skill directory is not a link"
+    else
+      names+=("$name")
+    fi
+  done < <(jq -r '.skills | keys[]' "$lock")
+  if [ ${#names[@]} -eq 0 ]; then
+    print_info "No agent skills to update"
+    return
+  fi
+  npx -y skills update --global --yes "${names[@]}" </dev/null
+}
+
+cmd_install() {
+  split_dots_args "$@" || return 1
+  if [ "$DOTS_ALL" = true ]; then
+    [ ${#DOTS_ARGS[@]} -eq 0 ] || {
+      print_error "--all takes no components"
+      return 1
+    }
+    main "$@"
+    return
+  fi
+  if [ ${#DOTS_ARGS[@]} -eq 0 ]; then
+    print_error "Name the components to install, or pass --all (components: ${COMPONENTS[*]})"
+    return 1
+  fi
+
+  select_components "${DOTS_ARGS[@]}" || return 1
+  dots_init "$@"
+  run_components "${DOTS_ARGS[@]}"
+}
+
+cmd_list() {
+  local name
+  for name in "${COMPONENTS[@]}"; do
+    printf '  %-8s %s\n' "$name" "$(component_description "$name")"
+  done
+}
+
+cmd_status() {
+  local name detail failed=0
+  split_dots_args "$@" || return 1
+  [ ${#DOTS_ARGS[@]} -gt 0 ] || DOTS_ARGS=("${COMPONENTS[@]}")
+  select_components "${DOTS_ARGS[@]}" || return 1
+  dots_init "$@" >/dev/null
+  for name in "${SELECTED_COMPONENTS[@]}"; do
+    if detail="$("status_$name")"; then
+      print_success "$name"
+    else
+      print_error "$name: $detail"
+      failed=$((failed + 1))
+    fi
+  done
+  [ $failed -eq 0 ]
+}
+
+cmd_update() {
+  local name
+  split_dots_args "$@" || return 1
+  [ ${#DOTS_ARGS[@]} -gt 0 ] || DOTS_ARGS=("${COMPONENTS[@]}")
+  select_components "${DOTS_ARGS[@]}" || return 1
+  dots_init "$@"
+  for name in "${SELECTED_COMPONENTS[@]}"; do
+    if declare -F "update_$name" >/dev/null; then
+      print_header "Updating $name..."
+      "update_$name"
+    else
+      print_info "Nothing to update for $name"
+    fi
+  done
+}
+
+dots_main() {
+  local cmd="${1:-help}"
+  [ $# -eq 0 ] || shift
+  case "$cmd" in
+  install) cmd_install "$@" ;;
+  list) cmd_list ;;
+  status) cmd_status "$@" ;;
+  update) cmd_update "$@" ;;
+  link)
+    dots_init
+    link_dotfiles
+    ;;
+  doctor | sync | add | remove)
+    load_brew_env
+    require_cmd dotstate link || return 1
+    dotstate "$cmd" "$@"
+    ;;
+  help | --help | -h) show_dots_help ;;
+  *)
+    print_error "Unknown command: $cmd"
+    show_dots_help
+    return 1
+    ;;
+  esac
+}
+
+# Run dots_main (skip when this script is sourced, e.g. by test.sh)
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  dots_main "$@"
+fi

@@ -61,6 +61,8 @@ show_help() {
     echo "Example:"
     echo "  $0              # Install everything"
     echo "  $0 --no-gui     # Install only CLI tools"
+    echo ""
+    echo "Install single components with: $DOTFILES/dots install <component>"
 }
 
 # Helper functions
@@ -128,6 +130,7 @@ setup_codespaces_environment() {
     if [ -d "$PERSISTED_DOTFILES" ]; then
         DOTFILES="$PERSISTED_DOTFILES"
         BREWFILE="$DOTFILES/common/.config/brew/Brewfile"
+        GH_EXTENSIONS_FILE="$DOTFILES/common/.config/gh/extensions"
         print_success "Using dotfiles at: $DOTFILES"
     else
         print_warning "Persisted dotfiles not found at $PERSISTED_DOTFILES"
@@ -180,18 +183,23 @@ install_linux_homebrew_dependencies() {
     print_success "Homebrew dependencies installed"
 }
 
+# Put an installed brew on PATH; it may be missing in a fresh shell on Apple
+# Silicon or Linux
+load_brew_env() {
+    command_exists brew && return
+
+    local brew_bin
+    for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+        if [ -x "$brew_bin" ]; then
+            eval "$("$brew_bin" shellenv)"
+            return
+        fi
+    done
+}
+
 # Install Homebrew
 install_homebrew() {
-    # brew may be installed but not on PATH yet (fresh shell on Apple Silicon or Linux)
-    if ! command_exists brew; then
-        local brew_bin
-        for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
-            if [ -x "$brew_bin" ]; then
-                eval "$("$brew_bin" shellenv)"
-                break
-            fi
-        done
-    fi
+    load_brew_env
 
     if command_exists brew; then
         print_success "Homebrew already installed"
@@ -351,13 +359,18 @@ ZSH_GITHUB_PLUGINS=(
     jeffreytse/zsh-vi-mode
 )
 
+zsh_plugins_dir() {
+    echo "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins"
+}
+
 install_zsh_plugins() {
     if [ ! -d "$HOME/.oh-my-zsh" ]; then
         print_warning "oh-my-zsh not installed, skipping zsh plugins"
         return
     fi
 
-    local plugins_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins"
+    local plugins_dir
+    plugins_dir="$(zsh_plugins_dir)"
     local plugin name
     mkdir -p "$plugins_dir"
 
@@ -411,6 +424,14 @@ set_zsh_default() {
     fi
 }
 
+# Print the Brewfile's casks in the form HOMEBREW_BUNDLE_CASK_SKIP takes:
+# space-separated names, not a boolean
+brewfile_casks() {
+    local casks
+    casks="$(brew bundle list --cask --file="$BREWFILE")" || return 1
+    echo "${casks//$'\n'/ }"
+}
+
 # Install packages from Brewfile
 install_brew_packages() {
     if [ ! -f "$BREWFILE" ]; then
@@ -428,19 +449,18 @@ install_brew_packages() {
     elif [ "$NO_GUI" = true ]; then
         print_header "Installing CLI packages only (skipping GUI applications)..."
         local casks
-        # HOMEBREW_BUNDLE_CASK_SKIP takes space-separated cask names, not a boolean
-        if ! casks="$(brew bundle list --cask --file="$BREWFILE")"; then
+        if ! casks="$(brewfile_casks)"; then
             print_error "Could not read casks from Brewfile: $BREWFILE"
             return 1
         fi
-        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_BUNDLE_CASK_SKIP="${casks//$'\n'/ }" brew bundle --jobs=1 --file="$BREWFILE"; then
+        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_BUNDLE_CASK_SKIP="$casks" brew bundle --jobs=1 --verbose --file="$BREWFILE"; then
             print_error "Homebrew failed to install CLI packages from: $BREWFILE"
             return 1
         fi
         print_success "CLI packages installed"
     else
         print_header "Installing all packages from Brewfile..."
-        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew bundle --jobs=1 --file="$BREWFILE"; then
+        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew bundle --jobs=1 --verbose --file="$BREWFILE"; then
             print_error "Homebrew failed to install packages from: $BREWFILE"
             return 1
         fi
@@ -526,6 +546,23 @@ install_ccstatusline() {
     fi
 }
 
+GH_EXTENSIONS_FILE="$DOTFILES/common/.config/gh/extensions"
+
+# Print the extensions listed in GH_EXTENSIONS_FILE, trimmed, without blank
+# lines and comments
+gh_extensions_wanted() {
+    [ -f "$GH_EXTENSIONS_FILE" ] || return 0
+    local extension
+    while IFS= read -r extension || [ -n "$extension" ]; do
+        [[ -z "$extension" || "$extension" =~ ^# ]] && continue
+        echo "$extension" | xargs
+    done < "$GH_EXTENSIONS_FILE"
+}
+
+gh_extension_installed() {
+    gh extension list 2>/dev/null | grep -F -- "$1" >/dev/null
+}
+
 # Install GitHub CLI extensions
 install_gh_extensions() {
     if ! command_exists gh; then
@@ -545,10 +582,8 @@ install_gh_extensions() {
         return
     fi
 
-    local extensions_file="$DOTFILES/common/.config/gh/extensions"
-
-    if [ ! -f "$extensions_file" ]; then
-        print_info "No gh extensions file found at $extensions_file"
+    if [ ! -f "$GH_EXTENSIONS_FILE" ]; then
+        print_info "No gh extensions file found at $GH_EXTENSIONS_FILE"
         return
     fi
 
@@ -557,16 +592,8 @@ install_gh_extensions() {
     local installed=0
     local skipped=0
 
-    # Read extensions file line by line
-    while IFS= read -r extension || [ -n "$extension" ]; do
-        # Skip empty lines and comments
-        [[ -z "$extension" || "$extension" =~ ^# ]] && continue
-
-        # Trim whitespace
-        extension=$(echo "$extension" | xargs)
-
-        # Check if already installed
-        if gh extension list 2>/dev/null | grep -F -- "$extension" >/dev/null; then
+    while IFS= read -r extension; do
+        if gh_extension_installed "$extension"; then
             print_success "$extension already installed"
             skipped=$((skipped + 1))
         else
@@ -578,7 +605,7 @@ install_gh_extensions() {
                 print_warning "Failed to install $extension"
             fi
         fi
-    done < "$extensions_file"
+    done < <(gh_extensions_wanted)
 
     if [ $installed -eq 0 ] && [ $skipped -eq 0 ]; then
         print_info "No extensions to install"
@@ -642,69 +669,13 @@ install_dotstate() {
     print_success "dotstate installed to ~/.local/bin"
 }
 
-# Move untracked state left at pre-dotstate paths (e.g. .config/zsh/secrets.zsh,
-# herdr sessions, tmux plugins) into the common/ or macos/ directory that is now
-# linked in its place. Apps the manifest does not link (no such directory under
-# common/ or a profile) stay put.
-migrate_legacy_state() {
-    [ -d "$DOTFILES/.config" ] || return 0
-
-    local app dir
-    for app in "$DOTFILES"/.config/*/; do
-        app="$(basename "$app")"
-        for dir in common macos linux; do
-            if [ -d "$DOTFILES/$dir/.config/$app" ]; then
-                merge_legacy_dir "$DOTFILES/.config/$app" "$DOTFILES/$dir/.config/$app" ".config/$app"
-                break
-            fi
-        done
-    done
-
-    find "$DOTFILES/.config" -depth -type d -empty -delete
-}
-
-# Move every entry of $1 into $2 without replacing anything already there.
-# Usage: merge_legacy_dir <src> <dst> <label>
-merge_legacy_dir() {
-    local src="$1" dst="$2" label="$3" entry name
-    for entry in "$src"/* "$src"/.[!.]* "$src"/..?*; do
-        [ -e "$entry" ] || [ -L "$entry" ] || continue
-        name="$(basename "$entry")"
-        if [ -d "$entry" ] && [ ! -L "$entry" ] && [ -d "$dst/$name" ] && [ ! -L "$dst/$name" ]; then
-            merge_legacy_dir "$entry" "$dst/$name" "$label/$name"
-        elif [ -e "$dst/$name" ] || [ -L "$dst/$name" ]; then
-            print_warning "Not moving $label/$name: it already exists in ${dst#"$DOTFILES"/}"
-        else
-            mv "$entry" "$dst/$name"
-            echo "  Moved $label/$name to ${dst#"$DOTFILES"/}/"
-        fi
-    done
-}
-
-# Stow folded whole directories into links to the repository. dotstate creates
-# parent directories itself, so drop such links once they dangle and refuse to
-# write through ones that still resolve into the repository.
-remove_legacy_parent_links() {
-    local dir target
-    for dir in .config .pi .pi/agent .agents .agents/skills; do
-        [ -L "$HOME/$dir" ] || continue
-        target="$(readlink "$HOME/$dir")"
-        case "$target" in
-            *"$(basename "$DOTFILES")"/*) ;;
-            *) continue ;;
-        esac
-        if [ ! -e "$HOME/$dir" ]; then
-            rm "$HOME/$dir"
-            print_info "Removed stale Stow link ~/$dir"
-        else
-            print_error "$HOME/$dir links into the repository ($target); replace it with a real directory first"
-            return 1
-        fi
-    done
+# Succeed when dotstate's config links this checkout
+dotstate_uses_this_repo() {
+    grep -Fqx "repo_path = \"$DOTFILES\"" "$HOME/.config/dotstate/config.toml" 2>/dev/null
 }
 
 # Link dotfiles into $HOME with dotstate. Conflicting files and stale links
-# (e.g. from the old Stow setup) are backed up to ~/.dotstate-backups/.
+# are backed up to ~/.dotstate-backups/.
 link_dotfiles() {
     if ! command_exists dotstate; then
         print_error "dotstate is not installed. Please install it first."
@@ -712,9 +683,6 @@ link_dotfiles() {
     fi
 
     print_header "Linking dotfiles with dotstate..."
-
-    migrate_legacy_state
-    remove_legacy_parent_links
 
     local config="$HOME/.config/dotstate/config.toml"
 
@@ -729,7 +697,7 @@ active_profile = "$OS"
 backup_enabled = true
 EOF
         print_info "Created $config (profile: $OS)"
-    elif ! grep -Fqx "repo_path = \"$DOTFILES\"" "$config"; then
+    elif ! dotstate_uses_this_repo; then
         print_warning "$config uses another repository; not linking $DOTFILES"
         return
     fi
@@ -752,6 +720,19 @@ EOF
 }
 
 # Install trusted Herd (herdr) plugins
+# herdr plugins as plugin_id:source
+HERDR_PLUGINS=(
+    "persiyanov.reviewr:persiyanov/herdr-reviewr"
+    "worktrunk:devashish2203/herdr-worktrunk"
+    "dutifuldev.ghzinga:dutifuldev/ghzinga/plugins/herdr"
+)
+
+# Usage: herdr_plugin_installed <herdr plugin list --json output> <plugin_id>
+herdr_plugin_installed() {
+    printf '%s' "$1" | jq -e --arg id "$2" \
+        'any(.result.plugins[]; .plugin_id == $id)' >/dev/null 2>&1
+}
+
 install_herdr_plugins() {
     if [ -n "${CI:-}" ]; then
         print_info "CI environment detected, skipping herdr plugin installation"
@@ -769,12 +750,6 @@ install_herdr_plugins() {
     fi
 
     print_header "Installing herdr plugins..."
-
-    local herdr_plugins=(
-        "persiyanov.reviewr:persiyanov/herdr-reviewr"
-        "worktrunk:devashish2203/herdr-worktrunk"
-        "dutifuldev.ghzinga:dutifuldev/ghzinga/plugins/herdr"
-    )
 
     local installed_json
     if ! installed_json="$(herdr plugin list --json </dev/null)"; then
@@ -796,12 +771,11 @@ install_herdr_plugins() {
     local plugin_id
     local plugin_source
 
-    for entry in "${herdr_plugins[@]}"; do
+    for entry in "${HERDR_PLUGINS[@]}"; do
         plugin_id="${entry%%:*}"
         plugin_source="${entry#*:}"
 
-        if printf '%s' "$installed_json" | jq -e --arg id "$plugin_id" \
-            'any(.result.plugins[]; .plugin_id == $id)' >/dev/null 2>&1; then
+        if herdr_plugin_installed "$installed_json" "$plugin_id"; then
             print_success "herdr plugin already installed: $plugin_id"
             continue
         fi
@@ -818,6 +792,14 @@ install_herdr_plugins() {
     if [ $errors -gt 0 ]; then
         return 1
     fi
+}
+
+# The skills CLI replaces whatever is at the Claude Code link path, so never
+# let it delete a real directory there: succeed when ~/.claude/skills/$1 is
+# one
+claude_skill_unmanaged() {
+    local path="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/$1"
+    [ -e "$path" ] && [ ! -L "$path" ]
 }
 
 # Reinstall agent skills recorded in the skills CLI lockfile (linked from
@@ -861,8 +843,6 @@ install_agent_skills() {
         return 1
     fi
 
-    # The skills CLI replaces whatever is at the Claude Code link path, so
-    # never let it delete a real directory there
     local claude_skills="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"
     local errors=0
     local source
@@ -882,7 +862,7 @@ install_agent_skills() {
                 *)
                     if [ -d "$HOME/.agents/skills/$name" ]; then
                         print_success "Agent skill already installed: $name"
-                    elif [ -e "$claude_skills/$name" ] && [ ! -L "$claude_skills/$name" ]; then
+                    elif claude_skill_unmanaged "$name"; then
                         print_warning "Not installing agent skill $name: $claude_skills/$name exists and is not a link; move it away to install"
                     else
                         missing+=("$name")
@@ -945,6 +925,104 @@ print_summary() {
     fi
 }
 
+# Install components in run order. main installs all of them; dots installs
+# a selection.
+COMPONENTS=(brew gh shell tmux tools link herdr skills)
+
+component_description() {
+    case "$1" in
+        brew) echo "Homebrew and the Brewfile packages" ;;
+        gh) echo "GitHub CLI extensions" ;;
+        shell) echo "zsh as default shell, oh-my-zsh and its custom plugins" ;;
+        tmux) echo "tmux plugin manager" ;;
+        tools) echo "uv, OpenCode and ccstatusline" ;;
+        link) echo "dotstate and the dotfile links" ;;
+        herdr) echo "herdr plugins" ;;
+        skills) echo "agent skills missing from the skills lockfile" ;;
+    esac
+}
+
+component_brew() {
+    install_linux_homebrew_dependencies
+    install_homebrew
+    bootstrap_codespaces_homebrew
+    install_brew_packages
+}
+
+component_gh() {
+    install_gh_extensions
+}
+
+component_shell() {
+    set_zsh_default
+    install_oh_my_zsh
+    install_zsh_plugins
+}
+
+component_tmux() {
+    install_tpm
+}
+
+component_tools() {
+    install_uv
+    install_opencode
+    install_ccstatusline
+}
+
+component_link() {
+    install_dotstate
+    link_dotfiles
+}
+
+component_herdr() {
+    install_herdr_plugins
+}
+
+component_skills() {
+    install_agent_skills
+}
+
+# Set SELECTED_COMPONENTS to the given component names in run order, each
+# once; fail on an unknown name
+select_components() {
+    local name selected known
+    for selected in "$@"; do
+        known=false
+        for name in "${COMPONENTS[@]}"; do
+            [ "$selected" != "$name" ] || known=true
+        done
+        if [ "$known" = false ]; then
+            print_error "Unknown component: $selected (known: ${COMPONENTS[*]})"
+            return 1
+        fi
+    done
+
+    SELECTED_COMPONENTS=()
+    for name in "${COMPONENTS[@]}"; do
+        for selected in "$@"; do
+            if [ "$selected" = "$name" ]; then
+                SELECTED_COMPONENTS+=("$name")
+                break
+            fi
+        done
+    done
+}
+
+# Runs before each component; dots overrides it to check prerequisites
+before_component() {
+    :
+}
+
+# Install the given components in run order
+run_components() {
+    local name
+    select_components "$@" || return 1
+    for name in "${SELECTED_COMPONENTS[@]}"; do
+        before_component "$name" || return 1
+        "component_$name"
+    done
+}
+
 # Main installation flow
 main() {
     parse_args "$@"
@@ -961,22 +1039,7 @@ main() {
     echo -e "${NC}"
 
     detect_os
-    install_linux_homebrew_dependencies
-    install_homebrew
-    bootstrap_codespaces_homebrew
-    install_brew_packages
-    install_gh_extensions
-    set_zsh_default
-    install_oh_my_zsh
-    install_zsh_plugins
-    install_tpm
-    install_uv
-    install_opencode
-    install_ccstatusline
-    install_dotstate
-    link_dotfiles
-    install_herdr_plugins
-    install_agent_skills
+    run_components "${COMPONENTS[@]}"
     print_summary
 }
 

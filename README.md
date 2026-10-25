@@ -41,6 +41,28 @@ in the way are moved to `~/.dotstate-backups/<timestamp>/` with their paths
 kept. Re-running is safe and links paths added to the manifest since. Run
 `./test.sh` to validate configs and installer behavior.
 
+### Installing parts with `dots`
+
+`dots` installs, checks and updates one part of the setup at a time. Run it as
+`./dots` from a fresh clone; once linked it is on `PATH` as
+`~/.local/bin/dots`.
+
+```sh
+dots list                    # components, in install order
+dots install skills          # install only the missing agent skills
+dots install brew shell      # several components, run in install order
+dots install --all --no-gui  # everything, same as ./install.sh --no-gui
+dots status                  # which components look installed
+dots update brew herdr       # update components (default: all)
+dots link                    # link dotfiles with dotstate
+dots doctor                  # also: sync, add, remove (passed to dotstate)
+```
+
+Components are `brew`, `gh`, `shell`, `tmux`, `tools` (uv, OpenCode,
+ccstatusline), `link` (dotstate and the links), `herdr` and `skills`. `dots
+install` checks what a component needs from earlier ones and stops with a hint
+such as `npx not found; run: dots install brew` instead of installing it.
+
 To stop managing a path, run `dotstate remove <path> --yes` before deleting it
 from the repository, or `dotstate doctor` keeps reporting its dangling link.
 
