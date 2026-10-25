@@ -433,14 +433,14 @@ install_brew_packages() {
             print_error "Could not read casks from Brewfile: $BREWFILE"
             return 1
         fi
-        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_BUNDLE_CASK_SKIP="${casks//$'\n'/ }" brew bundle --jobs=1 --file="$BREWFILE"; then
+        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_BUNDLE_CASK_SKIP="${casks//$'\n'/ }" brew bundle --jobs=1 --verbose --file="$BREWFILE"; then
             print_error "Homebrew failed to install CLI packages from: $BREWFILE"
             return 1
         fi
         print_success "CLI packages installed"
     else
         print_header "Installing all packages from Brewfile..."
-        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew bundle --jobs=1 --file="$BREWFILE"; then
+        if ! HOMEBREW_DOWNLOAD_CONCURRENCY=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew bundle --jobs=1 --verbose --file="$BREWFILE"; then
             print_error "Homebrew failed to install packages from: $BREWFILE"
             return 1
         fi
