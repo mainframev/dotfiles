@@ -1002,26 +1002,19 @@ if command_exists dotstate; then
         LINK_ERRORS=$((LINK_ERRORS + 1))
     fi
 
-    # Existing machine pulling a new layout: a clone of this checkout, with
-    # untracked state left at a pre-dotstate path and a manifest entry added
-    # after the first link
+    # Existing machine pulling a new layout: a clone of this checkout with a
+    # manifest entry added after the first link
     LINK_CLONE="$LINK_TEST_ROOT/repo"
     LINK_PULL_HOME="$LINK_TEST_ROOT/pull"
     mkdir -p "$LINK_PULL_HOME"
     git clone -q "$LINK_REPO" "$LINK_CLONE"
     git -C "$LINK_CLONE" checkout -q "$(git rev-parse HEAD)"
     cp install.sh "$LINK_CLONE/install.sh"
-    mkdir -p "$LINK_CLONE/.config/zsh"
-    printf '%s\n' 'export LEGACY=1' > "$LINK_CLONE/.config/zsh/secrets.zsh"
 
     LINK_RESULT=0
     LINK_REPO="$LINK_CLONE" link_run "$LINK_PULL_HOME" linux run1 || LINK_RESULT=$?
-    if [ "$LINK_RESULT" -eq 0 ] &&
-       [ ! -e "$LINK_CLONE/.config" ] &&
-       grep -qx 'export LEGACY=1' "$LINK_PULL_HOME/.config/zsh/secrets.zsh"; then
-        echo -e "${GREEN}✓ untracked state at pre-dotstate paths moves into the linked directory${NC}"
-    else
-        echo -e "${RED}✗ link_dotfiles must move .config/zsh/secrets.zsh into common/ (exit $LINK_RESULT)${NC}"
+    if [ "$LINK_RESULT" -ne 0 ]; then
+        echo -e "${RED}✗ link_dotfiles must link a clone of this checkout (exit $LINK_RESULT)${NC}"
         cat "$LINK_PULL_HOME.run1.log"
         LINK_ERRORS=$((LINK_ERRORS + 1))
     fi

@@ -642,69 +642,8 @@ install_dotstate() {
     print_success "dotstate installed to ~/.local/bin"
 }
 
-# Move untracked state left at pre-dotstate paths (e.g. .config/zsh/secrets.zsh,
-# herdr sessions, tmux plugins) into the common/ or macos/ directory that is now
-# linked in its place. Apps the manifest does not link (no such directory under
-# common/ or a profile) stay put.
-migrate_legacy_state() {
-    [ -d "$DOTFILES/.config" ] || return 0
-
-    local app dir
-    for app in "$DOTFILES"/.config/*/; do
-        app="$(basename "$app")"
-        for dir in common macos linux; do
-            if [ -d "$DOTFILES/$dir/.config/$app" ]; then
-                merge_legacy_dir "$DOTFILES/.config/$app" "$DOTFILES/$dir/.config/$app" ".config/$app"
-                break
-            fi
-        done
-    done
-
-    find "$DOTFILES/.config" -depth -type d -empty -delete
-}
-
-# Move every entry of $1 into $2 without replacing anything already there.
-# Usage: merge_legacy_dir <src> <dst> <label>
-merge_legacy_dir() {
-    local src="$1" dst="$2" label="$3" entry name
-    for entry in "$src"/* "$src"/.[!.]* "$src"/..?*; do
-        [ -e "$entry" ] || [ -L "$entry" ] || continue
-        name="$(basename "$entry")"
-        if [ -d "$entry" ] && [ ! -L "$entry" ] && [ -d "$dst/$name" ] && [ ! -L "$dst/$name" ]; then
-            merge_legacy_dir "$entry" "$dst/$name" "$label/$name"
-        elif [ -e "$dst/$name" ] || [ -L "$dst/$name" ]; then
-            print_warning "Not moving $label/$name: it already exists in ${dst#"$DOTFILES"/}"
-        else
-            mv "$entry" "$dst/$name"
-            echo "  Moved $label/$name to ${dst#"$DOTFILES"/}/"
-        fi
-    done
-}
-
-# Stow folded whole directories into links to the repository. dotstate creates
-# parent directories itself, so drop such links once they dangle and refuse to
-# write through ones that still resolve into the repository.
-remove_legacy_parent_links() {
-    local dir target
-    for dir in .config .pi .pi/agent .agents .agents/skills; do
-        [ -L "$HOME/$dir" ] || continue
-        target="$(readlink "$HOME/$dir")"
-        case "$target" in
-            *"$(basename "$DOTFILES")"/*) ;;
-            *) continue ;;
-        esac
-        if [ ! -e "$HOME/$dir" ]; then
-            rm "$HOME/$dir"
-            print_info "Removed stale Stow link ~/$dir"
-        else
-            print_error "$HOME/$dir links into the repository ($target); replace it with a real directory first"
-            return 1
-        fi
-    done
-}
-
 # Link dotfiles into $HOME with dotstate. Conflicting files and stale links
-# (e.g. from the old Stow setup) are backed up to ~/.dotstate-backups/.
+# are backed up to ~/.dotstate-backups/.
 link_dotfiles() {
     if ! command_exists dotstate; then
         print_error "dotstate is not installed. Please install it first."
@@ -712,9 +651,6 @@ link_dotfiles() {
     fi
 
     print_header "Linking dotfiles with dotstate..."
-
-    migrate_legacy_state
-    remove_legacy_parent_links
 
     local config="$HOME/.config/dotstate/config.toml"
 
