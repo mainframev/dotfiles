@@ -22,6 +22,27 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Print the steps of a full install in run order: main runs every component
+# in COMPONENTS order, and each component_* function runs its steps in order
+install_step_order() {
+    # shellcheck disable=SC2016
+    grep -qxF '    run_components "${COMPONENTS[@]}"' install.sh || return 1
+    bash -c 'source ./install.sh
+        for component in "${COMPONENTS[@]}"; do
+            declare -f "component_$component" | sed -n "s/^    \([a-z_]*\);*$/\1/p"
+        done'
+}
+
+INSTALL_STEP_ORDER="$(install_step_order || true)"
+
+# Succeed when install step $1 runs before step $2 in a full install
+step_runs_before() {
+    local first second
+    first="$(grep -nx "$1" <<< "$INSTALL_STEP_ORDER" | cut -d: -f1)"
+    second="$(grep -nx "$2" <<< "$INSTALL_STEP_ORDER" | cut -d: -f1)"
+    [ -n "$first" ] && [ -n "$second" ] && [ "$first" -lt "$second" ]
+}
+
 # Test 1: Shell script syntax with shellcheck
 echo -e "${BLUE}→ Checking shell scripts...${NC}"
 if command_exists shellcheck; then
@@ -412,14 +433,11 @@ echo -e "${BLUE}→ Checking herdr plugin installation...${NC}"
 HERDR_ERRORS=0
 
 # Structural ordering assertion: herdr plugins must install after dotfiles are
-# linked. This checks the literal call order in main(), not internal
-# implementation details, so it stays robust across refactors.
-LINK_LINE=$(grep -n '^    link_dotfiles$' install.sh | cut -d: -f1)
-HERDR_INSTALL_LINE=$(grep -n '^    install_herdr_plugins$' install.sh | cut -d: -f1)
-if [ -n "$LINK_LINE" ] && [ -n "$HERDR_INSTALL_LINE" ] && [ "$LINK_LINE" -lt "$HERDR_INSTALL_LINE" ]; then
+# linked
+if step_runs_before link_dotfiles install_herdr_plugins; then
     echo -e "${GREEN}✓ herdr plugins install after dotfiles are linked${NC}"
 else
-    echo -e "${RED}✗ install_herdr_plugins must run after link_dotfiles in main${NC}"
+    echo -e "${RED}✗ install_herdr_plugins must run after link_dotfiles in a full install${NC}"
     HERDR_ERRORS=$((HERDR_ERRORS + 1))
 fi
 
@@ -1055,12 +1073,10 @@ echo
 echo -e "${BLUE}→ Checking agent skill installation...${NC}"
 SKILLS_ERRORS=0
 
-LINK_LINE=$(grep -n '^    link_dotfiles$' install.sh | cut -d: -f1)
-SKILLS_INSTALL_LINE=$(grep -n '^    install_agent_skills$' install.sh | cut -d: -f1)
-if [ -n "$LINK_LINE" ] && [ -n "$SKILLS_INSTALL_LINE" ] && [ "$LINK_LINE" -lt "$SKILLS_INSTALL_LINE" ]; then
+if step_runs_before link_dotfiles install_agent_skills; then
     echo -e "${GREEN}✓ agent skills install after dotfiles are linked${NC}"
 else
-    echo -e "${RED}✗ install_agent_skills must run after link_dotfiles in main${NC}"
+    echo -e "${RED}✗ install_agent_skills must run after link_dotfiles in a full install${NC}"
     SKILLS_ERRORS=$((SKILLS_ERRORS + 1))
 fi
 
@@ -1217,12 +1233,10 @@ else
     CCSTATUS_ERRORS=$((CCSTATUS_ERRORS + 1))
 fi
 
-INSTALL_LINE=$(grep -n '^    install_brew_packages$' install.sh | cut -d: -f1)
-CCSTATUS_LINE=$(grep -n '^    install_ccstatusline$' install.sh | cut -d: -f1)
-if [ -n "$INSTALL_LINE" ] && [ -n "$CCSTATUS_LINE" ] && [ "$INSTALL_LINE" -lt "$CCSTATUS_LINE" ]; then
+if step_runs_before install_brew_packages install_ccstatusline; then
     echo -e "${GREEN}✓ ccstatusline installs after the Brewfile provides node${NC}"
 else
-    echo -e "${RED}✗ install_ccstatusline must run after install_brew_packages in main${NC}"
+    echo -e "${RED}✗ install_ccstatusline must run after install_brew_packages in a full install${NC}"
     CCSTATUS_ERRORS=$((CCSTATUS_ERRORS + 1))
 fi
 
