@@ -1302,15 +1302,20 @@ chmod +x "$DOTS_TEST_DIR/bin/dotstate"
 
 # Runs dots_main with stubbed components that log instead of installing, no
 # Homebrew and only the stubs on PATH. Args are passed to dots_main; set
-# DOTS_SKIP_REQUIRES=1 to stub the prerequisite checks too.
+# DOTS_SKIP_REQUIRES=1 to stub the prerequisite checks too, and DOTS_HIDE_CMD
+# to a command that must look missing even if the host has it.
 run_dots() {
     : > "$DOTS_TEST_DIR/log"
     # shellcheck disable=SC2016
     env HOME="$DOTS_TEST_DIR/home" PATH="$DOTS_TEST_DIR/bin:/usr/bin:/bin" \
-        DOTS_STUB_LOG="$DOTS_TEST_DIR/log" DOTS_SKIP_REQUIRES="${DOTS_SKIP_REQUIRES:-}" bash -c '
+        DOTS_STUB_LOG="$DOTS_TEST_DIR/log" DOTS_SKIP_REQUIRES="${DOTS_SKIP_REQUIRES:-}" \
+        DOTS_HIDE_CMD="${DOTS_HIDE_CMD:-}" bash -c '
         source ./dots
         load_brew_env() { :; }
         [ -z "$DOTS_SKIP_REQUIRES" ] || component_requires() { :; }
+        if [ -n "$DOTS_HIDE_CMD" ]; then
+            command_exists() { [ "$1" != "$DOTS_HIDE_CMD" ] && command -v "$1" >/dev/null 2>&1; }
+        fi
         for component in "${COMPONENTS[@]}"; do
             eval "component_$component() { echo $component >> \"\$DOTS_STUB_LOG\"; }"
         done
@@ -1326,8 +1331,7 @@ else
     DOTS_ERRORS=$((DOTS_ERRORS + 1))
 fi
 
-# Neither Homebrew nor npx is on the stub PATH
-if ! run_dots install skills && [ ! -s "$DOTS_TEST_DIR/log" ] &&
+if ! DOTS_HIDE_CMD=npx run_dots install skills && [ ! -s "$DOTS_TEST_DIR/log" ] &&
    grep -q 'npx not found; run: dots install brew' "$DOTS_TEST_DIR/out"; then
     echo -e "${GREEN}✓ dots install fails with a hint when a component's prerequisites are missing${NC}"
 else
