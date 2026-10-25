@@ -206,6 +206,19 @@ update_tmux() {
 }
 
 update_herdr() {
+# uv and OpenCode come from their own installers, ccstatusline from npm
+update_tools() {
+  if command_exists uv; then
+    uv self update || print_warning "uv self update failed; if a package manager installed uv, update it there"
+  fi
+  if command_exists opencode; then
+    opencode upgrade </dev/null
+  fi
+  if command_exists ccstatusline && command_exists npm; then
+    npm install --global ccstatusline@latest </dev/null
+  fi
+}
+
   require_cmd herdr brew || return 1
   herdr plugin update --yes </dev/null
 }
