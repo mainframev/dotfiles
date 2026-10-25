@@ -974,15 +974,16 @@ component_skills() {
 # Set SELECTED_COMPONENTS to the given component names in run order, each
 # once; fail on an unknown name
 select_components() {
-    local name selected
+    local name selected known
     for selected in "$@"; do
-        case " ${COMPONENTS[*]} " in
-            *" $selected "*) ;;
-            *)
-                print_error "Unknown component: $selected (known: ${COMPONENTS[*]})"
-                return 1
-                ;;
-        esac
+        known=false
+        for name in "${COMPONENTS[@]}"; do
+            [ "$selected" != "$name" ] || known=true
+        done
+        if [ "$known" = false ]; then
+            print_error "Unknown component: $selected (known: ${COMPONENTS[*]})"
+            return 1
+        fi
     done
 
     SELECTED_COMPONENTS=()

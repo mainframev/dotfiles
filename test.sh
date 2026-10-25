@@ -1351,6 +1351,7 @@ if ! run_dots install brew nope && [ ! -s "$DOTS_TEST_DIR/log" ] &&
     echo -e "${GREEN}✓ dots install rejects unknown or missing components without installing anything${NC}"
 else
     echo -e "${RED}✗ dots install must reject unknown components and an empty selection${NC}"
+   ! run_dots install 'brew gh' && [ ! -s "$DOTS_TEST_DIR/log" ] &&
     DOTS_ERRORS=$((DOTS_ERRORS + 1))
 fi
 
