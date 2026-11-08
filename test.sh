@@ -179,14 +179,30 @@ if command_exists git; then
                 echo -e "${YELLOW}  ⚠ user.name not set${NC}"
             fi
 
-            if git config -f common/.gitconfig --get-regexp "^alias\." >/dev/null 2>&1; then
-                ALIAS_COUNT=$(git config -f common/.gitconfig --get-regexp "^alias\." | wc -l)
-                echo -e "${GREEN}  ✓ $ALIAS_COUNT git aliases defined${NC}"
-            fi
         else
             echo -e "${RED}✗ .gitconfig has syntax errors${NC}"
             GIT_ERRORS=$((GIT_ERRORS + 1))
         fi
+    fi
+
+    # Check the configs included from .gitconfig
+    for included in common/.config/git/aliases.gitconfig common/.config/git/diff.gitconfig; do
+        if git config -f "$included" --list >/dev/null 2>&1; then
+            echo -e "${GREEN}✓ ${included#common/} syntax valid${NC}"
+        else
+            echo -e "${RED}✗ $included is missing or has syntax errors${NC}"
+            GIT_ERRORS=$((GIT_ERRORS + 1))
+            continue
+        fi
+        if ! grep -Fq "path = ~/${included#common/}" common/.gitconfig; then
+            echo -e "${RED}✗ common/.gitconfig does not include ~/${included#common/}${NC}"
+            GIT_ERRORS=$((GIT_ERRORS + 1))
+        fi
+    done
+
+    ALIAS_COUNT=$(git config -f common/.config/git/aliases.gitconfig --get-regexp "^alias\." 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$ALIAS_COUNT" -gt 0 ]; then
+        echo -e "${GREEN}  ✓ $ALIAS_COUNT git aliases defined${NC}"
     fi
 
     # Check delta.gitconfig

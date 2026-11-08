@@ -12,6 +12,8 @@ synced_files = [
     ".config/ccstatusline",
     ".config/gh",
     ".config/gh-dash",
+    ".config/git/aliases.gitconfig",
+    ".config/git/diff.gitconfig",
     ".config/herdr",
     ".config/nvim",
     ".config/opencode",

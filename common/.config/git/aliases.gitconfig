@@ -1,0 +1,9 @@
+[alias]
+  d = diff
+  ds = diff --staged
+  di = diff
+  dc = diff --cached
+  df = diff
+  fixup = commit --fixup
+  info = !git diff && git remote -v && git status
+  jump = "!$(brew --prefix git)/share/git-core/contrib/git-jump/git-jump"
