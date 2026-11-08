@@ -40,14 +40,6 @@
         "type": "separator"
       },
       {
-        "id": "changes",
-        "type": "git-changes",
-        "color": "hex:9CCFD8",
-        "metadata": {
-          "hide": "no-git"
-        }
-      },
-      {
         "id": "ahead-behind",
         "type": "git-ahead-behind",
         "color": "hex:908CAA",
@@ -74,18 +66,6 @@
         "type": "git-ci-status",
         "metadata": {
           "hide": "no-git,no-data"
-        }
-      },
-      {
-        "id": "s9",
-        "type": "separator"
-      },
-      {
-        "id": "conflicts",
-        "type": "git-conflicts",
-        "color": "hex:EB6F92",
-        "metadata": {
-          "hide": "no-git,zero"
         }
       }
     ],
