@@ -1,7 +1,9 @@
 ---@type LazySpec
 return {
   "akinsho/git-conflict.nvim",
-  event = "BufReadPre",
+  -- Load on demand only: the plugin's recursive .git watcher spawns a `git diff`
+  -- per index write, which piles up to GBs of RAM in large repos (1JS)
+  cmd = { "GitConflictRefresh", "GitConflictListQf" },
   version = "2.1.0",
   config = function()
     local present, conflict = pcall(require, "git-conflict")
@@ -20,6 +22,14 @@ return {
         current = "DiffText",
       },
     })
+
+    -- Drop the autocmd that starts the .git watcher; scan once on load instead
+    for _, au in ipairs(vim.api.nvim_get_autocmds({ group = "GitConflictCommands", event = "BufRead" })) do
+      vim.api.nvim_del_autocmd(au.id)
+    end
+    vim.schedule(function()
+      vim.cmd("GitConflictRefresh")
+    end)
 
     vim.api.nvim_create_autocmd("User", {
       pattern = "GitConflictDetected",
