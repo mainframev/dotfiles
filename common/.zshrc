@@ -60,3 +60,5 @@ fi
 path=($PNPM_HOME/bin $path)
 # pnpm end
 
+[ -f "$HOME/.ghcup/env" ] && . "$HOME/.ghcup/env" # ghcup-env
+[ -d "$HOME/.azureauth/0.9.5" ] && path+=("$HOME/.azureauth/0.9.5")
